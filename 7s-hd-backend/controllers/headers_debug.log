@@ -1,0 +1,21 @@
+Array
+(
+    [cookie] => PHPSESSID=nb16mo7bgqtk9f13buui7htb62
+    [accept-language] => es,en-US;q=0.9,en;q=0.8
+    [accept-encoding] => gzip, deflate, br, zstd
+    [referer] => http://localhost:4200/ticket
+    [sec-fetch-dest] => empty
+    [sec-fetch-mode] => cors
+    [sec-fetch-site] => same-origin
+    [content-type] => application/json
+    [accept] => application/json, text/plain, */*
+    [idrol] => 1
+    [user-agent] => Mozilla/5.0 (Linux; Android 8.0.0; SM-G955U Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Mobile Safari/537.36
+    [idusuario] => 1
+    [sec-ch-ua-mobile] => ?1
+    [sec-ch-ua] => "Not(A:Brand";v="99", "Google Chrome";v="133", "Chromium";v="133"
+    [authorization] => Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdCIsImlhdCI6MTc0MTc1MTQ1NCwiZXhwIjoxNzQxNzUyMDU0LCJzdWIiOiIxIiwicm9sIjoiMSJ9.ISWS85ZxImai3G0oRe-6SkpCkKTx0Utk3L1J9DgD2JA
+    [sec-ch-ua-platform] => "Android"
+    [connection] => close
+    [host] => localhost
+)
