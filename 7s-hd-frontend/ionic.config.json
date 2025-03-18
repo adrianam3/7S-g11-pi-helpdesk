@@ -1,0 +1,7 @@
+{
+  "name": "pi-helpdesk",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

@@ -1,0 +1,55 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Agentes</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Barra de búsqueda -->
+  <ion-searchbar [(ngModel)]="buscarTexto" (ionInput)="filtrarAgentes()" placeholder="Buscar agente..."></ion-searchbar>
+
+  <!-- Botón de agregar nuevo agente -->
+  <ion-button expand="full" color="success" routerLink="/agente-form">
+    <ion-icon name="person-add-outline" slot="start"></ion-icon> Nuevo Agente
+  </ion-button>
+
+  <!-- Refrescar lista -->
+  <ion-refresher slot="fixed" (ionRefresh)="loadAgentes()">
+    <ion-refresher-content pullingText="Desliza para actualizar"></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Lista de agentes -->
+  <ion-list *ngIf="agentesFiltrados.length > 0">
+    <ion-item-sliding *ngFor="let agente of agentesFiltrados">
+      <ion-item>
+        <ion-label>
+          <h2>{{ agente.agente }}</h2>
+          <p>Usuario: {{ agente.descUsuario }}</p>
+          <p>Estado: <strong>{{ agente.descEstado }}</strong></p>
+          <p>Fecha Creación: {{ agente.fechaCreacion }}</p>
+        </ion-label>
+      </ion-item>
+
+      <ion-item-options side="end">
+        <!-- Botón de Editar -->
+        <ion-item-option color="warning" (click)="router.navigate(['/agente-form', agente.idAgente])">
+          <ion-icon name="create-outline"></ion-icon>
+        </ion-item-option>
+
+        <!-- Botón de Eliminar -->
+        <ion-item-option color="danger" (click)="confirmEliminar(agente.idAgente)">
+          <ion-icon name="trash-outline"></ion-icon>
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+
+  <!-- Mensaje si no hay agentes -->
+  <ion-text *ngIf="agentesFiltrados.length === 0" color="medium">
+    <p class="ion-text-center">No se encontraron agentes.</p>
+  </ion-text>
+
+  </ion-content>

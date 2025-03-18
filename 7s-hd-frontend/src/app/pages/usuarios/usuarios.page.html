@@ -1,0 +1,48 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button> <!-- Botón para abrir el menú -->
+    </ion-buttons>
+    <ion-title>Usuarios</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- Botón para agregar usuario -->
+  <ion-button expand="full" color="success" routerLink="/npersona">
+    <ion-icon name="person-add-outline" slot="start"></ion-icon>
+    Nuevo Usuario
+  </ion-button>
+
+  <!-- Campo de búsqueda -->
+  <ion-searchbar placeholder="Buscar usuario..." [(ngModel)]="buscarTexto"
+    (ionInput)="filtrarUsuarios()"></ion-searchbar>
+
+  <!-- Lista de usuarios -->
+  <ion-list>
+    <ion-item-sliding *ngFor="let usuario of usuariosFiltrados">
+      <ion-item>
+        <ion-label>
+          <h2>{{ usuario.nombreCompleto }}</h2>
+          <p><strong>Rol:</strong> {{ usuario.descRol }}</p>
+          <p><strong>Email:</strong> {{ usuario.email }}</p>
+          <p><strong>Estado:</strong> {{ usuario.descEstado }}</p>
+        </ion-label>
+      </ion-item>
+
+      <!-- Botones deslizables -->
+      <ion-item-options side="end">
+        <ion-item-option color="success" [routerLink]="'/usuario/usuario-form/' + usuario.idUsuario">
+          <ion-icon name="create-outline"></ion-icon> Editar
+        </ion-item-option>
+        <ion-item-option color="danger" (click)="confirmarEliminar(usuario)">
+          <ion-icon name="trash-outline"></ion-icon> Eliminar
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+
+  <!-- Mensaje cuando no hay usuarios -->
+  <ion-text *ngIf="usuariosFiltrados.length === 0">
+    <p class="ion-text-center">No se encontraron

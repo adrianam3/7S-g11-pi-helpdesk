@@ -1,0 +1,81 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Tickets</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="loadTickets()">
+    <ion-refresher-content pullingText="Desliza para actualizar"></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Campo de búsqueda -->
+  <ion-searchbar [(ngModel)]="searchTerm" (ionInput)="filtrarTicketsParam()"
+    placeholder="Buscar tickets..." debounce="500"></ion-searchbar>
+
+  <!-- Botones de filtro -->
+  <ion-segment (ionChange)="filtrarTicketsParam($event.detail.value ?? 'all')">
+    <ion-segment-button value="all" checked>Todos</ion-segment-button>
+    <ion-segment-button value="open">Pendientes</ion-segment-button>
+    <ion-segment-button value="closed">Cerrados</ion-segment-button>
+  </ion-segment>
+
+  <!-- Lista de tickets -->
+  <ion-list>
+    <ion-item-sliding *ngFor="let ticket of filteredTickets">
+      <ion-item>
+        <ion-label>
+          <h2>{{ ticket.titulo }}</h2>
+          <p>Estado: {{ ticket.descEstadoTicket }}</p>
+          <p>Asignado a: {{ ticket.descAgente || 'No asignado' }}</p>
+          <p>Fecha de creación: {{ ticket.fechaCreacion }}</p>
+        </ion-label>
+      </ion-item>
+
+      <ion-item-options side="end">
+        <ion-item-option color="warning" (click)="asignarAgente(ticket)">
+          <ion-icon name="person-add"></ion-icon> Asignar
+        </ion-item-option>
+        <ion-item-option color="danger" (click)="confirmEliminar(ticket.idTicket)">
+          <ion-icon name="trash"></ion-icon> Eliminar
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+
+  <!-- Modal para asignar agente -->
+  <ion-modal [isOpen]="displayModal">
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Asignar Agente</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="displayModal = false">Cerrar</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <form [formGroup]="ticketForm">
+        <ion-item>
+          <ion-label>Departamento</ion-label>
+          <ion-select formControlName="idDepartamentoA">
+            <ion-select-option *ngFor="let d of departamentoAgentes" [value]="d.idDepartamentoA">
+              {{ d.nombre }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+        <ion-item>
+          <ion-label>Agente</ion-label>
+          <ion-select formControlName="idAgente">
+            <ion-select-option *ngFor="let a of agentes" [value]="a.idAgente">
+              {{ a.agenteNombreCompleto }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+        <ion-button expand="full" (click)="confirmarAsignarAgente()">Guardar</ion-button>
+      </form>
+    </ion-content>
+  </ion-modal>
+</ion-content>

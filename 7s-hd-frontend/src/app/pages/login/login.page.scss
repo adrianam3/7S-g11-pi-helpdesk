@@ -1,0 +1,69 @@
+/* Hacer que el contenido ocupe toda la pantalla */
+ion-content {
+  --background: #f4f4f4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* 🔹 Ocupa el 100% de la pantalla */
+}
+
+/* Contenedor principal del login */
+.login-container {
+  width: 100%;
+  max-width: 400px;
+  height: 100vh; /* 🔹 Ocupa toda la pantalla */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: white;
+  padding: 20px;
+  border-radius: 12px; /* 🔹 Elimina bordes para que se vea como una pantalla completa */
+  box-shadow: none; /* 🔹 No necesitamos sombra si ocupa toda la pantalla */
+}
+
+/* Estilos del logo */
+.logo {
+  width: 120px;
+  height: auto;
+  margin-bottom: 20px;
+}
+
+/* Título y texto de bienvenida */
+h2 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+p {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+/* Estilos de los inputs */
+.input-item {
+  width: 100%;
+  --border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+/* Botón de login */
+ion-button {
+  width: 100%;
+  margin-top: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+/* Estilo del texto "¿Olvidó su contraseña?" */
+.forgot-password {
+  display: block;
+  margin-top: 15px;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: underline;
+}
