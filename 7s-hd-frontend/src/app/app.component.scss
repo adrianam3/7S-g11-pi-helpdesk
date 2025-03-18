@@ -1,0 +1,30 @@
+.user-info {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background: #f4f4f4;
+  border-bottom: 1px solid #ddd;
+}
+
+.user-avatar {
+  font-size: 48px;
+  color: #007bff;
+  margin-right: 10px;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-weight: bold;
+  font-size: 16px;
+  margin: 0;
+}
+
+.user-role {
+  font-size: 14px;
+  color: gray;
+  margin: 0;
+}

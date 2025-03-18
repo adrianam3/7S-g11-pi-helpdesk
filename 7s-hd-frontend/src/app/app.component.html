@@ -1,0 +1,33 @@
+<ion-app>
+  <!-- Menú lateral global -->
+  <ion-menu contentId="main-content">
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Menú</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <!-- Información del usuario -->
+      <div class="user-info">
+        <ion-icon name="person-circle" class="user-avatar"></ion-icon>
+        <div class="user-details">
+          <p class="user-name">{{ userName }}</p>
+          <p class="user-role">{{ userRoleName }}</p>
+        </div>
+      </div>
+
+      <ion-list>
+        <ion-item *ngFor="let item of menuItems" [routerLink]="item.url" (click)="closeMenu()">
+          <ion-icon [name]="item.icon" slot="start"></ion-icon>
+          <ion-label>{{ item.title }}</ion-label>
+        </ion-item>
+      </ion-list>
+
+      <ion-button expand="full" color="danger" (click)="logout()">
+        <ion-icon name="log-out"></ion-icon> Cerrar Sesión
+      </ion-button>
+    </ion-content>
+  </ion-menu>
+
+  <ion-router-outlet id="main-content"></ion-router-outlet>
+</ion-app>

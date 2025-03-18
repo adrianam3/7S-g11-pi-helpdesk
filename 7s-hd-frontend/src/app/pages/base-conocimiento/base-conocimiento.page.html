@@ -1,0 +1,80 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button> <!-- Botón para abrir el menú -->
+    </ion-buttons>
+    <ion-title>Base de Conocimiento</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- Sección de Búsqueda -->
+  <ion-item>
+    <ion-icon name="search-outline" slot="start"></ion-icon>
+    <ion-input type="text" placeholder="Buscar por título o contenido..." [(ngModel)]="buscar"
+      (ionInput)="filtrarResultados()"></ion-input>
+  </ion-item>
+
+  <!-- Filtro por Categoría -->
+  <ion-item>
+    <ion-label>Filtrar por Categoría</ion-label>
+    <ion-select [(ngModel)]="categoriaSeleccionada" (ionChange)="filtrarResultados()">
+      <ion-select-option *ngFor="let categoria of categoriaOpciones" [value]="categoria.value">
+        {{ categoria.label }}
+      </ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  <ion-button expand="full" color="secondary" (click)="openChatDialog()">
+    <ion-icon name="chatbubbles-outline" slot="start"></ion-icon> Abrir Chatbot
+  </ion-button>
+
+  <ion-list>
+    <ion-item-group *ngFor="let categoria of filtrarCategorias()">
+      <ion-item-divider>
+        <ion-label>
+          <h2>{{ categoria.nombre }} ({{ categoria.nombre1 }})</h2>
+        </ion-label>
+      </ion-item-divider>
+
+      <ion-item-sliding *ngFor="let guia of filtrarGuias(categoria.guias)">
+        <ion-item (click)="alternarGuia(guia)">
+          <ion-label>
+            <h3>{{ guia.titulo }}</h3>
+          </ion-label>
+          <ion-icon name="chevron-down-outline" *ngIf="!guia.expandir"></ion-icon>
+          <ion-icon name="chevron-up-outline" *ngIf="guia.expandir"></ion-icon>
+        </ion-item>
+
+        <ion-item-options side="end">
+          <ion-item-option color="primary" (click)="alternarGuia(guia)">
+            <ion-icon name="eye-outline"></ion-icon> Ver
+          </ion-item-option>
+        </ion-item-options>
+
+        <ion-item *ngIf="guia.expandir">
+          <ion-label>
+            <div class="formatted-content" [innerHTML]="guia.contenido"></div>
+          </ion-label>
+        </ion-item>
+      </ion-item-sliding>
+    </ion-item-group>
+  </ion-list>
+
+  <!-- Modal Chatbot -->
+  <ion-modal [isOpen]="displayChatDialog">
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Chat</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="displayChatDialog = false">Cerrar</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <iframe src="http://localhost:5173/bot/" frameborder="0" width="100%" height="500px"></iframe>
+    </ion-content>
+  </ion-modal>
+
+</ion-content>
