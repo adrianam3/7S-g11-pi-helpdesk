@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar>
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
@@ -8,6 +8,7 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+
   <!-- Filtro de Fechas -->
   <ion-card>
     <ion-card-header>
@@ -24,8 +25,8 @@
         <ion-note slot="end">{{ fechaInicio | date: 'yyyy-MM-dd' }}</ion-note>
       </ion-item>
       <ion-datetime *ngIf="mostrarInicio" presentation="date" [isOpen]="mostrarInicio"
-        (ionCancel)="cerrarSelector('inicio')" (ionChange)="cambiarFecha($event, 'inicio')"
-        [value]="fechaInicio"></ion-datetime>
+        (ionCancel)="cerrarSelector('inicio')" (ionChange)="cambiarFecha($event, 'inicio')" [value]="fechaInicio">
+      </ion-datetime>
 
       <!-- Fecha de Fin -->
       <ion-item button (click)="abrirSelector('fin')">
@@ -33,215 +34,134 @@
         <ion-note slot="end">{{ fechaFin | date: 'yyyy-MM-dd' }}</ion-note>
       </ion-item>
       <ion-datetime *ngIf="mostrarFin" presentation="date" [isOpen]="mostrarFin" (ionCancel)="cerrarSelector('fin')"
-        (ionChange)="cambiarFecha($event, 'fin')" [value]="fechaFin"></ion-datetime>
+        (ionChange)="cambiarFecha($event, 'fin')" [value]="fechaFin">
+      </ion-datetime>
     </ion-card-content>
 
-    <ion-button expand="block" color="success" (click)="onSubmit()">
+    <ion-button expand="block" class="button2" (click)="onSubmit()">
       <ion-icon slot="start" name="refresh-outline"></ion-icon>
       Cargar Datos
     </ion-button>
   </ion-card>
 
-  <ion-card>
-    <ion-segment [(ngModel)]="tabSeleccionada" value="estado">
-      <ion-segment-button value="estado">
-        <ion-label>X Estado</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="departamento">
-        <ion-label>X Departamento Estado</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="agente">
+  <!-- Acordeones -->
+
+  <ion-accordion-group expand="inset" value="estado" (ionChange)="tabSeleccionada = $event.detail.value">
+
+    <!-- ESTADO -->
+    <ion-accordion value="estado">
+      <ion-item slot="header" color="light">
+        <ion-label>Resumen por Estado</ion-label>
+      </ion-item>
+      <div class="ion-padding" slot="content">
+        <ng-container *ngIf="pieChartData.datasets[0].data.length">
+          <canvas baseChart [data]="pieChartData" [type]="pieChartType" [options]="pieChartOptions"
+            [plugins]="pieChartPlugins">
+          </canvas>
+          <ion-button expand="block" (click)="exportChart()" color="tertiary">
+            <ion-icon name="download-outline" slot="start"></ion-icon>
+            Exportar como Imagen
+          </ion-button>
+        </ng-container>
+      </div>
+    </ion-accordion>
+
+    <!-- DEPARTAMENTO -->
+    <ion-accordion value="estado">
+      <ion-item slot="header" color="light">
+        <ion-label>Tickets por Departamento y Estado</ion-label>
+      </ion-item>
+      <div class="ion-padding" slot="content">
+        <ng-container *ngIf="dashboardDeptoEstado.length">
+
+          <div class="tabla-wrapper">
+            <table class="tabla-departamento">
+              <thead>
+                <tr>
+                  <th>Departamento</th>
+                  <th>Abierto</th>
+                  <th>Asignado</th>
+                  <th>En Progreso</th>
+                  <th>Cerrado</th>
+                  <th>Reaperturado</th>
+                  <th>Escalado</th>
+                  <th>Tiempo Resp. Total (h)</th>
+                  <th>Tiempo Resp. Prom. (h)</th>
+                  <th>Tiempo Serv. Total (h)</th>
+                  <th>Tiempo Serv. Prom. (h)</th>
+                  <th class="total-col">🎯 Total Tickets</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of dashboardDeptoEstado">
+                  <td [title]="item.DepartamentoNombre">{{ item.DepartamentoNombre }}</td>
+                  <td [title]="item.Abierto">{{ item.Abierto }}</td>
+                  <td [title]="item.Asignado">{{ item.Asignado }}</td>
+                  <td [title]="item.EnProgreso">{{ item.EnProgreso }}</td>
+                  <td [title]="item.Cerrado">{{ item.Cerrado }}</td>
+                  <td [title]="item.Reaperturado">{{ item.Reaperturado }}</td>
+                  <td [title]="item.Escalado">{{ item.Escalado }}</td>
+                  <td [title]="item.TiempoRespuestaTotal">{{ formatearHorasDecimal(item.TiempoRespuestaTotal) }}</td>
+                  <td [title]="item.TiempoRespuestaPromedio">{{ formatearHorasDecimal(item.TiempoRespuestaPromedio) }}
+                  </td>
+                  <td [title]="item.TiempoServicioTotal">{{ formatearHorasDecimal(item.TiempoServicioTotal) }}</td>
+                  <td [title]="item.TiempoServicioPromedio">{{ formatearHorasDecimal(item.TiempoServicioPromedio) }}
+                  </td>
+                  <td class="total-col" (click)="mostrarPopoverTickets($event, item)">
+                    {{ getTotalTicketsFila(item) }}
+                  </td>
+                </tr>
+
+                <!-- Totales -->
+                <tr class="fila-total">
+                  <td><strong>{{ getTotales().DepartamentoNombre }}</strong></td>
+                  <td><strong>{{ getTotales().Abierto }}</strong></td>
+                  <td><strong>{{ getTotales().Asignado }}</strong></td>
+                  <td><strong>{{ getTotales().EnProgreso }}</strong></td>
+                  <td><strong>{{ getTotales().Cerrado }}</strong></td>
+                  <td><strong>{{ getTotales().Reaperturado }}</strong></td>
+                  <td><strong>{{ getTotales().Escalado }}</strong></td>
+                  <td><strong>{{ formatearHorasDecimal(getTotales().TiempoRespuestaTotal) }}</strong></td>
+                  <td><strong>{{ formatearHorasDecimal(getTotales().TiempoRespuestaPromedio) }}</strong></td>
+                  <td><strong>{{ formatearHorasDecimal(getTotales().TiempoServicioTotal) }}</strong></td>
+                  <td><strong>{{ formatearHorasDecimal(getTotales().TiempoServicioPromedio) }}</strong></td>
+                  <td class="total-col" (click)="mostrarPopoverTickets($event, getTotales())">
+                    <strong>{{ getTotales().TotalTickets }}</strong>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <ion-button expand="block" color="success" (click)="exportarTablaAExcel()">
+            <ion-icon name="document-attach-outline" slot="start"></ion-icon>
+            Exportar a Excel
+          </ion-button>
+        </ng-container>
+      </div>
+    </ion-accordion>
+
+    <!-- AGENTE -->
+    <ion-accordion value="estado">
+      <ion-item slot="header" color="light">
         <ion-label>X Agente</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="satisfaccion">
+      </ion-item>
+      <div class="ion-padding" slot="content">
+        <p>Agregar gráfico por agente aquí</p>
+      </div>
+    </ion-accordion>
+
+    <!-- SATISFACCIÓN -->
+    <ion-accordion value="estado">
+      <ion-item slot="header" color="light">
         <ion-label>Satisfacción</ion-label>
-      </ion-segment-button>
-    </ion-segment>
-  </ion-card>
-
-  <!-- TICKETS POR ESTADO -->
-  <ion-card *ngIf="tabSeleccionada === 'estado' && pieChartData.datasets[0].data.length">
-    <ion-card-header>
-      <ion-card-title>Resumen por Estado</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <canvas baseChart [data]="pieChartData" [type]="pieChartType" [options]="pieChartOptions"
-        [plugins]="pieChartPlugins">
-      </canvas>
-    </ion-card-content>
-  </ion-card>
-
-  <!-- DEPARTAMENTO
-  <ion-card *ngIf="tabSeleccionada === 'departamento' && dashboardDeptoEstado.length">
-    <ion-card-header>
-      <ion-card-title>Tickets por Departamento y Estado</ion-card-title>
-    </ion-card-header>
-  
-    <ion-card-content>
-      <ion-grid class="tabla-resumen">
-        <ion-row class="encabezado">
-          <ion-col><strong>Departamento</strong></ion-col>
-          <ion-col><strong>Abierto</strong></ion-col>
-          <ion-col><strong>Asignado</strong></ion-col>
-          <ion-col><strong>En Progreso</strong></ion-col>
-          <ion-col><strong>Cerrado</strong></ion-col>
-          <ion-col><strong>Reaperturado</strong></ion-col>
-          <ion-col><strong>Escalado</strong></ion-col>
-        </ion-row>
-  
-        <ion-row *ngFor="let item of dashboardDeptoEstado">
-          <ion-col>{{ item.DepartamentoNombre }}</ion-col>
-          <ion-col>{{ item.Abierto }}</ion-col>
-          <ion-col>{{ item.Asignado }}</ion-col>
-          <ion-col>{{ item.EnProgreso }}</ion-col>
-          <ion-col>{{ item.Cerrado }}</ion-col>
-          <ion-col>{{ item.Reaperturado }}</ion-col>
-          <ion-col>{{ item.Escalado }}</ion-col>
-        </ion-row>
-      </ion-grid>
-    </ion-card-content>
-  </ion-card>   -->
-
-  <!-- TICKETS POR DEPARTAMENTO -->
-  <!-- <ion-card *ngIf="tabSeleccionada === 'departamento' && dashboardDeptoEstado.length">
-    <ion-card-header>
-      <ion-card-title>Tickets por Departamento y Estado</ion-card-title>
-    </ion-card-header>
-
-    <ion-card-content>
-      <div class="tabla-scroll">
-        <ion-grid class="tabla-resumen">
-          <ion-row class="encabezado">
-            <ion-col size="2" title="Departamento"><strong>Departamento</strong></ion-col>
-            <ion-col size="1" *ngFor="let col of ['Abierto', 'Asignado', 'En Progreso', 'Cerrado', 'Reaperturado', 'Escalado']" [title]="col">
-              <strong>{{ col }}</strong>
-            </ion-col>
-          </ion-row>
-    
-          <ion-row *ngFor="let item of dashboardDeptoEstado" class="fila-dato">
-            <ion-col size="2" [title]="item.DepartamentoNombre">{{ item.DepartamentoNombre }}</ion-col>
-            <ion-col size="1" title="Abierto">{{ item.Abierto }}</ion-col>
-            <ion-col size="1" title="Asignado">{{ item.Asignado }}</ion-col>
-            <ion-col size="1" title="En Progreso">{{ item.EnProgreso }}</ion-col>
-            <ion-col size="1" title="Cerrado">{{ item.Cerrado }}</ion-col>
-            <ion-col size="1" title="Reaperturado">{{ item.Reaperturado }}</ion-col>
-            <ion-col size="1" title="Escalado">{{ item.Escalado }}</ion-col>
-          </ion-row>
-        </ion-grid>
+      </ion-item>
+      <div class="ion-padding" slot="content">
+        <p>Aquí iría una gráfica de resultados de encuestas</p>
       </div>
-    </ion-card-content>
-    
-    
-  </ion-card> -->
-  <ion-card *ngIf="tabSeleccionada === 'departamento' && dashboardDeptoEstado.length">
-    <ion-card-header>
-      <ion-card-title>Tickets por Departamento y Estado</ion-card-title>
-    </ion-card-header>
-  
-    <ion-card-content>
-      <div class="tabla-wrapper">
-        <table class="tabla-departamento">
-          <thead>
-            <tr>
-              <th>Departamento</th>
-              <th>Abierto</th>
-              <th>Asignado</th>
-              <th>En Progreso</th>
-              <th>Cerrado</th>
-              <th>Reaperturado</th>
-              <th>Escalado</th>
-              <th>Tiempo Resp. Total (h)</th>
-              <th>Tiempo Resp. Prom. (h)</th>
-              <th>Tiempo Serv. Total (h)</th>
-              <th>Tiempo Serv. Prom. (h)</th>
-              <th class="total-col">🎯 Total Tickets</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let item of dashboardDeptoEstado">
-              <td [title]="item.DepartamentoNombre">{{ item.DepartamentoNombre }}</td>
-              <td [title]="item.Abierto">{{ item.Abierto }}</td>
-              <td [title]="item.Asignado">{{ item.Asignado }}</td>
-              <td [title]="item.EnProgreso">{{ item.EnProgreso }}</td>
-              <td [title]="item.Cerrado">{{ item.Cerrado }}</td>
-              <td [title]="item.Reaperturado">{{ item.Reaperturado }}</td>
-              <td [title]="item.Escalado">{{ item.Escalado }}</td>
-              <td [title]="item.TiempoRespuestaTotal">{{ formatearHorasDecimal(item.TiempoRespuestaTotal) }}</td>
-              <td [title]="item.TiempoRespuestaPromedio">{{ formatearHorasDecimal(item.TiempoRespuestaPromedio) }}</td>
-              <td [title]="item.TiempoServicioTotal">{{ formatearHorasDecimal(item.TiempoServicioTotal) }}</td>
-              <td [title]="item.TiempoServicioPromedio">{{ formatearHorasDecimal(item.TiempoServicioPromedio) }}</td>
-              <!-- <td class="total-col"> -->
-                <td class="total-col" (click)="mostrarPopoverTickets($event, item)">
-                  {{ getTotalTicketsFila(item) }}
-              </td>             
-            </tr>
+    </ion-accordion>
 
-              <!-- Fila de totales -->
-            <tr class="fila-total">
-              <td><strong>{{ getTotales().DepartamentoNombre }}</strong></td>
-              <td><strong>{{ getTotales().Abierto }}</strong></td>
-              <td><strong>{{ getTotales().Asignado }}</strong></td>
-              <td><strong>{{ getTotales().EnProgreso }}</strong></td>
-              <td><strong>{{ getTotales().Cerrado }}</strong></td>
-              <td><strong>{{ getTotales().Reaperturado }}</strong></td>
-              <td><strong>{{ getTotales().Escalado }}</strong></td>
-              <td><strong>{{ formatearHorasDecimal(getTotales().TiempoRespuestaTotal) }}</strong></td>
-              <td><strong>{{ formatearHorasDecimal(getTotales().TiempoRespuestaPromedio) }}</strong></td>
-              <td><strong>{{ formatearHorasDecimal(getTotales().TiempoServicioTotal) }}</strong></td>
-              <td><strong>{{ formatearHorasDecimal(getTotales().TiempoServicioPromedio) }}</strong></td>
-              <!-- <td class="total-col"><strong>{{ getTotales().TotalTickets }}</strong></td> -->
-              <td class="total-col" (click)="mostrarPopoverTickets($event, getTotales())">
-                <strong>{{ getTotales().TotalTickets }}</strong>
-              </td>
-              
-            </tr>
-          </tbody>
-
-          
-        </table>
-      </div>
-    </ion-card-content>
-  </ion-card>
-  
-  
-  <ion-button
-  *ngIf="tabSeleccionada === 'departamento'"
-  expand="block"
-  color="success"
-  (click)="exportarTablaAExcel()">
-  <ion-icon name="document-attach-outline" slot="start"></ion-icon>
-  Exportar a Excel
-</ion-button>
-
-  
-  <!-- AGENTE -->
-  <ion-card *ngIf="tabSeleccionada === 'agente'">
-    <ion-card-header>
-      <ion-card-title>Tickets por Agente</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <p>Agregar gráfico por agente aquí</p>
-    </ion-card-content>
-  </ion-card>
-
-  <!-- SATISFACCIÓN -->
-  <ion-card *ngIf="tabSeleccionada === 'satisfaccion'">
-    <ion-card-header>
-      <ion-card-title>Satisfacción de Usuario</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <p>Aquí iría una gráfica de resultados de encuestas</p>
-    </ion-card-content>
-  </ion-card>
-
-  <ion-button 
-  *ngIf="tabSeleccionada === 'estado'" 
-  expand="block" 
-  (click)="exportChart()" 
-  color="tertiary">
-  <ion-icon name="download-outline" slot="start"></ion-icon>
-  Exportar como Imagen
-  </ion-button>
+  </ion-accordion-group>
 
 
 </ion-content>
