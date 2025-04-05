@@ -12,19 +12,16 @@ require_once('revisarsesion.controller.php');
 require_once('../models/usuario.model.php');
 require_once('email.controller.php');
 require_once('../models/persona.model.php');
-error_reporting(0); //DESHABILITAR ERROR, DEJAR COMENTADO si se desea que se muestre el error
+// error_reporting(0); //DESHABILITAR ERROR, DEJAR COMENTADO si se desea que se muestre el error
 $usuario = new Usuario;
 $persona = new Persona;
 switch ($_GET["op"]) {
     //TODO: Operaciones de usuario
 
     case 'todos': // Procedimiento para cargar todos los datos de usuario con datos de Persona
-        $datos = array();
-        $datos = $usuario->todos();
-        $todos = array();
-        while ($row = mysqli_fetch_assoc($datos)) {
-            $todos[] = $row;
-        }
+        $todos = $usuario->todos();
+        // error_log('Usuarios encontrados: ' . count($todos));
+        header('Content-Type: application/json');
         echo json_encode($todos);
         break;
 

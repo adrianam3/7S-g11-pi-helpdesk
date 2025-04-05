@@ -5,6 +5,7 @@ import { AlertController, LoadingController, ToastController } from '@ionic/angu
 import { lastValueFrom } from 'rxjs';
 import { ApiService } from 'src/app/services/api.service';
 import { SecureStorageService } from 'src/app/services/secure-storage.service';
+import { ValidarRolesService } from 'src/app/services/validar-roles.service';
 
 @Component({
   selector: 'app-ticket',
@@ -38,8 +39,31 @@ export class TicketPage implements OnInit {
     private toastController: ToastController,
     private alertController: AlertController,
     private loadingController: LoadingController,
-    private storage: SecureStorageService
+    private storage: SecureStorageService,
+    public validarRol: ValidarRolesService,
   ) { }
+
+  // async ionViewWillEnter() {
+  //   await this.validarRol.cargarDatos();
+  //   console.log('Rol cargado:', this.validarRol.idRol); // Verifica que ya esté cargado
+  // }
+
+  async ionViewWillEnter() {
+    await this.validarRol.cargarDatos();
+
+    this.validarRol.datosCargados$.subscribe(cargado => {
+      if (cargado) {
+        this.validarRol.rol$.subscribe(idRol => {
+          console.log('ROL DETECTADO:', idRol);
+          // Aquí puedes hacer lógica específica según el rol
+        });
+      }
+    });
+  }
+
+  esUsuario() {
+    return this.validarRol.esUsuario();
+  }
 
   async ngOnInit() {
     this.idUsuario = await this.storage.get('idUsuario');
@@ -180,6 +204,10 @@ export class TicketPage implements OnInit {
     // }
   }
 
+  crearNuevoTicket() {
+    this.router.navigate(['/n-ticket']);
+  }
+
   async showToast(message: string, color: string) {
     const toast = await this.toastController.create({
       message,
@@ -215,6 +243,10 @@ export class TicketPage implements OnInit {
   //   } catch (error) {
   //     console.error('Error cargando agentes y departamentos', error);
   //   }
+  }
+
+  async editarTicket(ticket: any) {
+    this.router.navigate(['/n-ticket', ticket.idTicket]);
   }
 
   async confirmarAsignarAgente() {

@@ -2,7 +2,8 @@ import { Component } from '@angular/core';
 import { AuthService } from './auth/auth.service';
 import { Router } from '@angular/router';
 import { SecureStorageService } from './services/secure-storage.service';
-import { MenuController } from '@ionic/angular';
+import { MenuController, Platform } from '@ionic/angular';
+import { ValidarRolesService } from './services/validar-roles.service';
 
 @Component({
   selector: 'app-root',
@@ -27,7 +28,9 @@ export class AppComponent {
   constructor(private authService: AuthService,
     private storage: SecureStorageService,
     private router: Router,
-    private menuCtrl: MenuController
+    private menuCtrl: MenuController,
+    private validarRol: ValidarRolesService,
+    private platform: Platform,
   ) {
     this.authService.getAuthState().subscribe(state => {
       this.isLoggedIn = state;
@@ -48,6 +51,12 @@ export class AppComponent {
       this.userName = await this.storage.get('nombres') + ' ' + await this.storage.get('apellidos');
       this.loadMenu();
     });
+    this.initializeApp();
+  }
+
+  async initializeApp() {
+    await this.platform.ready();
+    await this.validarRol.cargarDatos();
   }
 
   async closeMenu() {
@@ -77,9 +86,13 @@ export class AppComponent {
       { title: 'Gestión de Tickets', url: '/ticket', icon: 'list', roles: [1, 4] },
       { title: 'Base de Conocimiento', url: '/base-conocimiento', icon: 'book', roles: [1, 2, 3, 4] },
       { title: 'Usuarios', url: '/usuarios', icon: 'people', roles: [1] },
+      { title: 'Personas', url: '/personas', icon: 'people', roles: [1, 3, 4] },
       { title: 'Perfil', url: '/profile', icon: 'person', roles: [1, 2, 3, 4] },
       { title: 'Agentes', url: '/agentes', icon: 'people-circle-outline', roles: [1, 4] },
       { title: 'Encuestas', url: '/encuestas', icon: 'star-outline', roles: [1, 4] },
+      { title: 'Mis Encuestas', url: '/my-encuestas', icon: 'star-outline', roles: [1, 2] },
+      { title: 'Dashboard', url: '/dashboard', icon: 'bar-chart', roles: [1] },
+
     ];
 
     console.log(' Rol obtenido antes de conversión:', this.userRole, 'Tipo:', typeof this.userRole);
@@ -101,6 +114,7 @@ export class AppComponent {
 
   async logout() {
     await this.authService.logout();
+    await this.storage.remove('idRol');
     await this.menuCtrl.close(); // Cierra el menú automáticamente
     this.router.navigate(['/login']);
   }

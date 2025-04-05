@@ -1,0 +1,56 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Mis Encuestas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="datosCargados" class="ion-padding">
+  <!-- Barra de búsqueda -->
+  <ion-searchbar [(ngModel)]="buscarTexto" (ionInput)="filtrarEncuestasParam(filtroSeleccionado)"
+    placeholder="Buscar encuesta..."></ion-searchbar>
+
+  <!-- Botones de filtro -->
+  <ion-segment [(ngModel)]="filtroSeleccionado" (ionChange)="filtrarEncuestasParam($event.detail.value)">
+    <ion-segment-button value="re">
+      <ion-label>Respondidas</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="pe">
+      <ion-label>Pendientes</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <!-- Refrescar lista -->
+  <ion-refresher slot="fixed" (ionRefresh)="loadEncuestas()">
+    <ion-refresher-content pullingText="Desliza para actualizar"></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Lista de encuestas -->
+  <ion-list *ngIf="encuestasFiltradas.length > 0">
+    <ion-item-sliding *ngFor="let encuesta of encuestasFiltradas">
+      <ion-item>
+        <ion-label>
+          <h2>Ticket #{{ encuesta.idTicket }}</h2>
+          <p><strong>Título:</strong> {{ encuesta.titulo }}</p>
+          <p><strong>Agente:</strong> {{ encuesta.nombreAgente }}</p>
+          <p><strong>Usuario:</strong> {{ encuesta.nombreUsuario }}</p>
+          <p><strong>Puntuación:</strong> {{ encuesta.puntuacion }}</p>
+          <p><strong>Comentarios:</strong> {{ encuesta.comentarios }}</p>
+          <p><strong>Fecha Encuesta:</strong> {{ encuesta.fechaEncuesta }}</p>
+        </ion-label>
+      </ion-item>
+
+      <ion-item-options side="end">
+
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+
+  <!-- Mensaje si no hay encuestas -->
+  <ion-text *ngIf="encuestasFiltradas.length === 0" color="medium">
+    <p class="ion-text-center">No se encontraron encuestas.</p>
+  </ion-text>
+
+</ion-content>

@@ -1,0 +1,64 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Personas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- Botón para crear una nueva persona -->
+  <ion-button expand="full" color="success" routerLink="/npersona">
+    <ion-icon name="person-add-outline" slot="start"></ion-icon>
+    Crear Nueva Persona
+  </ion-button>
+
+  <!-- Campo de búsqueda -->
+  <ion-searchbar placeholder="Buscar persona..." [(ngModel)]="buscarTexto"
+    (ionInput)="filtrarPersonas()"></ion-searchbar>
+
+  <!-- Lista de personas -->
+  <ion-list>
+    <ion-item-sliding *ngFor="let persona of personasFiltradas">
+      <ion-item>
+        <ion-label>
+          <h2>{{ persona.personaNombreCompleto }}</h2>
+          <p><strong>Cédula:</strong> {{ persona.cedula }}</p>
+          <p><strong>Teléfono:</strong> {{ persona.telefono }}</p>
+          <p><strong>Celular:</strong> {{ persona.telefono }}</p>
+          <p><strong>Email:</strong> {{ persona.email }}</p>
+          <p><strong>Estado:</strong> {{ persona.estado === '1' ? 'Activo' : 'Inactivo' }}</p>
+        </ion-label>
+      </ion-item>
+
+      <!-- Botones deslizables -->
+      <ion-item-options side="end">
+        <ion-item-option color="success" [routerLink]="'/npersona/' + persona.idPersona">
+          <ion-icon name="create-outline"></ion-icon> Editar
+        </ion-item-option>
+        <!-- <ion-item-option color="danger" (click)="confirmarEliminar(persona)">
+          <ion-icon name="trash-outline"></ion-icon> Eliminar
+        </ion-item-option> -->
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+
+  <!-- Navegación de páginas -->
+  <div class="pagination-buttons ion-text-center" *ngIf="totalPages > 1">
+    <ion-button fill="clear" (click)="prevPage()" [disabled]="currentPage === 1">
+      <ion-icon name="arrow-back-outline"></ion-icon>
+    </ion-button>
+    <ion-text>Página {{ currentPage }} de {{ totalPages }}</ion-text>
+    <ion-button fill="clear" (click)="nextPage()" [disabled]="currentPage === totalPages">
+      <ion-icon name="arrow-forward-outline"></ion-icon>
+    </ion-button>
+  </div>
+
+  <!-- Mensaje cuando no hay personas -->
+  <ion-text *ngIf="personasFiltradas.length === 0">
+    <p class="ion-text-center">No se encontraron personas.</p>
+  </ion-text>
+
+</ion-content>

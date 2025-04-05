@@ -16,6 +16,7 @@ export class EncuestasPage implements OnInit {
   public encuestasFiltradas: any[] = [];
   public buscarTexto: string = '';
   public loading = false;
+  public filtroSeleccionado: string = 'all';
 
   constructor(
     private apiService: ApiService,
@@ -71,6 +72,46 @@ export class EncuestasPage implements OnInit {
       encuesta.comentarios.toLowerCase().includes(texto) ||
       String(encuesta.puntuacion).includes(texto)
     );
+  }
+
+  async filtrarEncuestasParam(valor: any) {
+    this.filtroSeleccionado = valor;
+
+    if (valor === 're') {
+      this.filtrarEncuestas(); // Aplica el filtro por texto
+    } else if (valor === 'respondidas') {
+      this.encuestasFiltradas = this.encuestasAll.filter(e => !!e.fechaEncuesta); // FechaEncuesta definida
+    } else if (valor === 'pendientes') {
+      await this.cargarTicketsPendientes(); // Consulta desde la API
+    }
+  }
+
+  async cargarTicketsPendientes() {
+    const loading = await this.loadingController.create({ message: 'Cargando tickets pendientes...' });
+    await loading.present();
+
+    try {
+      const responseObs: any = await this.apiService.get('controllers/encuesta.controller.php?op=ticketsSinEncuesta');
+      const data: any[] = await lastValueFrom(responseObs);
+
+      this.encuestasFiltradas = data.map(ticket => ({
+        idTicket: ticket.idTicket,
+        titulo: ticket.titulo,
+        nombreAgente: ticket.nombreAgente,
+        nombreUsuario: ticket.nombreCompletoUsuario,
+        fechaEncuesta: null,
+        puntuacion: null,
+        comentarios: '',
+        fechaCreacion: ticket.fechaCreacion,
+        fechaCierre: ticket.fechaCierre,
+      }));
+
+    } catch (error) {
+      console.error('Error cargando tickets pendientes', error);
+      this.showToast('Error al cargar tickets pendientes.', 'danger');
+    } finally {
+      await loading.dismiss();
+    }
   }
 
   /** Confirmar eliminación de una encuesta */

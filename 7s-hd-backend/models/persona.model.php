@@ -6,11 +6,11 @@ class Persona
 {
     //TODO: Implementar los métodos de la clase
 
-    private $encryption_key = "clave_segura_256bits"; // Clave secreta
+    public $encryption_key = "clave_segura_256bits"; // Clave secreta
     private $cipher_method = "AES-256-CBC"; // Método de cifrado
     private $iv = "1234567890123456"; // IV (16 caracteres)
 
-    private function encrypt($data) {
+    public function encrypt($data) {
         return openssl_encrypt($data, $this->cipher_method, $this->encryption_key, 0, $this->iv);
     }
 
@@ -18,15 +18,37 @@ class Persona
         return openssl_decrypt($data, $this->cipher_method, $this->encryption_key, 0, $this->iv);
     }
 
-    public function todos() // Select * from persona
+    public function todos()
     {
         $con = new ClaseConectar();
-        $con = $con->ProcedimientoParaConectar();
-        $cadena = "SELECT * FROM `persona`";
-        $datos = mysqli_query($con, $cadena);
-        $con->close();
-        return $datos;
+        $conn = $con->ProcedimientoParaConectar();
+    
+        $personas = [];
+    
+        $stmt = $conn->prepare("SELECT idPersona, cedula, nombres, apellidos, direccion, telefono, extension, celular, email, estado FROM persona");
+    
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+    
+            while ($row = $result->fetch_assoc()) {
+                // Desencriptar los campos necesarios
+                $row['cedula'] = $this->decrypt($row['cedula']);
+                $row['telefono'] = $this->decrypt($row['telefono']);
+                $row['celular'] = $this->decrypt($row['celular']);
+    
+                // Agregar campo nombre completo
+                $row['personaNombreCompleto'] = $row['nombres'] . ' ' . $row['apellidos'];
+    
+                $personas[] = $row;
+            }
+        }
+    
+        $stmt->close();
+        $conn->close();
+    
+        return $personas; // Array completo de resultados
     }
+    
 
     public function todossinusuario() // Select * from persona
     {
@@ -75,7 +97,7 @@ class Persona
         }
     }
     
-    public function uno($idPersona) // Select * from persona where id = $idPersona
+    public function unoOld($idPersona) // Select * from persona where id = $idPersona
     {
         $con = new ClaseConectar();
         $con = $con->ProcedimientoParaConectar();
@@ -99,33 +121,99 @@ class Persona
         return null;
     }
 
-    public function insertar($cedula, $nombres, $apellidos, $direccion, $telefono, $extension, $celular, $email, $estado) // Insert into persona (...)
+    public function uno($idPersona)
+    {
+        $con = new ClaseConectar();
+        $con = $con->ProcedimientoParaConectar();
+
+        // Preparar la consulta de forma segura
+        $stmt = $con->prepare("SELECT persona.*,
+            CONCAT(persona.nombres, ' ', persona.apellidos) AS personaNombreCompleto
+            FROM persona WHERE idPersona = ?");
+
+        if (!$stmt) {
+            error_log("Error preparando consulta: " . $con->error);
+            return null;
+        }
+
+        // Asociar parámetro y ejecutar
+        $stmt->bind_param("i", $idPersona); // "i" indica que es un entero
+        $stmt->execute();
+
+        // Obtener resultados
+        $result = $stmt->get_result();
+
+        if ($row = $result->fetch_assoc()) {
+            // Desencriptar campos necesarios
+            $row['cedula'] = $this->decrypt($row['cedula']);
+            $row['telefono'] = $this->decrypt($row['telefono']);
+            $row['celular'] = $this->decrypt($row['celular']);
+
+            // Resto de campos
+            $row['nombres'] = $row['nombres'];
+            $row['apellidos'] = $row['apellidos'];
+            $row['direccion'] = $row['direccion'];
+            $row['email'] = $row['email'];
+            $row['extension'] = $row['extension'];
+            $row['estado'] = $row['estado'];
+
+            $stmt->close();
+            $con->close();
+            return $row;
+        }
+
+        $stmt->close();
+        $con->close();
+        return null;
+    }
+
+    public function insertar($cedula, $nombres, $apellidos, $direccion, $telefono, $extension, $celular, $email, $estado)
     {
         try {
             $con = new ClaseConectar();
             $con = $con->ProcedimientoParaConectar();
 
-             // Cifrar datos antes de guardar
-             $cedula_enc = $cedula;
-             $nombres_enc = $nombres;
-             $apellidos_enc = $apellidos;
-             $direccion_enc = $direccion;
-             $telefono_enc = $telefono;
-             $celular_enc = $this->encrypt($celular);
+            // Cifrado de campos sensibles
+            $cedula_enc = $this->encrypt($cedula);
+            $telefono_enc = $this->encrypt($telefono);
+            $celular_enc = $this->encrypt($celular);
 
-             $cadena = "INSERT INTO `persona` (`cedula`, `nombres`, `apellidos`, `direccion`, `telefono`, `extension`, `celular`, `email`, `estado`) 
-             VALUES ('$cedula','$nombres','$apellidos','$direccion','$telefono','$extension','$celular_enc','$email','$estado')";
+            // Consulta preparada
+            $stmt = $con->prepare("INSERT INTO persona (
+                cedula, nombres, apellidos, direccion, telefono, extension, celular, email, estado
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-            if (mysqli_query($con, $cadena)) {
-                return $con->insert_id;
-            } else {
-                return $con->error;
+            if (!$stmt) {
+                throw new Exception("Error preparando la consulta: " . $con->error);
             }
-        } catch (Exception $th) {
+
+            // Asociar los parámetros
+            $stmt->bind_param(
+                "sssssssss", // todos string (s)
+                $cedula_enc,
+                $nombres,
+                $apellidos,
+                $direccion,
+                $telefono_enc,
+                $extension,
+                $celular_enc,
+                $email,
+                $estado
+            );
+
+            // Ejecutar
+            if ($stmt->execute()) {
+                $insertId = $stmt->insert_id;
+                $stmt->close();
+                $con->close();
+                return $insertId;
+            } else {
+                throw new Exception("Error al ejecutar el insert: " . $stmt->error);
+            }
+
+        } catch (Exception $e) {
             http_response_code(500);
-            return $th->getMessage();
-        } finally {
-            $con->close();
+            return "Error: " . $e->getMessage();
         }
     }
 

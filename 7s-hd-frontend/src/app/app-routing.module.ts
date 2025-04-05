@@ -43,6 +43,42 @@ const routes: Routes = [
     path: 'npersona',
     loadChildren: () => import('./pages/new-persona/new-persona.module').then( m => m.NewPersonaPageModule)
   },
+  {
+    path: 'npersona/:codigo',
+    loadChildren: () => import('./pages/new-persona/new-persona.module').then( m => m.NewPersonaPageModule)
+  },
+  {
+    path: 'n-ticket',
+    loadChildren: () => import('./pages/n-ticket/n-ticket.module').then( m => m.NTicketPageModule)
+  },
+  {
+    path: 'n-ticket/:codigo',
+    loadChildren: () => import('./pages/n-ticket/n-ticket.module').then( m => m.NTicketPageModule)
+  },
+  {
+    path: 'new-ticket',
+    loadChildren: () => import('./pages/new-ticket/new-ticket.module').then( m => m.NewTicketPageModule)
+  },
+  {
+    path: 'new-ticket/:codigo',
+    loadChildren: () => import('./pages/new-ticket/new-ticket.module').then( m => m.NewTicketPageModule)
+  },
+  {
+    path: 'personas',
+    loadChildren: () => import('./pages/personas/personas.module').then( m => m.PersonasPageModule)
+  },
+  // {
+  //   path: 'my-encuestas',
+  //   loadChildren: () => import('./pages/my-escuestas/my-escuestas.module').then( m => m.MyEscuestasPageModule)
+  // },
+  {
+    path: 'my-encuestas',
+    loadChildren: () => import('./pages/my-encuestas/my-encuestas.module').then( m => m.MyEncuestasPageModule)
+  },
+  {
+    path: 'dashboard',
+    loadChildren: () => import('./pages/dashboard/dashboard.module').then( m => m.DashboardPageModule)
+  },
   { path: '**', redirectTo: 'home', pathMatch: 'full' },
 ];
 

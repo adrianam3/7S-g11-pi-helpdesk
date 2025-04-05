@@ -1,20 +1,20 @@
 Array
 (
-    [cookie] => PHPSESSID=dso7mnfi41b71i7h04nakqeis9
+    [cookie] => PHPSESSID=jjk2i52l1ej380aied1hd78vi2
     [accept-language] => es-ES,es;q=0.9
     [accept-encoding] => gzip, deflate, br, zstd
-    [referer] => http://localhost:4200/ticket
+    [referer] => http://localhost:4200/dashboard
     [sec-fetch-dest] => empty
     [sec-fetch-mode] => cors
     [sec-fetch-site] => same-origin
     [content-type] => application/json
     [accept] => application/json, text/plain, */*
-    [idrol] => 2
-    [user-agent] => Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Mobile Safari/537.36
-    [idusuario] => 34
+    [idrol] => 1
+    [user-agent] => Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Mobile Safari/537.36
+    [idusuario] => 1
     [sec-ch-ua-mobile] => ?1
     [sec-ch-ua] => "Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"
-    [authorization] => Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdCIsImlhdCI6MTc0MjI3MDIwNywiZXhwIjoxNzQyMjcwODA3LCJzdWIiOiIzNCIsInJvbCI6IjIifQ.5hk2t_EJKowW4J6-ooHrQhThSdCBEhdglOUNfdfqN_0
+    [authorization] => Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdCIsImlhdCI6MTc0Mzc3OTU0MSwiZXhwIjoxNzQzNzgwMTQxLCJzdWIiOjEsInJvbCI6MX0.tAPvQnB5r534fvTabACdyGS6Cwjbxw6bi2L6Ea6bxRs
     [sec-ch-ua-platform] => "Android"
     [connection] => close
     [host] => localhost

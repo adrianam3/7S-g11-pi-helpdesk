@@ -36,6 +36,7 @@ export class UsuariosPage implements OnInit {
     try {
       const usuariosObs = await this.apiService.get<any[]>('controllers/usuario.controller.php?op=todos');
       const data = await lastValueFrom(usuariosObs);
+      console.log(data);
 
       this.usuariosAll = data.map(u => ({
         idUsuario: u.idUsuario,

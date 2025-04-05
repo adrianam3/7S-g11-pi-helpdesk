@@ -17,14 +17,15 @@ switch ($_GET["op"]) {
     //TODO: Operaciones de encuesta
 
     case 'todos': //TODO: Procedimiento para cargar todos los datos de encuesta
-        $datos = array();
         $datos = $encuesta->todos();
-        while ($row = mysqli_fetch_assoc($datos)) {
-            $todos[] = $row;
+    
+        if (is_array($datos) && count($datos) > 0) {
+            echo json_encode($datos);
+        } else {
+            http_response_code(404);
+            echo json_encode(["message" => "No se encontraron encuestas."]);
         }
-        echo json_encode($todos);
         break;
-
     case 'uno': //TODO: Procedimiento para obtener un registro de la base de datos
         $idEncuesta = $_POST["idEncuesta"];
         $datos = array();
@@ -62,5 +63,55 @@ switch ($_GET["op"]) {
         $datos = array();
         $datos = $encuesta->eliminar($idEncuesta);
         echo json_encode($datos);
+        break;
+
+    case 'encuestasByUsuario':
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(["status" => "error", "message" => "Método no permitido"]);
+            exit;
+        }  
+        $idUsuario = filter_input(INPUT_POST, 'idUsuario', FILTER_VALIDATE_INT);
+    
+        if (!$idUsuario) {
+            http_response_code(400);
+            echo json_encode(["status" => "error", "message" => "ID de usuario inválido o no proporcionado"]);
+            exit;
+        }
+        $datos = $encuesta->ncuestaByUsuario($idUsuario);
+        if (is_array($datos)) {
+            echo json_encode($datos);
+        } else {
+            http_response_code(500);
+            echo json_encode(["status" => "error", "message" => "Error al obtener las encuestas"]);
+        }
+        break;        
+
+    case 'ticketsByUserSinEncuesta':
+        $idUsuario = isset($_POST["idUsuario"]) ? intval($_POST["idUsuario"]) : null;
+    
+        if (!$idUsuario) {
+            http_response_code(400);
+            echo json_encode(["message" => "Falta el parámetro idUsuario"]);
+            break;
+        }
+    
+        $tickets = $encuesta->ticketsByUserSinEncuesta($idUsuario);
+    
+        if (is_array($tickets) && count($tickets) > 0) {
+            echo json_encode($tickets);
+        } else {
+            http_response_code(404);
+            echo json_encode(["message" => "No hay tickets pendientes de encuesta para este usuario."]);
+        }
+        break;
+    case 'ticketsSinEncuesta':
+        $datos = $encuesta->ticketsSinEncuesta();    
+        if (is_array($datos) && count($datos) > 0) {
+            echo json_encode($datos);
+        } else {
+            http_response_code(404);
+            echo json_encode(["message" => "No se encontraron encuestas."]);
+        }
         break;
 }

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 16-03-2025 a las 23:56:37
+-- Tiempo de generación: 25-09-2024 a las 00:29:09
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -50,8 +50,7 @@ INSERT INTO `agente` (`idAgente`, `agente`, `descripcion`, `idUsuario`, `idNivel
 (9, 'Agente Soporte 2', '', 5, 1, 1, '2024-09-05 01:42:27', NULL),
 (10, 'Agente Soporte 3', '', 6, 1, 1, '2024-09-05 01:42:34', NULL),
 (15, 'Agente adolfo.merlo', '', 36, 1, 1, '2024-09-22 19:46:42', '2024-09-22 19:47:03'),
-(16, 'miguel.arcos', '', 38, 1, 1, '2024-09-23 22:46:07', NULL),
-(17, 'agentemaria.arcos', '', 39, 1, 1, '2025-03-15 23:14:47', NULL);
+(16, 'miguel.arcos', '', 38, 1, 1, '2024-09-23 22:46:07', NULL);
 
 -- --------------------------------------------------------
 
@@ -82,8 +81,7 @@ INSERT INTO `agentedepartamento` (`idAgente`, `idDepartamentoA`, `estado`, `fech
 (9, 2, 1, '2024-09-12 06:06:18', NULL),
 (10, 3, 1, '2024-09-12 06:06:18', NULL),
 (10, 4, 1, '2024-09-12 06:07:14', NULL),
-(15, 1, 1, '2024-09-22 19:51:36', NULL),
-(17, 1, 1, '2025-03-15 23:19:20', NULL);
+(15, 1, 1, '2024-09-22 19:51:36', NULL);
 
 -- --------------------------------------------------------
 
@@ -319,8 +317,7 @@ CREATE TABLE `encuesta` (
 --
 
 INSERT INTO `encuesta` (`idEncuesta`, `idTicket`, `idUsuario`, `puntuacion`, `comentarios`, `fechaEnvioEncuesta`, `fechaRespuestaEncuesta`) VALUES
-(1, 123, 9, 9, 'El soporte se demoro y el cliente al que debia entregar la proforma se fue enojado ', '2024-09-23 22:39:38', '2024-09-23 22:39:38'),
-(2, 329, 9, 9, 'Se solvento, pero se demoro mucho tiempo ', '2025-02-17 00:21:34', '2025-02-17 00:21:34');
+(1, 123, 9, 9, 'El soporte se demoro y el cliente al que debia entregar la proforma se fue enojado ', '2024-09-23 22:39:38', '2024-09-23 22:39:38');
 
 -- --------------------------------------------------------
 
@@ -431,7 +428,7 @@ INSERT INTO `nivelagente` (`idNivelAgente`, `nombre`, `descripcion`, `estado`, `
 
 CREATE TABLE `persona` (
   `idPersona` int(11) NOT NULL,
-  `cedula` varchar(200) NOT NULL,
+  `cedula` varchar(20) NOT NULL,
   `nombres` varchar(100) NOT NULL,
   `apellidos` varchar(100) NOT NULL,
   `direccion` varchar(200) DEFAULT NULL,
@@ -466,13 +463,7 @@ INSERT INTO `persona` (`idPersona`, `cedula`, `nombres`, `apellidos`, `direccion
 (28, '1002255170', 'Adrian', 'Merlo', 'Falle falsa 1153', '3244322', '', '0946565666', 'adrian_am3@hotmail.com', 1, '2024-09-21 06:38:57', NULL),
 (29, '1002696951', 'XAVIER', 'CANGAS', 'IBARRA', '0999101191', '', '0999101191', 'adrian.merlo.am3+20@gmail.com', 1, '2024-09-22 18:23:09', '2024-09-22 18:27:10'),
 (30, '1002255170', 'Adolfo', 'Merlo', 'Ibarra Sucre y jf. Cevallos', '062550500', '', '0999101191', 'adrian.merlo.am3+21@gmail.com', 1, '2024-09-22 19:26:43', NULL),
-(31, '1002255170', 'MIGUEL ', 'ARCOS', 'IBARRA', '062550500', '', '0999101191', 'adrian.merlo.am3+22@gmail.com', 1, '2024-09-23 22:44:07', NULL),
-(32, 'YglmAVi2ATvDDP5BeqtL', 'ADOLFO 1', 'MERLO 1', 'AV. MARIANO ACOSTA 22-08', '062998300', NULL, 'EzA76trhXSNoDOy', 'adrian_am3@hotmail.com', 1, '2025-03-12 04:39:12', NULL),
-(33, 'QnWlBp1M+Zj+heE7tkP4', 'ADRIAN 2', 'MERLO 2', 'SANTO DOMINGO 2', '062998300', NULL, '3MXZRe44MFfENtT', 'adrian.merlo.am3@hotmail.com', 1, '2025-03-12 04:39:12', NULL),
-(34, 'YglmAVi2ATvDDP5BeqtLwA==', 'ADOLFO 1', 'MERLO 1', 'IBARRA', '062998300', NULL, 'EzA76trhXSNoDOy', 'adrian.merlo@imbauto.com.ec', 1, '2025-03-12 04:43:17', NULL),
-(35, 'QnWlBp1M+Zj+heE7tkP4hg==', 'ADRIAN 2', 'ARCOS 2', 'SAN ANTONIO', '062998300', NULL, 'QnWlBp1M+Zj+heE', 'adrian.merlo@hotmail.com', 1, '2025-03-12 04:43:17', NULL),
-(36, '1705235792', 'MARIA', 'ARCOS', 'SANTO DOMINGO', '0999101191', '', '0999101191', 'adrian.merlo.am3+100@gmail.com', 1, '2025-03-15 22:50:30', NULL),
-(37, '1002255170', 'Sabado 15', 'Marzo 2025', 'Ibarra', '0999101191', '', '0999101191', 'adrian.merlo.am3+101@gmail.com', 1, '2025-03-16 01:04:52', NULL);
+(31, '1002255170', 'MIGUEL ', 'ARCOS', 'IBARRA', '062550500', '', '0999101191', 'adrian.merlo.am3+22@gmail.com', 1, '2024-09-23 22:44:07', NULL);
 
 -- --------------------------------------------------------
 
@@ -871,14 +862,7 @@ INSERT INTO `ticket` (`idTicket`, `titulo`, `descripcion`, `idSla`, `idPrioridad
 (323, 'Problema con el servidor FTP', 'El servidor FTP no está accesible.', 1, 3, 9, NULL, NULL, 1, 2, 0, '2024-09-24 21:07:46', 1, NULL, NULL, NULL, NULL, NULL, NULL),
 (324, 'Error en la base de datos de usuarios', 'La base de datos de usuarios no está respondiendo.', 1, 3, 9, NULL, NULL, 1, 3, 0, '2024-09-24 21:07:46', 1, NULL, NULL, NULL, NULL, NULL, NULL),
 (325, 'Solicitud de actualización de hardware', 'El usuario solicita una actualización de hardware en su equipo.', 1, 3, 9, NULL, NULL, 1, 4, 0, '2024-09-24 21:07:46', 1, NULL, NULL, NULL, NULL, NULL, NULL),
-(326, 'Fallo en la red interna', 'La red interna está experimentando caídas intermitentes.', 1, 3, 9, NULL, NULL, 1, 5, 0, '2024-09-24 21:07:46', 1, NULL, NULL, NULL, NULL, NULL, NULL),
-(327, 'NO FUNCIONA EL PROYECTO', 'EL PROYECTO TIENE FALLA', 1, 1, 9, 15, 1, 1, 1, 1, '2025-02-16 23:31:36', 2, NULL, '2025-02-16 23:40:22', '2025-02-16 23:40:22', '0000-00-00 00:00:00', NULL, NULL),
-(328, 'Registro cuenta correcta de IVA en compras DMS', 'Contablemente se esta registrando en la cuenta 1 el iva que corresponde a las compras, sin embargo debe contabilizarse a la cuenta 7', 1, 1, 9, NULL, NULL, 1, 1, 1, '2025-02-16 23:56:24', 1, NULL, NULL, NULL, NULL, NULL, NULL),
-(329, 'Registro cuenta correcta de IVA en compras DMS', 'Contablemente se esta registrando en la cuenta 1 el iva que corresponde a las compras, sin embargo debe contabilizarse a la cuenta 7', 1, 1, 9, 15, 1, 1, 9, 1, '2025-02-16 23:57:13', 4, '2025-02-17 00:03:16', '2025-02-17 00:01:23', '2025-02-17 00:16:30', '0000-00-00 00:00:00', NULL, '2025-02-17 00:17:25'),
-(330, 'prueba de ticket', 'prueba de ticket', 1, 1, 9, NULL, NULL, 1, 1, 1, '2025-02-17 02:47:59', 1, NULL, NULL, NULL, NULL, NULL, NULL),
-(331, 'prueba 2', 'prueba 2', 1, 1, 9, NULL, NULL, 1, 1, 1, '2025-02-17 02:50:46', 1, NULL, NULL, NULL, NULL, NULL, NULL),
-(332, 'errrrrror ', 'error ', 1, 1, 9, NULL, NULL, 1, 1, 1, '2025-02-17 02:58:00', 1, NULL, NULL, NULL, NULL, NULL, NULL),
-(333, 'prueba con cambio', 'prueba con vambio', 1, 1, 9, NULL, NULL, 1, 1, 1, '2025-02-17 03:11:54', 1, NULL, NULL, NULL, NULL, NULL, NULL);
+(326, 'Fallo en la red interna', 'La red interna está experimentando caídas intermitentes.', 1, 3, 9, NULL, NULL, 1, 5, 0, '2024-09-24 21:07:46', 1, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1170,11 +1154,7 @@ INSERT INTO `ticketdetalle` (`idTicketDetalle`, `idTicket`, `idAgente`, `idDepar
 (335, 313, 15, 1, 'Se requiere atención inmediata', 'El servidor FTP no está accesible.', '2024-09-24 21:08:08', 1),
 (336, 314, 15, 1, 'Se requiere atención inmediata', 'La base de datos de usuarios no está respondiendo.', '2024-09-24 21:08:08', 1),
 (337, 315, 15, 1, 'Se requiere atención inmediata', 'El usuario solicita una actualización de hardware en su equipo.', '2024-09-24 21:08:08', 1),
-(338, 316, 15, 1, 'Se requiere atención inmediata', 'La red interna está experimentando caídas intermitentes.', '2024-09-24 21:08:08', 1),
-(339, 329, 15, 1, 'null', '<p>Se verifica y el cálculo del IVA está correcto, sin embargo, la cuenta contable esta almacenándose correctamente</p>', '2025-02-17 00:05:07', 1),
-(340, 329, NULL, 1, 'null', '<p>Si es correcto, favor validar el porque se esta dando y corregir </p>', '2025-02-17 00:06:14', 1),
-(341, 329, 15, 1, 'null', '<p>Se verifica las configuraciones y se corrige, se conversa con contabilidad y autoriza a modificar la cuenta contable en las trasacciones que sta incorrecta, </p>', '2025-02-17 00:09:33', 1),
-(342, 329, 9, 1, 'null', '<p>Se actualiza las cuentas en la base de datos</p>', '2025-02-17 00:16:07', 1);
+(338, 316, 15, 1, 'Se requiere atención inmediata', 'La red interna está experimentando caídas intermitentes.', '2024-09-24 21:08:08', 1);
 
 -- --------------------------------------------------------
 
@@ -1205,11 +1185,11 @@ INSERT INTO `usuario` (`idUsuario`, `usuario`, `password`, `descripcion`, `idPer
 (2, 'USER1Coordinador', '$2y$10$22I82Rd1DbMSn1b5X9cLd.VRbH.btc1DhksBce6BxQDL2VPOP5ipO', '', 2, 3, 4, 1, 1, '2024-09-05 01:27:35', '2024-09-09 08:52:59'),
 (3, 'USER0Agente', '$2y$10$x1L47Pf5.UcEzhzwGSFtSOYzgLs2qsfuYTYt5CVVq1C5xW6GwuYb2', '', 3, 3, 3, 1, 1, '2024-09-05 01:28:04', NULL),
 (4, 'USER1Agente', '$2y$10$x1L47Pf5.UcEzhzwGSFtSOYzgLs2qsfuYTYt5CVVq1C5xW6GwuYb2', '', 4, 5, 3, 1, 1, '2024-09-05 01:28:38', NULL),
-(5, 'USER2Agente', '$2y$10$mTvQyGdcRQ84h654eng.JO9UKMubeg2Xz6j8MZtak2C84xGy1fRbG', '', 5, 5, 3, 1, 1, '2024-09-05 01:29:05', NULL),
+(5, 'USER2Agente', '$2y$10$x1L47Pf5.UcEzhzwGSFtSOYzgLs2qsfuYTYt5CVVq1C5xW6GwuYb2', '', 5, 5, 3, 1, 1, '2024-09-05 01:29:05', NULL),
 (6, 'USER3Agente', '$2y$10$x1L47Pf5.UcEzhzwGSFtSOYzgLs2qsfuYTYt5CVVq1C5xW6GwuYb2', '', 6, 5, 3, 1, 1, '2024-09-05 01:30:14', NULL),
 (7, 'USER4Agente', '$2y$10$x1L47Pf5.UcEzhzwGSFtSOYzgLs2qsfuYTYt5CVVq1C5xW6GwuYb2', '', 7, 1, 3, 1, 1, '2024-09-05 01:30:44', NULL),
 (8, 'USER5Agente', '$2y$10$x1L47Pf5.UcEzhzwGSFtSOYzgLs2qsfuYTYt5CVVq1C5xW6GwuYb2', '', 8, 2, 3, 1, 1, '2024-09-05 01:31:10', NULL),
-(9, 'USER0Usuario', '$2y$10$b3Ci0/oRAw3R8B/LgDhvA.vPRJ.b3ZFLiJZ2UFXr.inaw/IjZ0.Z2', '', 9, 4, 2, 1, 1, '2024-09-05 01:31:36', NULL),
+(9, 'USER0Usuario', '$2y$10$x1L47Pf5.UcEzhzwGSFtSOYzgLs2qsfuYTYt5CVVq1C5xW6GwuYb2', '', 9, 4, 2, 1, 1, '2024-09-05 01:31:36', NULL),
 (10, 'USER1Usuario', '$2y$10$x1L47Pf5.UcEzhzwGSFtSOYzgLs2qsfuYTYt5CVVq1C5xW6GwuYb2', '', 10, 1, 2, 1, 1, '2024-09-05 01:31:57', '2024-09-10 05:05:11'),
 (19, 'USER2Usuario', '$2y$10$QjdPXMiv0z6TuLIlDFsvdu0v4rXqh5csVlO9bn8gQ51VWV8p5.6..', '', 24, 1, 2, 1, 1, '2024-09-16 03:58:40', NULL),
 (28, 'Para QA', '$2y$10$nuPMjpNA4D.sxOzRE2mAJeFCs3fDRAqcRx9H4R3blh1Rd.JeyI8ti', '', 26, 5, 2, 1, 1, '2024-09-20 05:00:48', NULL),
@@ -1217,9 +1197,7 @@ INSERT INTO `usuario` (`idUsuario`, `usuario`, `password`, `descripcion`, `idPer
 (34, 'erifuertessot+01@gmail.com', '$2y$10$k8gkokjNg3BfWZ1xUA3wUOByhye12Q4ekUTWpZ7EgI.7hci.joUzS', '', 28, 2, 2, 1, 1, '2024-09-21 06:41:05', NULL),
 (35, 'xacangas', '$2y$10$n7O6QnOOm7OduXFs.AYB9.vu0HpZpgh3KEyI4U65aRjo6R7bA8Syi', '', 29, 5, 4, 1, 1, '2024-09-22 19:06:57', NULL),
 (36, 'adolfo.merlo', '$2y$10$6PYN.8MGnzlr/3yCgc7YjeBbl4FXpgwDzGU.4Y7VMRxleDJeMXsOK', '', 30, 5, 3, 1, 1, '2024-09-22 19:28:26', NULL),
-(38, 'miguel.arcos', '$2y$10$La4lkRzlRz1lTDM7h6TFru//dj/7qfn1XUzXQ.z8G/m9EdKY2ipuu', '', 31, 1, 2, 1, 1, '2024-09-23 22:45:23', NULL),
-(39, 'agente6MariaArcos', '$2y$10$Yo1CTiz30GI4uvGqep8NuOo8pT9SrPpmNOfDeh3KetzoVCcsmljqy', '', 36, 5, 3, 1, 1, '2025-03-15 22:53:07', NULL),
-(40, 'sabado.15', '$2y$10$IQtBw6D7XpfwzDM1UYzZMOpMuaxt2Ude.PGt4y4Gb8.z.wHyGAo2i', '', 37, 1, 1, 1, 1, '2025-03-16 01:05:34', '2025-03-16 01:06:24');
+(38, 'miguel.arcos', '$2y$10$La4lkRzlRz1lTDM7h6TFru//dj/7qfn1XUzXQ.z8G/m9EdKY2ipuu', '', 31, 1, 2, 1, 1, '2024-09-23 22:45:23', NULL);
 
 --
 -- Índices para tablas volcadas
@@ -1384,7 +1362,7 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de la tabla `agente`
 --
 ALTER TABLE `agente`
-  MODIFY `idAgente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `idAgente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT de la tabla `areausuario`
@@ -1426,7 +1404,7 @@ ALTER TABLE `departamentoagente`
 -- AUTO_INCREMENT de la tabla `encuesta`
 --
 ALTER TABLE `encuesta`
-  MODIFY `idEncuesta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `idEncuesta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `estadoticket`
@@ -1456,7 +1434,7 @@ ALTER TABLE `nivelagente`
 -- AUTO_INCREMENT de la tabla `persona`
 --
 ALTER TABLE `persona`
-  MODIFY `idPersona` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `idPersona` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT de la tabla `prioridad`
@@ -1486,19 +1464,19 @@ ALTER TABLE `temaayuda`
 -- AUTO_INCREMENT de la tabla `ticket`
 --
 ALTER TABLE `ticket`
-  MODIFY `idTicket` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=334;
+  MODIFY `idTicket` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=327;
 
 --
 -- AUTO_INCREMENT de la tabla `ticketdetalle`
 --
 ALTER TABLE `ticketdetalle`
-  MODIFY `idTicketDetalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=343;
+  MODIFY `idTicketDetalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=339;
 
 --
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- Restricciones para tablas volcadas

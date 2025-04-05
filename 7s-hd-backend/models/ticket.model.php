@@ -50,9 +50,11 @@ class Ticket
 
     public function dashboard($fechaInicio, $fechaFin)
     {
+        error_log("fecha inicio: " . $fechaInicio);
+        error_log("fecha fin: " . $fechaFin);
         $con = new ClaseConectar();
         $con = $con->ProcedimientoParaConectar();
-        $cadena = "SELECT COUNT(*), estadoticket.nombre
+        $cadena = "SELECT COUNT(*) AS cantidad, estadoticket.nombre AS estadot
             FROM `ticket`
             LEFT JOIN `sla` ON ticket.idSla = sla.idSla
             LEFT JOIN `prioridad` ON ticket.idPrioridad = prioridad.idPrioridad
@@ -179,7 +181,7 @@ GROUP BY departamentoAgente.nombre;
                 '$idUsuario',
                 '$idfuenteContacto',
                 '$idTemaAyuda',
-                " . ($resueltoPrimerContacto && $resueltoPrimerContacto != 'undefined' ? "'$resueltoPrimerContacto'" : "NULL") . ",
+                '$resueltoPrimerContacto',
                 '$idEstadoTicket',
                 " . ($idDepartamentoA && $idDepartamentoA != 'undefined' ? "'$idDepartamentoA'" : "NULL") . ",
                 " . ($idAgente && $idAgente != 'undefined' ? "'$idAgente'" : "NULL") . "
@@ -190,6 +192,7 @@ GROUP BY departamentoAgente.nombre;
             } else {
                 return $con->error;
             }
+
         } catch (Exception $th) {
             http_response_code(500);
             return $th->getMessage();
@@ -218,60 +221,83 @@ GROUP BY departamentoAgente.nombre;
         $fechaCierre
     ) {
         try {
-        // Si el estado del ticket es 'Cerrado', asignar la fecha actual a fechaCierre
-        $estadoTicket = new EstadoTicket;
-        $nombreEstadoTicket = $estadoTicket->estadoById(idEstadoTicket: $idEstadoTicket);
-        if ($nombreEstadoTicket == 'Cerrado') {
-            date_default_timezone_set('America/Guayaquil');
-            $fechaCierre = date('Y-m-d H:i:s');
-            $ticket = new Ticket;
-            $resultado = $ticket->uno($idTicket);
-            $ticketActual = $resultado->fetch_assoc();
-            enviarEmailTicketCerrado(
-                idTicket:$idTicket, 
-                emailRecibe: $ticketActual['email'], 
-                nombreRecibe: $ticketActual['personaNombres'].' '.$ticketActual['personaApellidos'],
-            );
-            enviarEmailTicketCerrado(
-                idTicket:$idTicket, 
-                emailRecibe: $ticketActual['agenteEmail'],
-                nombreRecibe: $ticketActual['agenteNombres'].' '.$ticketActual['agenteApellidos'],
-            );
-        }
-        
             $con = new ClaseConectar();
             $con = $con->ProcedimientoParaConectar();
-            $cadena = "UPDATE `ticket` SET 
-                        `titulo`='$titulo', 
-                        `descripcion`='$descripcion', 
-                        `idSla`='$idSla', 
-                        `idPrioridad`='$idPrioridad', 
-                        `idfuenteContacto`='$idfuenteContacto', 
-                        `idTemaAyuda`='$idTemaAyuda', 
-                        `resueltoPrimerContacto`='$resueltoPrimerContacto', 
-                        `idEstadoTicket`='$idEstadoTicket', 
-                        `idDepartamentoA`='$idDepartamentoA',
-                        `idAgente`='$idAgente',
-                        `fechaInicioAtencion`=" . ($fechaInicioAtencion && $fechaInicioAtencion != 'null' ? "'$fechaInicioAtencion'" : "NULL") . ", 
-                        `fechaPrimeraRespuesta`=" . ($fechaPrimeraRespuesta ? "'$fechaPrimeraRespuesta'" : "NULL") . ", 
-                        `fechaAtualizacion`=" . ($fechaAtualizacion && $fechaAtualizacion != 'null' ? "'$fechaAtualizacion'" : "NULL") . ", 
-                        `fechaReapertura`=" . ($fechaReapertura ? "'$fechaReapertura'" : "NULL") . ", 
-                        `fechaUltimaRespuesta`=" . ($fechaUltimaRespuesta ? "'$fechaUltimaRespuesta'" : "NULL") . ", 
-                        `fechaCierre`=" . ($fechaCierre ? "'$fechaCierre'" : "NULL") . "
-                        WHERE `idTicket`=$idTicket";
-            if (mysqli_query($con, $cadena)) {
-                return $idTicket;
-            } else {
-                return $con->error;
+    
+            // Si el estado del ticket es 'Cerrado', asignar fecha actual
+            $estadoTicket = new EstadoTicket;
+            $nombreEstadoTicket = $estadoTicket->estadoById($idEstadoTicket);
+            if ($nombreEstadoTicket == 'Cerrado') {
+                date_default_timezone_set('America/Guayaquil');
+                $fechaCierre = date('Y-m-d H:i:s');
+    
+                $ticketActual = (new Ticket)->uno($idTicket)->fetch_assoc();
+                enviarEmailTicketCerrado($idTicket, $ticketActual['email'], $ticketActual['personaNombres'] . ' ' . $ticketActual['personaApellidos']);
+                enviarEmailTicketCerrado($idTicket, $ticketActual['agenteEmail'], $ticketActual['agenteNombres'] . ' ' . $ticketActual['agenteApellidos']);
             }
-        } catch (Exception $th) {
-            http_response_code(500);
-            return $th->getMessage();
+    
+            $sql = "UPDATE ticket SET
+                titulo = ?, descripcion = ?, idSla = ?, idPrioridad = ?, idfuenteContacto = ?,
+                idTemaAyuda = ?, resueltoPrimerContacto = ?, idEstadoTicket = ?, idDepartamentoA = ?, idAgente = ?,
+                fechaInicioAtencion = ?, fechaPrimeraRespuesta = ?, fechaAtualizacion = ?, fechaReapertura = ?,
+                fechaUltimaRespuesta = ?, fechaCierre = ?
+                WHERE idTicket = ?";
+    
+            $stmt = $con->prepare($sql);
+            if (!$stmt) {
+                return ['error' => $con->error];
+            }
+    
+            // Formato NULL o 'YYYY-MM-DD HH:MM:SS'
+            $fechaInicioAtencion = $this->formatFecha($fechaInicioAtencion);
+            $fechaPrimeraRespuesta = $this->formatFecha($fechaPrimeraRespuesta);
+            $fechaAtualizacion = $this->formatFecha($fechaAtualizacion);
+            $fechaReapertura = $this->formatFecha($fechaReapertura);
+            $fechaUltimaRespuesta = $this->formatFecha($fechaUltimaRespuesta);
+            $fechaCierre = $this->formatFecha($fechaCierre);
+    
+            // Vincular parámetros
+            $stmt->bind_param(
+                'ssiiiiiissssssssi',
+                $titulo,
+                $descripcion,
+                $idSla,
+                $idPrioridad,
+                $idfuenteContacto,
+                $idTemaAyuda,
+                $resueltoPrimerContacto,
+                $idEstadoTicket,
+                $idDepartamentoA,
+                $idAgente,
+                $fechaInicioAtencion,
+                $fechaPrimeraRespuesta,
+                $fechaAtualizacion,
+                $fechaReapertura,
+                $fechaUltimaRespuesta,
+                $fechaCierre,
+                $idTicket
+            );
+    
+            $stmt->execute();
+    
+            if ($stmt->affected_rows >= 0) {
+                return ['success' => true, 'message' => 'Ticket actualizado correctamente'];
+            } else {
+                return ['error' => 'No se actualizó ningún registro'];
+            }
+        } catch (Exception $ex) {
+            return ['error' => $ex->getMessage()];
         } finally {
-            $con->close();
+            if ($stmt) $stmt->close();
+            if ($con) $con->close();
         }
-    }    
-
+    }
+    
+    // Método auxiliar para validar fechas
+    private function formatFecha($fecha) {
+        return (empty($fecha) || $fecha === 'null') ? null : $fecha;
+    }
+    
     public function actualizarAgente(
         $idTicket,
         $idDepartamentoA,

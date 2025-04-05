@@ -1,0 +1,34 @@
+<!-- <ion-list class="popover-resumen-list">
+  <ion-list-header class="ion-text-center">
+    <strong>🎯 Resumen de Tickets</strong>
+  </ion-list-header>
+
+  <ion-item *ngFor="let estado of estados" lines="none">
+    <ion-label>{{ estado.nombre }}</ion-label>
+    <ion-badge color="primary" slot="end">{{ estado.valor }}</ion-badge>
+  </ion-item>
+</ion-list> -->
+
+
+<ion-list class="popover-resumen-list">
+
+  <!-- 🏷️ Encabezado con el nombre del departamento -->
+  <ion-list-header class="ion-text-center">
+    <strong> 🎯 {{ item?.DepartamentoNombre || 'Resumen' }}</strong>
+  </ion-list-header>
+
+  <!-- 🔢 Detalle por estado -->
+  <ion-item *ngFor="let estado of estados" lines="none">
+    <ion-label>{{ estado.nombre }}</ion-label>
+    <ion-badge color="primary" slot="end">{{ estado.valor }}</ion-badge>
+  </ion-item>
+
+  <!-- ➕ Fila total -->
+  <ion-item class="ion-text-end">
+    <ion-label><strong>Total Tickets</strong></ion-label>
+    <ion-badge color="success" slot="end">
+      {{ getTotal() }}
+    </ion-badge>
+  </ion-item>
+
+</ion-list>

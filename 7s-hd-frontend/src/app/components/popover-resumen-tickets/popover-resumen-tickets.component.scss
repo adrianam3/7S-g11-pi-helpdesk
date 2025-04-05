@@ -1,0 +1,29 @@
+.popover-resumen-list {
+    min-width: 230px;
+    font-size: 14px;
+  
+    ion-list-header {
+      font-size: 15px;
+      padding: 10px;
+      background-color: #f0f4f8;
+      color: #1e88e5;
+    }
+  
+    ion-item {
+      --padding-start: 10px;
+      --inner-padding-end: 8px;
+      --min-height: 36px;
+    }
+  
+    ion-badge {
+      font-size: 13px;
+      padding: 4px 10px;
+      border-radius: 12px;
+    }
+
+    ion-item:last-child {
+      border-top: 1px solid #ccc;
+      margin-top: 8px;
+    }
+  }
+  

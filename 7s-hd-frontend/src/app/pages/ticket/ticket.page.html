@@ -36,6 +36,9 @@
       </ion-item>
 
       <ion-item-options side="end">
+        <ion-item-option color="success" (click)="editarTicket(ticket)">
+          <ion-icon name="pencil"></ion-icon> Editar
+        </ion-item-option>
         <ion-item-option color="warning" (click)="asignarAgente(ticket)">
           <ion-icon name="person-add"></ion-icon> Asignar
         </ion-item-option>
@@ -45,6 +48,13 @@
       </ion-item-options>
     </ion-item-sliding>
   </ion-list>
+
+  <!-- Botón flotante para agregar un nuevo ticket -->
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button (click)="crearNuevoTicket()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 
   <!-- Modal para asignar agente -->
   <ion-modal [isOpen]="displayModal">

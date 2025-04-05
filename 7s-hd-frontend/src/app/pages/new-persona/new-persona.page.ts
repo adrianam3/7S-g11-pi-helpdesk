@@ -39,33 +39,61 @@ export class NewPersonaPage implements OnInit {
       direccion: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       telefono: ['', Validators.required],
-      celular: ['', Validators.required]
+      celular: ['', Validators.required],
+      estado: ['1'],
+      extension: ['0'],
     });
   }
 
   private async getPersona() {
     this.activatedRoute.params.subscribe(async params => {
-      this.idPersona = params['id'];
+      this.idPersona = params['codigo'];
       if (this.idPersona) {
+        console.log(this.idPersona)
         this.isEdicion = true;
         await this.loadPersona(this.idPersona);
+      } else {
+        this.isEdicion = false;
+        this.personaForm.setValue
       }
     });
   }
 
-  private async loadPersona(id: number) {
-    const loading = await this.loadingCtrl.create({ message: 'Cargando...' });
+  // private async loadPersona(id: number) {
+  //   const loading = await this.loadingCtrl.create({ message: 'Cargando...' });
+  //   await loading.present();
+
+  //   try {
+  //     const personaObservable = (await this.apiService.post('controllers/persona.controller.php?op=uno', { idPersona: id })).toPromise();
+  //     console.log(personaObservable)
+  //     this.personaForm.patchValue(personaObservable);
+  //   } catch (error) {
+  //     this.showToast('Error al cargar los datos.', 'danger');
+  //   } finally {
+  //     await loading.dismiss();
+  //   }
+  // }
+
+  async loadPersona(idPersona: any) {
+    const loading = await this.loadingCtrl.create({ message: 'Cargando persona...' });
     await loading.present();
 
     try {
-      const personaObservable = (await this.apiService.post('controllers/persona.controller.php?op=uno', { idPersona: id })).toPromise();
-      this.personaForm.patchValue(personaObservable);
+      const formData = new FormData();
+      formData.append('idPersona', idPersona);
+
+      const response: any = await (await this.apiService.postFormData(`controllers/persona.controller.php?op=uno`, formData)).toPromise();
+
+      if (response) {
+        this.personaForm.patchValue(response);
+      }
     } catch (error) {
-      this.showToast('Error al cargar los datos.', 'danger');
+      this.showToast('Error al cargar la persona', 'danger');
     } finally {
-      await loading.dismiss();
+      loading.dismiss();
     }
   }
+
 
   public async confirmCrearActualizar() {
     const alert = await this.alertCtrl.create({
@@ -85,12 +113,20 @@ export class NewPersonaPage implements OnInit {
   private async crearActualizarPersona() {
     const loading = await this.loadingCtrl.create({ message: 'Guardando...' });
     await loading.present();
+    const formData = new FormData();
+    const formValue = this.personaForm.value;
+    for (const key in formValue) {
+      if (formValue.hasOwnProperty(key)) {
+        formData.append(key, formValue[key]);
+      }
+    }
 
     const operation = this.isEdicion ? 'op=actualizar' : 'op=insertar';
     try {
-      await (await this.apiService.post(`controllers/persona.controller.php?${operation}`, this.personaForm.value)).toPromise();
+      // await (await this.apiService.post(`controllers/persona.controller.php?${operation}`, formData)).toPromise();
+      await (await this.apiService.postFormData(`controllers/persona.controller.php?${operation}`, formData)).toPromise();
       this.showToast('Operación exitosa', 'success');
-      this.navCtrl.navigateBack('/usuarios');
+      this.navCtrl.navigateBack('/personas');
     } catch (error) {
       this.showToast('Error al procesar la solicitud.', 'danger');
     } finally {
@@ -104,7 +140,7 @@ export class NewPersonaPage implements OnInit {
       message: '¿Está seguro de cancelar la operación?',
       buttons: [
         { text: 'No', role: 'cancel' },
-        { text: 'Sí', handler: () => this.navCtrl.navigateBack('/usuarios') },
+        { text: 'Sí', handler: () => this.navCtrl.navigateBack('/personas') },
       ],
     });
     await alert.present();

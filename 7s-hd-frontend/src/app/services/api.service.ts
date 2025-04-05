@@ -47,19 +47,6 @@ export class ApiService {
     );
   }
 
-  async get<T>(endpoint: string, params?: any): Promise<Observable<T>> {
-    const token = await this.storage.get('token'); // Obtener el token almacenado
-    console.log('Token obtenido:', token);
-    const headers = new HttpHeaders({
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-    });
-
-    return this.http.get<T>(`${this.apiUrl}/${endpoint}`, { headers, params }).pipe(
-        catchError(error => this.handleError<T>(error))
-    );
-}
-
   async post<T>(endpoint: string, data: any): Promise<Observable<T>> {
     const headers = await this.getHeaders();
     return this.http.post<T>(`${this.apiUrl}/${endpoint}`, data, { headers }).pipe(
@@ -88,16 +75,61 @@ export class ApiService {
     );
   }
 
-  // Manejo de errores con notificación en pantalla
-  // private async handleError(error: any): Promise<never> {
-  //   const toast = await this.toastCtrl.create({
-  //     message: 'Error en la conexión con el servidor',
-  //     duration: 3000,
-  //     color: 'danger'
-  //   });
-  //   await toast.present();
-  //   throw error;
-  // }
+  // Metodo GET
+  async get<T>(endpoint: string, params?: any): Promise<Observable<T>> {
+    const token = await this.storage.get('token'); // Obtener el token almacenado
+    const idUsuario = await this.storage.get('idUsuario');
+    const idRol = await this.storage.get('idRol');
+
+    console.log('Token obtenido:', token);
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'idUsuario': idUsuario,
+      'idRol': idRol
+    });
+
+    return this.http.get<T>(`${this.apiUrl}/${endpoint}`, { headers, params }).pipe(
+      catchError(error => this.handleError<T>(error))
+    );
+  }
+
+  // Metodo POST - Consulta al backend mediante post enviaando las variables de sesión en la cabecera.
+  async postData(data: any, operation: string): Promise<Observable<any>> {
+    const idUsuario = await this.storage.get('idUsuario');
+    const idRol = await this.storage.get('idRol');
+
+    const headers = new HttpHeaders({
+      'idUsuario': idUsuario,
+      'idRol': idRol
+    });
+
+    return this.http.post(
+      `${this.apiUrl}/controllers/ticket.controller.php?${operation}`,
+      data,
+      {
+        headers,
+        withCredentials: true
+      }
+    ).pipe(
+      catchError(error => this.handleError(error))
+    );
+  }
+
+  async postFormData<T>(endpoint: string, formData: FormData): Promise<Observable<T>> {
+    const idUsuario = await this.storage.get('idUsuario');
+    const idRol = await this.storage.get('idRol');
+
+    const headers = new HttpHeaders({
+      'idUsuario': idUsuario || '',
+      'idRol': idRol || ''
+    });
+
+    return this.http.post<T>(`${this.apiUrl}/${endpoint}`, formData, { headers }).pipe(
+      catchError(error => this.handleError<T>(error))
+    );
+  }
+
 
   private handleError<T>(error: HttpErrorResponse): Observable<T> {
     if (error.status === 401) {
@@ -112,4 +144,16 @@ export class ApiService {
 
     return throwError(() => new Error(error.message)) as Observable<T>; // Corregir el tipo devuelto
   }
+
+  createFormData(data: { [key: string]: any }): FormData {
+    const formData = new FormData();
+    for (const key in data) {
+      if (data.hasOwnProperty(key)) {
+        const value = data[key];
+        formData.append(key, value != null ? value : '');
+      }
+    }
+    return formData;
+  }
+
 }

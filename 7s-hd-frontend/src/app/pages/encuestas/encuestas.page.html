@@ -12,6 +12,19 @@
   <ion-searchbar [(ngModel)]="buscarTexto" (ionInput)="filtrarEncuestas()"
     placeholder="Buscar encuesta..."></ion-searchbar>
 
+  <!-- Botones de filtro -->
+  <ion-segment (ionChange)="filtrarEncuestasParam($event.detail.value  ?? 'pe')">
+    <!-- <ion-segment-button value="all" checked>
+      <ion-label>Todos</ion-label>
+    </ion-segment-button> -->
+    <ion-segment-button value="pe">
+      <ion-label>Pendientes</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="re">
+      <ion-label>Respondidas</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
   <!-- Refrescar lista -->
   <ion-refresher slot="fixed" (ionRefresh)="loadEncuestas()">
     <ion-refresher-content pullingText="Desliza para actualizar"></ion-refresher-content>

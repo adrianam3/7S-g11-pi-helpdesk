@@ -4,10 +4,8 @@
     "secure": false,
     "changeOrigin": true,
     "pathRewrite": {
-     
       "^/api": "/7S-g11-pi-helpdesk/7s-hd-backend"
     
-
     }
   }
 }
