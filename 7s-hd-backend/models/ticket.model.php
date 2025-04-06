@@ -151,7 +151,7 @@ public function dashboardagente($fechaInicio, $fechaFin)
         return $datos;
     }
 
-    public function dashboardencuestas($fechaInicio, $fechaFin)
+    public function dashboardencuesta($fechaInicio, $fechaFin)
     {
         $con = new ClaseConectar();
         $con = $con->ProcedimientoParaConectar();
@@ -164,7 +164,8 @@ public function dashboardagente($fechaInicio, $fechaFin)
         -- , e.* 
         from encuesta e
         join ticket t on t.idTicket=e.idTicket
-        where t.fechaCierre is not null;";
+        where t.fechaCreacion BETWEEN '$fechaInicio' AND '$fechaFin'
+        ;";
         $datos = mysqli_query($con, $cadena);
         $con->close();
         return $datos;

@@ -34,6 +34,8 @@ export class DashboardPage implements OnInit {
   tabSeleccionada: string = 'estado';
   dashboardDeptoEstado: any[] = [];
   dashboardAgente: any[] = [];
+  dashboardSatisfaccion: any[] = [];
+
 
   barChartDataAgente: ChartData<'bar'> = { labels: [], datasets: [] };
 
@@ -94,6 +96,7 @@ export class DashboardPage implements OnInit {
     this.cargarTicketXEstado();
     this.cargarPorDepartamentoEstado();
     this.cargarPorAgente();
+    this.cargarSatisfaccionUsuario();
 
   }
 
@@ -181,7 +184,7 @@ export class DashboardPage implements OnInit {
     }
 
     if (this.tabSeleccionada === 'satisfaccion') {
-      // await this.cargarSatisfaccionUsuario(); 
+      await this.cargarSatisfaccionUsuario();
     }
 
 
@@ -429,8 +432,67 @@ export class DashboardPage implements OnInit {
     }
   }
 
-
-
-
+  // async cargarSatisfaccionUsuario() {
+  //   if (!this.fechaInicio || !this.fechaFin) {
+  //     this.showToast('Debes seleccionar ambas fechas', 'warning');
+  //     return;
+  //   }
+  
+  //   const endpoint = `controllers/ticket.controller.php?op=dashboardencuesta&fechaInicio=${this.fechaInicio}&fechaFin=${this.fechaFin}`;
+  //   try {
+  //     const data = await (await this.apiService.get(endpoint)).toPromise() as any[];
+  //     this.dashboardSatisfaccion = data;
+  //   } catch (error) {
+  //     this.showToast('Error al cargar datos de satisfacción', 'danger');
+  //     console.error('Error cargarSatisfaccionUsuario:', error);
+  //   }
+  // }
+  
+  async cargarSatisfaccionUsuario() {
+    if (!this.fechaInicio || !this.fechaFin) {
+      this.showToast('Debes seleccionar ambas fechas', 'warning');
+      return;
+    }
+  
+    const fechaInicioFormatted = this.fechaInicio.slice(0, 10);
+    const fechaFinFormatted = this.fechaFin.slice(0, 10);
+  
+    try {
+      const endpoint = `controllers/ticket.controller.php?op=dashboardencuesta&fechaInicio=${fechaInicioFormatted}&fechaFin=${fechaFinFormatted}`;
+      const data: any = await (await this.apiService.get(endpoint)).toPromise();
+      this.dashboardSatisfaccion = data;
+    } catch (error) {
+      this.showToast('Error al cargar datos de satisfacción', 'danger');
+      console.error('Error cargarSatisfaccionUsuario:', error);
+    }
+  }
+  
+  
+  // exportarSatisfaccionAExcel(): void {
+  //   const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.dashboardSatisfaccion);
+  //   const workbook: XLSX.WorkBook = { Sheets: { 'Satisfacción': worksheet }, SheetNames: ['Satisfacción'] };
+  //   const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  //   const blob: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+  
+  //   FileSaver.saveAs(blob, `satisfaccion_usuarios_${this.fechaInicio}_a_${this.fechaFin}.xlsx`);
+  // }
+  
+  exportarTablaSatisfaccionExcel(): void {
+    if (!this.dashboardSatisfaccion || !this.dashboardSatisfaccion.length) {
+      this.showToast('No hay datos para exportar', 'warning');
+      return;
+    }
+  
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.dashboardSatisfaccion);
+    const workbook: XLSX.WorkBook = {
+      Sheets: { 'Satisfacción': worksheet },
+      SheetNames: ['Satisfacción']
+    };
+    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+  
+    FileSaver.saveAs(blob, `satisfaccion_tickets_${this.fechaInicio}_a_${this.fechaFin}.xlsx`);
+  }
+  
 
 }

@@ -166,15 +166,53 @@
 
 
     <!-- SATISFACCIÓN -->
-    <ion-accordion value="satisfaccion">
-      <ion-item slot="header" color="light">
-        <ion-label>Satisfacción</ion-label>
-      </ion-item>
-      <div class="ion-padding" slot="content">
-        <p>Aquí iría una gráfica de resultados de encuestas</p>
+    <!-- SATISFACCIÓN -->
+<ion-accordion value="satisfaccion">
+  <ion-item slot="header" color="light">
+    <ion-label>Satisfacción de Usuario</ion-label>
+  </ion-item>
+  <div class="ion-padding" slot="content">
+    <ng-container *ngIf="dashboardSatisfaccion.length; else sinDatosSatisfaccion">
+      <div class="tabla-wrapper">
+        <table class="tabla-departamento">
+          <thead>
+            <tr>
+              <th>ID Ticket</th>
+              <th>Descripción</th>
+              <th>Fecha Creación</th>
+              <th>Fecha Cierre</th>
+              <th>Puntuación</th>
+              <th>Comentarios</th>
+              <th>Fecha Envío Encuesta</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of dashboardSatisfaccion">
+              <td>{{ item.idTicket }}</td>
+              <td [title]="item.descripcion">{{ item.descripcion }}</td>
+              <td>{{ item.fechaCreacion | date: 'shortDate' }}</td>
+              <td>{{ item.fechaCierre | date: 'shortDate' }}</td>
+              <td>{{ item.puntuacion }}</td>
+              <td [title]="item.comentarios">{{ item.comentarios }}</td>
+              <td>{{ item.fechaEnvioEncuesta | date: 'shortDate' }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <ion-button expand="block" color="success" (click)="exportarTablaSatisfaccionExcel()">
+          <ion-icon name="document-attach-outline" slot="start"></ion-icon>
+          Exportar a Excel
+        </ion-button>
+        
       </div>
-    </ion-accordion>
+    </ng-container>
+    <ng-template #sinDatosSatisfaccion>
+      <ion-text color="medium"><p class="ion-text-center">No hay datos de satisfacción en este periodo.</p></ion-text>
+    </ng-template>
+  </div>
+</ion-accordion>
 
+    
+    
   </ion-accordion-group>
 
 
