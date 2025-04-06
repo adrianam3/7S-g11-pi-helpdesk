@@ -10,7 +10,7 @@ Array
     [content-type] => application/json
     [accept] => application/json, text/plain, */*
     [idrol] => 1
-    [user-agent] => Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Mobile Safari/537.36
+    [user-agent] => Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Mobile Safari/537.36
     [idusuario] => 1
     [sec-ch-ua-mobile] => ?1
     [sec-ch-ua] => "Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"

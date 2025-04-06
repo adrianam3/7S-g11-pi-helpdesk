@@ -214,4 +214,34 @@
     display: block;
   }
 
+  .nps-excelente {
+    color: #2ecc71; // verde
+    font-weight: bold;
+  }
+  
+  .nps-muybien {
+    color: #3498db; // azul
+    font-weight: bold;
+  }
+  
+  .nps-razonable {
+    color: #f1c40f; // amarillo
+    font-weight: bold;
+  }
+  
+  .nps-malo {
+    color: #e74c3c; // rojo
+    font-weight: bold;
+  }
+  ion-item[slot="header"] ion-label {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1rem;
+  }
+  
+  ion-item[slot="header"] ion-icon {
+    margin-right: 8px;
+    font-size: 1.2rem;
+  }
   

@@ -46,12 +46,16 @@
 
   <!-- Acordeones -->
 
-  <ion-accordion-group expand="inset" value="estado" (ionChange)="tabSeleccionada = $event.detail.value">
-
+  <!-- <ion-accordion-group expand="inset" value="estado" (ionChange)="tabSeleccionada = $event.detail.value"> -->
+    <ion-accordion-group expand="inset" value="estado" 
+    (ionChange)="tabSeleccionada = $event.detail.value; ionAccordionAbierto($event.detail.value)">
+  
     <!-- ESTADO -->
     <ion-accordion value="estado">
       <ion-item slot="header" color="light">
-        <ion-label>Resumen por Estado</ion-label>
+        <ion-label>
+          <ion-icon name="pie-chart-outline" slot="start" style="margin-right: 8px;"></ion-icon>
+          Tickets por Estado</ion-label>
       </ion-item>
       <div class="ion-padding" slot="content">
         <ng-container *ngIf="pieChartData.datasets[0].data.length">
@@ -69,7 +73,9 @@
     <!-- DEPARTAMENTO -->
     <ion-accordion value="departamento">
       <ion-item slot="header" color="light">
-        <ion-label>Tickets por Departamento y Estado</ion-label>
+        <ion-label>
+          <ion-icon name="business-outline" slot="start" style="margin-right: 8px;"></ion-icon>
+          Tickets por Departamento y Estado</ion-label>
       </ion-item>
       <div class="ion-padding" slot="content">
         <ng-container *ngIf="dashboardDeptoEstado.length">
@@ -144,7 +150,9 @@
     <!-- AGENTE -->
     <ion-accordion value="agente">
       <ion-item slot="header" color="light">
-        <ion-label>Tickets por Agente</ion-label>
+        <ion-label>
+          <ion-icon name="people-circle-outline" slot="start" style="margin-right: 8px;"></ion-icon>
+          Tickets por Agente</ion-label>
       </ion-item>
       <div class="ion-padding" slot="content">
         <ng-container *ngIf="barChartData?.labels?.length">
@@ -162,14 +170,12 @@
         </ng-container>
       </div>
     </ion-accordion>
-
-
-
-    <!-- SATISFACCIÓN -->
     <!-- SATISFACCIÓN -->
     <ion-accordion value="satisfaccion">
       <ion-item slot="header" color="light">
-        <ion-label>Satisfacción de Usuario</ion-label>
+        <ion-label>
+          <ion-icon name="happy-outline" slot="start" style="margin-right: 8px;"></ion-icon>
+          Satisfacción de Usuario</ion-label>
       </ion-item>
       <div class="ion-padding" slot="content">
         <ng-container *ngIf="dashboardSatisfaccion.length; else sinDatosSatisfaccion">
@@ -218,7 +224,9 @@
     <!-- SATISFACCIÓN - TABLA POR AGENTE -->
     <ion-accordion value="satisfaccionTabla">
       <ion-item slot="header" color="light">
-        <ion-label>Satisfacción - Tabla por Agente</ion-label>
+        <ion-label>
+          <ion-icon name="person-outline" slot="start" style="margin-right: 8px;"></ion-icon>
+          Satisfacción por Agente (datos)</ion-label>
       </ion-item>
       <div class="ion-padding" slot="content">
         <ng-container *ngIf="tablaSatisfaccion.length; else sinDatosTablaAgente">
@@ -243,7 +251,7 @@
               <ion-icon name="document-attach-outline" slot="start"></ion-icon>
               Exportar a Excel
             </ion-button>
-            
+
           </div>
         </ng-container>
         <ng-template #sinDatosTablaAgente>
@@ -280,7 +288,9 @@
     <!-- SATISFACCIÓN - GRÁFICO -->
     <ion-accordion value="satisfaccionGrafico">
       <ion-item slot="header" color="light">
-        <ion-label>Satisfacción por Agente (Gráfico)</ion-label>
+        <ion-label>
+          <ion-icon name="stats-chart-outline" slot="start" style="margin-right: 8px;"></ion-icon>
+          Satisfacción por Agente (Gráfico)</ion-label>
       </ion-item>
       <div class="ion-padding" slot="content">
         <ng-container *ngIf="pieChartSatisfaccionData?.labels?.length">
@@ -303,7 +313,9 @@
     <!-- velocimetro -->
     <ion-accordion value="velocimetro">
       <ion-item slot="header" color="light">
-        <ion-label>Velocímetro Comparativo de Satisfacción</ion-label>
+        <ion-label>
+          <ion-icon name="speedometer-outline" slot="start" style="margin-right: 8px;"></ion-icon>
+          Satisfacción por Agente de Soporte</ion-label>
       </ion-item>
       <div class="ion-padding" slot="content">
         <!-- <div id="graficoVelocimetro" style="height: 200px;"></div> -->
@@ -316,8 +328,75 @@
       </div>
     </ion-accordion>
 
+    <!-- NPS - Net Promoter Score -->
+    <ion-accordion value="nps">
+      <ion-item slot="header" color="light">
+        <ion-label>
+          <ion-icon name="pulse-outline" slot="start" style="margin-right: 8px;"></ion-icon>
+          NPS - Net Promoter Score</ion-label>
+      </ion-item>
+      <div class="ion-padding" slot="content">
+        <ion-card *ngIf="dashboardSatisfaccion.length">
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="stats-chart-outline" color="primary"></ion-icon>
+              <span style="margin-left: 6px;">Net Promoter Score</span>
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-chip [color]="getNPSColor(calcularNPS())" style="font-size: 1.1rem; font-weight: bold;"
+            [title]="'NPS = % de Promotores - % de Detractores'"
+            >
+              <ion-label>
+                NPS: {{ calcularNPS() }}
+              </ion-label>
+            </ion-chip>
+
+            <ion-text>
+              <p style="margin-top: 10px;">
+                <strong>Interpretación:</strong>
+                <!-- <span *ngIf="calcularNPS() >= 50">Excelente 😊</span>
+            <span *ngIf="calcularNPS() < 50 && calcularNPS() >= 0">Aceptable 😐</span>
+            <span *ngIf="calcularNPS() < 0">Crítico 😟</span> -->
+                <span *ngIf="calcularNPS() >= 75">Excelente 😊</span>
+                <span *ngIf="calcularNPS() >= 50 && calcularNPS() < 75">Muy bien 🙂</span>
+                <span *ngIf="calcularNPS() >= 0 && calcularNPS() < 50">Razonable 😐</span>
+                <span *ngIf="calcularNPS() < 0">Malo 😟</span>
+              </p>
+            </ion-text>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-text *ngIf="!dashboardSatisfaccion.length" color="medium">
+          <p class="ion-text-center">No hay datos disponibles para calcular el NPS.</p>
+        </ion-text>
+      </div>
+    </ion-accordion>
+
+    <!-- NPS - Gráfico Radial -->
+    <ion-accordion value="npsGrafico">
+      <ion-item slot="header" color="light">
+        <ion-label>
+          <ion-icon name="speedometer-outline" slot="start" style="margin-right: 8px;"></ion-icon>
+          NPS - Gráfica</ion-label>
+      </ion-item>
+      <div class="ion-padding" slot="content">
+        <div id="graficoNPS" style="height: 250px;"></div>
+        <!-- <div id="graficoNPS" [style.height]="graficoVelocimetroAltura"></div> -->
+        <!-- <div id="graficoNPS" [style.height]="graficoVelocimetroAltura" style="width: 80%;"></div> -->
+        <!-- <div id="graficoNPS" style="width: 100%; height: 250px; display: flex; justify-content: flex-start;"></div> -->
+        <!-- <div style="display: flex; justify-content: flex-start;">
+          <div id="graficoNPS" style="width: 380px; height: 250px;"></div>
+        </div> -->
+        
 
 
+        <ion-button expand="block" (click)="exportarGraficoNPS()" color="tertiary">
+          <ion-icon name="download-outline" slot="start"></ion-icon>
+          Exportar Gráfico
+        </ion-button>
+      </div>
+    </ion-accordion>
 
   </ion-accordion-group>
 

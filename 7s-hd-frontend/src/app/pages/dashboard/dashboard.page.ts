@@ -168,42 +168,76 @@ export class DashboardPage implements OnInit {
     }
   }
 
+  // async onSubmit() {
+  //   if (!this.fechaInicio || !this.fechaFin) {
+  //     this.showToast('Debes seleccionar ambas fechas', 'warning');
+  //     return;
+  //   }
+
+  //   if (this.tabSeleccionada === 'estado') {
+  //     await this.cargarTicketXEstado();
+  //   }
+
+  //   if (this.tabSeleccionada === 'departamento') {
+  //     await this.cargarPorDepartamentoEstado();
+  //   }
+
+  //   if (this.tabSeleccionada === 'agente') {
+  //     await this.cargarPorAgente();
+  //   }
+
+  //   if (this.tabSeleccionada === 'satisfaccion') {
+  //     await this.cargarSatisfaccionUsuario();
+
+  //   }
+  //   if (this.tabSeleccionada === 'satisfaccionTabla') {
+  //     await this.cargarResumenSatisfaccionAgente();
+  //   }
+
+  //   if (this.tabSeleccionada === 'satisfaccionGrafico') {
+  //     await this.cargarResumenSatisfaccionAgente();
+  //   }
+  //   if (this.tabSeleccionada === 'velocimetro') {
+  //     await this.cargarResumenSatisfaccionAgente();
+  //   }
+
+
+
+  // }
+
   async onSubmit() {
     if (!this.fechaInicio || !this.fechaFin) {
       this.showToast('Debes seleccionar ambas fechas', 'warning');
       return;
     }
 
-    if (this.tabSeleccionada === 'estado') {
-      await this.cargarTicketXEstado();
+    // Siempre recargamos estos dos para que el NPS y resumen estén actualizados
+    await this.cargarSatisfaccionUsuario();
+    await this.cargarResumenSatisfaccionAgente();
+
+    switch (this.tabSeleccionada) {
+      case 'estado':
+        await this.cargarTicketXEstado();
+        break;
+      case 'departamento':
+        await this.cargarPorDepartamentoEstado();
+        break;
+      case 'agente':
+        await this.cargarPorAgente();
+        break;
+      case 'satisfaccion':
+        // ya se cargó arriba
+        break;
+      case 'satisfaccionTabla':
+      case 'satisfaccionGrafico':
+      case 'velocimetro':
+      case 'nps':
+      case 'npsGrafico':
+        // ya se cargó arriba
+        break;
     }
-
-    if (this.tabSeleccionada === 'departamento') {
-      await this.cargarPorDepartamentoEstado();
-    }
-
-    if (this.tabSeleccionada === 'agente') {
-      await this.cargarPorAgente();
-    }
-
-    if (this.tabSeleccionada === 'satisfaccion') {
-      await this.cargarSatisfaccionUsuario();
-
-    }
-    if (this.tabSeleccionada === 'satisfaccionTabla') {
-      await this.cargarResumenSatisfaccionAgente();
-    }
-
-    if (this.tabSeleccionada === 'satisfaccionGrafico') {
-      await this.cargarResumenSatisfaccionAgente();
-    }
-    if (this.tabSeleccionada === 'velocimetro') {
-      await this.cargarResumenSatisfaccionAgente();
-    }
-
-
-
   }
+
 
   async cargarPorAgente() {
     if (!this.fechaInicio || !this.fechaFin) {
@@ -452,7 +486,7 @@ export class DashboardPage implements OnInit {
   //     this.showToast('Debes seleccionar ambas fechas', 'warning');
   //     return;
   //   }
-  
+
   //   const endpoint = `controllers/ticket.controller.php?op=dashboardencuesta&fechaInicio=${this.fechaInicio}&fechaFin=${this.fechaFin}`;
   //   try {
   //     const data = await (await this.apiService.get(endpoint)).toPromise() as any[];
@@ -462,42 +496,44 @@ export class DashboardPage implements OnInit {
   //     console.error('Error cargarSatisfaccionUsuario:', error);
   //   }
   // }
-  
+
   async cargarSatisfaccionUsuario() {
     if (!this.fechaInicio || !this.fechaFin) {
       this.showToast('Debes seleccionar ambas fechas', 'warning');
       return;
     }
-  
+
     const fechaInicioFormatted = this.fechaInicio.slice(0, 10);
     const fechaFinFormatted = this.fechaFin.slice(0, 10);
-  
+
     try {
       const endpoint = `controllers/ticket.controller.php?op=dashboardencuesta&fechaInicio=${fechaInicioFormatted}&fechaFin=${fechaFinFormatted}`;
       const data: any = await (await this.apiService.get(endpoint)).toPromise();
       this.dashboardSatisfaccion = data;
+      //
+      this.renderGraficoNPS();
     } catch (error) {
       this.showToast('Error al cargar datos de satisfacción', 'danger');
       console.error('Error cargarSatisfaccionUsuario:', error);
     }
   }
-  
-  
+
+
   // exportarSatisfaccionAExcel(): void {
   //   const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.dashboardSatisfaccion);
   //   const workbook: XLSX.WorkBook = { Sheets: { 'Satisfacción': worksheet }, SheetNames: ['Satisfacción'] };
   //   const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
   //   const blob: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-  
+
   //   FileSaver.saveAs(blob, `satisfaccion_usuarios_${this.fechaInicio}_a_${this.fechaFin}.xlsx`);
   // }
-  
+
   exportarTablaSatisfaccionExcel(): void {
     if (!this.dashboardSatisfaccion || !this.dashboardSatisfaccion.length) {
       this.showToast('No hay datos para exportar', 'warning');
       return;
     }
-  
+
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.dashboardSatisfaccion);
     const workbook: XLSX.WorkBook = {
       Sheets: { 'Satisfacción': worksheet },
@@ -505,7 +541,7 @@ export class DashboardPage implements OnInit {
     };
     const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     const blob: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-  
+
     FileSaver.saveAs(blob, `satisfaccion_tickets_${this.fechaInicio}_a_${this.fechaFin}.xlsx`);
   }
 
@@ -514,7 +550,7 @@ export class DashboardPage implements OnInit {
       this.showToast('No hay datos para exportar', 'warning');
       return;
     }
-  
+
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.tablaSatisfaccion);
     const workbook: XLSX.WorkBook = {
       Sheets: { 'Satisfacción por Agente': worksheet },
@@ -522,13 +558,13 @@ export class DashboardPage implements OnInit {
     };
     const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     const blob: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-  
+
     FileSaver.saveAs(blob, `satisfaccion_agente_${this.fechaInicio}_a_${this.fechaFin}.xlsx`);
   }
-  
+
 
   tablaSatisfaccion: any[] = [];
-  
+
   pieChartSatisfaccionPlugins: Plugin[] = [ChartDataLabels];
 
   pieChartSatisfaccionData: ChartData = {
@@ -538,9 +574,9 @@ export class DashboardPage implements OnInit {
       backgroundColor: ['#f39c12', '#e67e22', '#e74c3c', '#8e44ad', '#3498db', '#1abc9c']
     }]
   };
-    
+
   pieChartSatisfaccionType: ChartType = 'pie';
-  
+
   pieChartSatisfaccionOptions: ChartOptions = {
     responsive: true,
     plugins: {
@@ -567,19 +603,19 @@ export class DashboardPage implements OnInit {
     }
   };
 
-  
+
   async cargarResumenSatisfaccionAgente() {
     const endpoint = `controllers/ticket.controller.php?op=dashboardEncuestaAgente&fechaInicio=${this.fechaInicio}&fechaFin=${this.fechaFin}`;
     try {
       const data = await (await this.apiService.get(endpoint)).toPromise() as any[];
-  
+
       if (!data || data.length === 0) {
         this.showToast('No hay datos de satisfacción por agente', 'warning');
         return;
       }
-  
+
       this.tablaSatisfaccion = data;
-  
+
       this.pieChartSatisfaccionData = {
         labels: data.map(d => d.agente),
         datasets: [{
@@ -598,14 +634,14 @@ export class DashboardPage implements OnInit {
 
 
 
-  
+
     this.renderVelocimetroComparativo();
 
 
 
-  
+
   }
-  
+
 
   exportarGraficoSatisfaccion() {
     const canvas: HTMLCanvasElement = document.querySelector('canvas')!;
@@ -621,14 +657,14 @@ export class DashboardPage implements OnInit {
   }
   // velocimetro
 
-  
+
 
   // renderVelocimetroComparativo() {
   //   if (!this.tablaSatisfaccion?.length) {
   //     this.showToast('No hay datos para el velocímetro', 'warning');
   //     return;
   //   }
-  
+
   //   const data = this.tablaSatisfaccion.map((item: any, index: number) => {
   //     return {
   //       type: 'indicator',
@@ -654,28 +690,141 @@ export class DashboardPage implements OnInit {
   //       }
   //     };
   //   });
-  
+
   //   const layout: Partial<any> = {
   //     grid: { rows: Math.ceil(data.length / 2), columns: 2, pattern: 'independent' },
   //     margin: { t: 30, b: 30, l: 10, r: 10 },
   //     paper_bgcolor: '#fff',
   //     plot_bgcolor: '#fff',
   //   };
-    
-  
+
+
   //   Plotly.newPlot('graficoVelocimetro', data, layout);
   // }
- 
+
   graficoVelocimetroAltura = '400px'; // valor por defecto
 
+  // renderVelocimetroComparativo() {
+  //   if (!this.tablaSatisfaccion?.length) {
+  //     this.showToast('No hay datos para el velocímetro', 'warning');
+  //     return;
+  //   }
+
+  //   const columns = 2; // ✅ Puedes cambiar a 3 si deseas 3 gráficos por fila
+  //   const rows = Math.ceil(this.tablaSatisfaccion.length / columns);
+
+  //   const data = this.tablaSatisfaccion.map((item: any, index: number) => ({
+  //     type: 'indicator',
+  //     mode: 'gauge+number',
+  //     value: parseFloat(item.promedioPuntuacion),
+  //     title: { text: item.agente, font: { size: 10 } },
+  //     domain: {
+  //       row: Math.floor(index / columns),
+  //       column: index % columns
+  //     },
+  //     gauge: {
+  //       axis: { range: [0, 10] },
+  //       bar: { color: '#34495e' },
+  //       steps: [
+  //         { range: [0, 4], color: '#e74c3c' },
+  //         { range: [4, 8], color: '#f1c40f' },
+  //         { range: [8, 10], color: '#2ecc71' }
+  //       ],
+  //       threshold: {
+  //         line: {
+  //           color: this.getColorForValue(parseFloat(item.promedioPuntuacion)),
+  //           width: 4
+  //         },
+  //         value: parseFloat(item.promedioPuntuacion)
+  //       }
+  //     }
+  //   }));
+
+  //   // const layout: Partial<any> = {
+  //   //   grid: { rows, columns, pattern: 'independent' },
+  //   //   margin: { t: 30, b: 30, l: 10, r: 10 },
+  //   //   height: rows * 220, // 🔸 Aumenta la altura por fila si es necesario
+  //   //   paper_bgcolor: '#fff',
+  //   //   plot_bgcolor: '#fff',
+  //   // };
+  //   const altura = rows * 220;
+  //   this.graficoVelocimetroAltura = `${altura}px`;
+
+  //   const layout: Partial<any> = {
+  //     grid: { rows, columns, pattern: 'independent' },
+  //     margin: { t: 30, b: 30, l: 10, r: 10 },
+  //     height: altura,
+  //     paper_bgcolor: '#fff',
+  //     plot_bgcolor: '#fff',
+  //   };
+
+  //   Plotly.newPlot('graficoVelocimetro', data, layout);
+  // }
+
+  // renderVelocimetroComparativo() {
+  //   const contenedor = document.getElementById('graficoVelocimetro');
+  //   if (!this.tablaSatisfaccion?.length || !contenedor) {
+  //     this.showToast('No hay datos para el velocímetro', 'warning');
+  //     return;
+  //   }
+  
+  //   Plotly.purge(contenedor); // 🧹 limpia el gráfico anterior
+  
+  //   const columns = 2;
+  //   const rows = Math.ceil(this.tablaSatisfaccion.length / columns);
+  //   const altura = rows * 220;
+  //   this.graficoVelocimetroAltura = `${altura}px`;
+  
+  //   const data = this.tablaSatisfaccion.map((item: any, index: number) => ({
+  //     type: 'indicator',
+  //     mode: 'gauge+number',
+  //     value: parseFloat(item.promedioPuntuacion),
+  //     title: { text: item.agente, font: { size: 10 } },
+  //     domain: {
+  //       row: Math.floor(index / columns),
+  //       column: index % columns
+  //     },
+  //     gauge: {
+  //       axis: { range: [0, 10] },
+  //       bar: { color: '#34495e' },
+  //       steps: [
+  //         { range: [0, 4], color: '#e74c3c' },
+  //         { range: [4, 8], color: '#f1c40f' },
+  //         { range: [8, 10], color: '#2ecc71' }
+  //       ],
+  //       threshold: {
+  //         line: {
+  //           color: this.getColorForValue(parseFloat(item.promedioPuntuacion)),
+  //           width: 4
+  //         },
+  //         value: parseFloat(item.promedioPuntuacion)
+  //       }
+  //     }
+  //   }));
+  
+  //   const layout: Partial<any> = {
+  //     grid: { rows, columns, pattern: 'independent' },
+  //     margin: { t: 30, b: 30, l: 10, r: 10 },
+  //     height: altura,
+  //     paper_bgcolor: '#fff',
+  //     plot_bgcolor: '#fff',
+  //   };
+  
+  //   const config = { responsive: true, displayModeBar: false };
+  
+  //   Plotly.newPlot('graficoVelocimetro', data, layout, config); // 🔁 Redibuja con animación
+  // }
+  
   renderVelocimetroComparativo() {
     if (!this.tablaSatisfaccion?.length) {
       this.showToast('No hay datos para el velocímetro', 'warning');
       return;
     }
   
-    const columns = 2; // ✅ Puedes cambiar a 3 si deseas 3 gráficos por fila
+    const columns = 2;
     const rows = Math.ceil(this.tablaSatisfaccion.length / columns);
+    const altura = rows * 220;
+    this.graficoVelocimetroAltura = `${altura}px`;
   
     const data = this.tablaSatisfaccion.map((item: any, index: number) => ({
       type: 'indicator',
@@ -704,16 +853,6 @@ export class DashboardPage implements OnInit {
       }
     }));
   
-    // const layout: Partial<any> = {
-    //   grid: { rows, columns, pattern: 'independent' },
-    //   margin: { t: 30, b: 30, l: 10, r: 10 },
-    //   height: rows * 220, // 🔸 Aumenta la altura por fila si es necesario
-    //   paper_bgcolor: '#fff',
-    //   plot_bgcolor: '#fff',
-    // };
-    const altura = rows * 220;
-    this.graficoVelocimetroAltura = `${altura}px`;
-    
     const layout: Partial<any> = {
       grid: { rows, columns, pattern: 'independent' },
       margin: { t: 30, b: 30, l: 10, r: 10 },
@@ -721,17 +860,29 @@ export class DashboardPage implements OnInit {
       paper_bgcolor: '#fff',
       plot_bgcolor: '#fff',
     };
-    
-    Plotly.newPlot('graficoVelocimetro', data, layout);
+  
+    const config = { responsive: true, displayModeBar: false };
+  
+    // 🟢 Usamos react con transición para animar
+    const container = document.getElementById('graficoVelocimetro');
+    if (container) {
+      Plotly.react(container, data, layout, config).then(() => {
+        Plotly.animate(container, {
+          data: data
+        }, {
+          transition: { duration: 500, easing: 'cubic-in-out' },
+          frame: { duration: 500 }
+        });
+      });
+    }
   }
   
-    
   getColorForValue(valor: number): string {
     if (valor <= 4) return '#e74c3c'; // rojo
     if (valor <= 8) return '#f1c40f'; // amarillo
     return '#2ecc71'; // verde
   }
-  
+
 
   exportarGraficoVelocimetro() {
     Plotly.toImage('graficoVelocimetro', { format: 'png', height: 400, width: 800 }).then((dataUrl: string) => {
@@ -741,7 +892,440 @@ export class DashboardPage implements OnInit {
       a.click();
     });
   }
+
+  // NPS
+
+  calcularNPS(): number {
+    const respuestas = this.dashboardSatisfaccion.map(e => Number(e.puntuacion)).filter(n => !isNaN(n));
+    const total = respuestas.length;
+
+    if (total === 0) return 0;
+
+    const promotores = respuestas.filter(p => p >= 9).length;
+    const detractores = respuestas.filter(p => p <= 6).length;
+
+    const porcentajePromotores = (promotores / total) * 100;
+    const porcentajeDetractores = (detractores / total) * 100;
+
+    return Math.round(porcentajePromotores - porcentajeDetractores);
+  }
+
+  getNPSColor(nps: number): string {
+    if (nps >= 50) return 'success';      // verde
+    if (nps >= 0) return 'warning';        // amarillo
+    return 'danger';                       // rojo
+  }
+
+  // renderGraficoNPS() {
+  //   const nps = this.calcularNPS();
+
+  //   const data = [{
+  //     type: 'indicator',
+  //     mode: 'gauge+number',
+  //     value: nps,
+  //     title: { text: "NPS", font: { size: 18 } },
+  //     gauge: {
+  //       axis: { range: [-100, 100] },
+  //       bar: { color: '#34495e' },
+  //       steps: [
+  //         { range: [-100, 0], color: '#e74c3c' },
+  //         { range: [0, 50], color: '#f1c40f' },
+  //         { range: [50, 100], color: '#2ecc71' }
+  //       ],
+  //       threshold: {
+  //         line: {
+  //           color: this.getColorForValue(nps),
+  //           width: 4
+  //         },
+  //         value: nps
+  //       }
+  //     }
+  //   }];
+
+  //   const layout = {
+  //     width: 400,
+  //     height: 250,
+  //     margin: { t: 30, b: 0, l: 0, r: 0 },
+  //     paper_bgcolor: '#fff',
+  //     font: { color: '#333' }
+  //   };
+
+  //   Plotly.newPlot('graficoNPS', data, layout);
+  // }
+
+  // renderGraficoNPS() {
+  //   const nps = this.calcularNPS();
+
+  //   const contenedor = document.getElementById('graficoNPS');
+  //   if (contenedor) {
+  //     Plotly.purge(contenedor); // Limpia si ya existe
+  //   }
+
+  //   const data = [{
+  //     type: 'indicator',
+  //     mode: 'gauge+number',
+  //     value: nps,
+  //     title: { text: "NPS", font: { size: 16 } },
+  //     domain: { x: [0, 1], y: [0, 1] },
+  //     gauge: {
+  //       shape: "semi", // Semicírculo
+  //       axis: { range: [-100, 100], tickwidth: 1, tickcolor: "darkgray" },
+  //       bar: { color: '#34495e' },
+  //       steps: [
+  //         { range: [-100, 0], color: '#e74c3c' },
+  //         { range: [0, 50], color: '#f1c40f' },
+  //         { range: [50, 100], color: '#2ecc71' }
+  //       ],
+  //       threshold: {
+  //         line: {
+  //           color: this.getColorForValue(nps),
+  //           width: 4
+  //         },
+  //         value: nps
+  //       }
+  //     }
+  //   }];
+
+  //   const layout: Partial<any> = {
+  //     margin: { t: 30, b: 0, l: 20, r: 20 },
+  //     height: 220,
+  //     paper_bgcolor: '#fff',
+  //     plot_bgcolor: '#fff',
+  //     font: { color: '#2c3e50', family: 'Arial' }
+  //   };
+
+  //   const config = {
+  //     displayModeBar: false, // Oculta la barra de herramientas
+  //     responsive: true
+  //   };
+
+  //   // ⏳ Dibuja primero con valor 0 para animar después
+  //   const tempData = JSON.parse(JSON.stringify(data));
+  //   tempData[0].value = 0;
+
+  //   Plotly.newPlot('graficoNPS', tempData, layout, config).then(() => {
+  //     // 🔁 Animación de entrada
+  //     Plotly.animate('graficoNPS', {
+  //       data: [{ value: nps }],
+  //       traces: [0],
+  //       layout: {}
+  //     }, {
+  //       transition: { duration: 800, easing: 'cubic-in-out' },
+  //       frame: { duration: 500 }
+  //     });
+  //     // 🔁 Solución: Forzar redimensionamiento tras 500ms
+  //     setTimeout(() => {
+  //       Plotly.Plots.resize('graficoNPS');
+  //     }, 500);
+
+  //   });
+  // }
+
+  // renderGraficoNPS() {
+  //   const nps = this.calcularNPS();
+  
+  //   const contenedor = document.getElementById('graficoNPS');
+  //   if (!contenedor) {
+  //     this.showToast('Contenedor del gráfico NPS no encontrado', 'danger');
+  //     return;
+  //   }
+  
+  //   Plotly.purge(contenedor); // limpia cualquier render previo
+  
+  //   const data = [{
+  //     type: 'indicator',
+  //     mode: 'gauge+number',
+  //     value: nps,
+  //     title: { text: "NPS", font: { size: 16 } },
+  //     domain: { row: 0, column: 0 },
+  //     gauge: {
+  //       axis: { range: [-100, 100], tickwidth: 1, tickcolor: "darkgray" },
+  //       bar: { color: '#34495e' },
+  //       steps: [
+  //         { range: [-100, 0], color: '#e74c3c' },
+  //         { range: [0, 50], color: '#f1c40f' },
+  //         { range: [50, 100], color: '#2ecc71' }
+  //       ],
+  //       threshold: {
+  //         line: {
+  //           color: this.getColorForValue(nps),
+  //           width: 4
+  //         },
+  //         value: nps
+  //       }
+  //     }
+  //   }];
+  
+  //   const layout: Partial<any> = {
+  //     grid: { rows: 1, columns: 1, pattern: 'independent' },
+  //     margin: { t: 30, b: 20, l: 10, r: 10 },
+  //     height: 250,
+  //     paper_bgcolor: '#fff',
+  //     plot_bgcolor: '#fff'
+  //   };
+  
+  //   // Esperamos al siguiente ciclo de detección para asegurar que el div esté bien renderizado
+  //   setTimeout(() => {
+  //     Plotly.newPlot(contenedor, data, layout).then(() => {
+  //       Plotly.Plots.resize(contenedor); // 🔄 fuerza a Plotly a adaptarse al tamaño real
+  //     });
+  //   }, 100);
+  // }
+  
+  // renderGraficoNPS() {
+  //   const nps = this.calcularNPS();
+  
+  //   const contenedor = document.getElementById('graficoNPS');
+  //   if (!contenedor) return;
+  
+  //   Plotly.purge(contenedor);
+  
+  //   const data = [{
+  //     type: 'indicator',
+  //     mode: 'gauge+number',
+  //     value: nps,
+  //     title: { text: "NPS", font: { size: 14 } },
+  //     domain: { x: [0, 1], y: [0, 1] }, // usar todo el espacio disponible
+  //     gauge: {
+  //       axis: { range: [-100, 100], tickwidth: 1, tickcolor: "darkgray" },
+  //       bar: { color: '#34495e' },
+  //       steps: [
+  //         { range: [-100, 0], color: '#e74c3c' },
+  //         { range: [0, 50], color: '#f1c40f' },
+  //         { range: [50, 100], color: '#2ecc71' }
+  //       ],
+  //       threshold: {
+  //         line: {
+  //           color: this.getColorForValue(nps),
+  //           width: 4
+  //         },
+  //         value: nps
+  //       }
+  //     }
+  //   }];
+  
+  //   // const layout: Partial<any> = {
+  //   //   margin: { t: 30, b: 10, l: 0, r: 0 }, // menos margen izquierdo y derecho
+  //   //   width: 400, // 🔧 prueba con 400 o incluso 350
+  //   //   height: 250,
+  //   //   paper_bgcolor: '#fff',
+  //   //   plot_bgcolor: '#fff'
+  //   // };
+  //   const layout: Partial<any> = {
+  //     width: 380, // Fijo y controlado
+  //     height: 250,
+  //     margin: { t: 30, b: 20, l: 20, r: 10 },
+  //     paper_bgcolor: '#fff',
+  //     plot_bgcolor: '#fff'
+  //   };
+    
+  //   setTimeout(() => {
+  //     Plotly.newPlot(contenedor, data, layout).then(() => {
+  //       Plotly.Plots.resize(contenedor);
+  //     });
+  //   }, 100);
+  // }
   
 
+  // renderGraficoNPS() {
+  //   const nps = this.calcularNPS();
+  
+  //   const contenedor = document.getElementById('graficoNPS');
+  //   if (!contenedor) return;
+  
+  //   const data = [{
+  //     type: 'indicator',
+  //     mode: 'gauge+number',
+  //     value: nps,
+  //     title: { text: "NPS", font: { size: 16 } },
+  //     domain: { row: 0, column: 0 },
+  //     gauge: {
+  //       axis: { range: [-100, 100], tickwidth: 1, tickcolor: "darkgray" },
+  //       bar: { color: '#34495e' },
+  //       steps: [
+  //         { range: [-100, 0], color: '#e74c3c' },
+  //         { range: [0, 50], color: '#f1c40f' },
+  //         { range: [50, 100], color: '#2ecc71' }
+  //       ],
+  //       threshold: {
+  //         line: {
+  //           color: this.getColorForValue(nps),
+  //           width: 4
+  //         },
+  //         value: nps
+  //       }
+  //     }
+  //   }];
+  
+  //   const layout: Partial<any> = {
+  //     width: 380,
+  //     height: 250,
+  //     margin: { t: 30, b: 20, l: 20, r: 10 },
+  //     paper_bgcolor: '#fff',
+  //     plot_bgcolor: '#fff'
+  //   };
+  
+  //   const config = { responsive: true };
+  
+  //   // Usar Plotly.react en lugar de newPlot
+  //   Plotly.react(contenedor, data, layout, config).then(() => {
+  //     Plotly.animate(contenedor, {
+  //       data: [{ value: nps }],
+  //       traces: [0],
+  //       layout: {}
+  //     }, {
+  //       transition: {
+  //         duration: 800,
+  //         easing: 'cubic-in-out'
+  //       },
+  //       frame: {
+  //         duration: 800
+  //       }
+  //     });
+  //   });
+  // }
+  
+  renderGraficoNPS() {
+    const nps = this.calcularNPS();
+  
+    const contenedor = document.getElementById('graficoNPS');
+    if (!contenedor) return;
+  
+    const columns = 2;
+    const rows = Math.ceil(this.tablaSatisfaccion.length / columns);
+    const altura = rows * 220;
+    // this.graficoVelocimetroAltura = `${altura}px`;
+
+    const baseData = [{
+      type: 'indicator',
+      mode: 'gauge+number',
+      value: 0, // Empieza en 0 para animar
+      title: { text: "NPS", font: { size: 16 } },
+      domain: { row: 0, column: 0 },
+      gauge: {
+        axis: { range: [-100, 100], tickwidth: 1, tickcolor: "darkgray" },
+        bar: { color: '#34495e' },
+        steps: [
+          { range: [-100, 0], color: '#e74c3c' },
+          { range: [0, 50], color: '#f1c40f' },
+          { range: [50, 100], color: '#2ecc71' }
+        ],
+        threshold: {
+          line: {
+            color: this.getColorForValue(nps),
+            width: 4
+          },
+          value: nps
+        }
+      }
+    }];
+  
+    // const layout: Partial<any> = {
+    //   width: 380,
+    //   height: 250,
+    //   margin: { t: 30, b: 20, l: 20, r: 10 },
+    //   paper_bgcolor: '#fff',
+    //   plot_bgcolor: '#fff'
+    // };
+
+    const layout: Partial<any> = {
+      grid: { rows, columns, pattern: 'independent' },
+      margin: { t: 30, b: 30, l: 100, r: 10 },
+      height: altura,
+      paper_bgcolor: '#fff',
+      plot_bgcolor: '#fff',
+
+          // 👇 Aquí están las caritas con colores
+    annotations: [
+      {
+        text: '😞',
+        font: { size: 28, color: '#e74c3c' },
+        x: -0.2, y: 0.1,
+        xref: 'paper',
+        yref: 'paper',
+        showarrow: false
+      },
+      {
+        text: '😊',
+        font: { size: 28, color: '#2ecc71' },
+        x: 0.5, y: 0.1,
+        xref: 'paper',
+        yref: 'paper',
+        showarrow: false
+      }
+    ]
+    };
+  
+    const config = { responsive: true };
+  
+    // 1. Crear el gráfico con valor 0
+    Plotly.newPlot(contenedor, baseData, layout, config).then(() => {
+      // 2. Animar hasta el valor real
+      Plotly.animate(contenedor, {
+        data: [{ value: nps }],
+        traces: [0],
+        layout: {}
+      }, {
+        transition: {
+          duration: 1000,
+          easing: 'cubic-in-out'
+        },
+        frame: {
+          duration: 1000
+        }
+      });
+    });
+  }
+  
+
+  exportarGraficoNPS() {
+    Plotly.toImage('graficoNPS', { format: 'png', width: 400, height: 250 }).then((dataUrl: string) => {
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = 'nps_radial.png';
+      a.click();
+    });
+  }
+
+  getClaseNPS(): string {
+    const nps = this.calcularNPS();
+
+    if (nps >= 75) return 'nps-excelente';
+    if (nps >= 50) return 'nps-muybien';
+    if (nps >= 0) return 'nps-razonable';
+    return 'nps-malo';
+  }
+
+  ionViewDidEnter() {
+    // Se asegura de que se renderice el gráfico cuando la vista ya está lista
+    setTimeout(() => {
+      this.renderGraficoNPS();
+    }, 300); // puedes ajustar el delay si es necesario
+  }
+  
+  // ionAccordionAbierto(tab: string) {
+  //   if (tab === 'npsGrafico') {
+  //     setTimeout(() => this.renderGraficoNPS(), 50);
+  //   }
+  
+  //   if (tab === 'velocimetro') {
+  //     setTimeout(() => this.renderVelocimetroComparativo(), 50);
+  //   }
+  // }
+  
+  ionAccordionAbierto(valor: string) {
+    this.tabSeleccionada = valor;
+  
+    // Renderiza el velocímetro comparativo si se abre
+    if (valor === 'velocimetro') {
+      setTimeout(() => this.renderVelocimetroComparativo(), 50);
+    }
+  
+    // Renderiza el gráfico radial del NPS si se abre
+    if (valor === 'npsGrafico') {
+      setTimeout(() => this.renderGraficoNPS(), 50);
+    }
+  }
+  
 
 }
