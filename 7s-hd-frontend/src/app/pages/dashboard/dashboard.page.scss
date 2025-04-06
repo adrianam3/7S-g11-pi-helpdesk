@@ -149,3 +149,32 @@
     overflow: auto;
   }
   
+
+  .scroll-chart-container {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+  }
+  
+  // .scroll-chart-container canvas {
+  //   min-width: 1000px; // 🔸 fuerza scroll si pantalla es pequeña
+  //   max-width: 1400px;
+  //   height: 400px;
+  // }
+  
+  .scroll-chart-container-horizontal {
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 500px;
+    width: 100%;
+  }
+  
+  .chart-content-wrapper {
+    display: inline-block;
+    min-width: 900px; // Aumenta si quieres más espacio
+    padding-right: 100px; // deja espacio para la leyenda
+  }
+  
+  canvas {
+    display: block;
+  }

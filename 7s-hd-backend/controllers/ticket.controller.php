@@ -256,4 +256,33 @@ switch ($_GET["op"]) {
             }
             echo json_encode($todos);
             break;
+
+            case 'dashboardagente': //TODO: Procedimiento para cargar tickets x agente
+                $fechaInicio = $_GET["fechaInicio"];
+                $fechaFin = $_GET["fechaFin"];
+                $fechaFinModificada = date('Y-m-d', strtotime($fechaFin . ' +1 day'));
+                $fechaInicioModificada = date('Y-m-d', strtotime($fechaInicio . ' -1 day'));
+                $todos = array();
+                    
+                $datos = $ticket->dashboardagente($fechaInicioModificada, $fechaFinModificada);
+                while ($row = mysqli_fetch_assoc($datos)) {
+                    $todos[] = $row;
+                }
+                echo json_encode($todos);
+                break;
+
+                case 'dashboardencuesta': //TODO: Procedimiento para cargar encuestas x fecha
+                    $fechaInicio = $_GET["fechaInicio"];
+                    $fechaFin = $_GET["fechaFin"];
+                    $fechaFinModificada = date('Y-m-d', strtotime($fechaFin . ' +1 day'));
+                    $fechaInicioModificada = date('Y-m-d', strtotime($fechaInicio . ' -1 day'));
+                    $todos = array();
+                        
+                    $datos = $ticket->dashboardencuesta($fechaInicioModificada, $fechaFinModificada);
+                    while ($row = mysqli_fetch_assoc($datos)) {
+                        $todos[] = $row;
+                    }
+                    echo json_encode($todos);
+                    break;
+
 }

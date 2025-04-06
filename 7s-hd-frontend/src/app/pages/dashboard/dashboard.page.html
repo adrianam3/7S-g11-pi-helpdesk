@@ -144,12 +144,26 @@
     <!-- AGENTE -->
     <ion-accordion value="agente">
       <ion-item slot="header" color="light">
-        <ion-label>X Agente</ion-label>
+        <ion-label>Tickets por Agente</ion-label>
       </ion-item>
       <div class="ion-padding" slot="content">
-        <p>Agregar gráfico por agente aquí</p>
+        <ng-container *ngIf="barChartData?.labels?.length">
+          <div class="scroll-chart-container">
+            <canvas #barChartAgenteCanvas id="barChartAgenteCanvas" baseChart [data]="barChartData"
+              [options]="barChartOptions" [type]="barChartType" [plugins]="barChartPlugins" height="300" width="800">
+            </canvas>
+
+          </div>
+
+          <ion-button expand="block" (click)="exportarGraficoAgente()" color="tertiary">
+            <ion-icon name="download-outline" slot="start"></ion-icon>
+            Exportar Gráfico
+          </ion-button>
+        </ng-container>
       </div>
     </ion-accordion>
+
+
 
     <!-- SATISFACCIÓN -->
     <ion-accordion value="satisfaccion">

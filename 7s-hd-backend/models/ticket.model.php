@@ -109,6 +109,70 @@ GROUP BY departamentoAgente.nombre;
         return $datos;
     }
 
+//amerlo
+
+
+
+//fin amerlo
+
+public function dashboardagente($fechaInicio, $fechaFin)
+    {
+        $con = new ClaseConectar();
+        $con = $con->ProcedimientoParaConectar();
+
+        // ticket ( abierto, asignado, en progreso o iniciado, cerrado, reaperturado, escalado, resuelto, en pausa*) 
+
+        $cadena = "SELECT 
+        a.idAgente, 
+        na.nombre AS nivelAgente,
+        CONCAT(p.nombres, ' ', p.apellidos) AS agente,
+        SUM(CASE WHEN et.nombre = 'Abierto' THEN 1 ELSE 0 END) AS Abierto,
+        SUM(CASE WHEN et.nombre = 'Asignado' THEN 1 ELSE 0 END) AS Asignado,
+        SUM(CASE WHEN et.nombre = 'En progreso' THEN 1 ELSE 0 END) AS EnProgreso,
+        SUM(CASE WHEN et.nombre = 'Cerrado' THEN 1 ELSE 0 END) AS Cerrado,
+        SUM(CASE WHEN et.nombre = 'Reaperturado' THEN 1 ELSE 0 END) AS Reaperturado,
+        SUM(CASE WHEN et.nombre = 'Escalado' THEN 1 ELSE 0 END) AS Escalado
+        FROM departamentoAgente da
+        LEFT JOIN AgenteDepartamento ad ON da.idDepartamentoA = ad.idDepartamentoA
+        LEFT JOIN agente a ON ad.idAgente = a.idAgente
+        LEFT JOIN persona p ON a.idUsuario = p.idPersona
+        LEFT JOIN nivelagente na ON na.idNivelAgente = a.idNivelAgente
+        LEFT JOIN ticket t ON t.idAgente = a.idAgente AND t.idDepartamentoA = da.idDepartamentoA
+        LEFT JOIN estadoTicket et ON t.idEstadoTicket = et.idEstadoTicket
+        WHERE t.fechaCreacion BETWEEN '$fechaInicio' AND '$fechaFin' -- '2024-04-01' AND '2025-03-31'
+        GROUP BY 
+        a.idAgente,
+        na.nombre,
+        p.nombres,
+        p.apellidos;
+            ";
+        $datos = mysqli_query($con, $cadena);
+        $con->close();
+        return $datos;
+    }
+
+    public function dashboardencuestas($fechaInicio, $fechaFin)
+    {
+        $con = new ClaseConectar();
+        $con = $con->ProcedimientoParaConectar();
+
+        // ticket ( abierto, asignado, en progreso o iniciado, cerrado, reaperturado, escalado, resuelto, en pausa*) 
+
+        $cadena = "SELECT 
+        t.idTicket, t.descripcion, t.fechaCreacion, t.fechaCierre
+        , e.puntuacion, e.comentarios, e.fechaEnvioEncuesta
+        -- , e.* 
+        from encuesta e
+        join ticket t on t.idTicket=e.idTicket
+        where t.fechaCierre is not null;";
+        $datos = mysqli_query($con, $cadena);
+        $con->close();
+        return $datos;
+    }
+
+
+
+
     public function uno($idTicket) // Select * from ticket where id = $idTicket
     {
         $con = new ClaseConectar();
