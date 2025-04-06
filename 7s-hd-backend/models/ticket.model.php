@@ -161,9 +161,13 @@ public function dashboardagente($fechaInicio, $fechaFin)
         $cadena = "SELECT 
         t.idTicket, t.descripcion, t.fechaCreacion, t.fechaCierre
         , e.puntuacion, e.comentarios, e.fechaEnvioEncuesta
+        , a.idAgente
+        , CONCAT(p.nombres, ' ', p.apellidos) AS agente
         -- , e.* 
         from encuesta e
         join ticket t on t.idTicket=e.idTicket
+        INNER JOIN agente a ON t.idAgente = a.idAgente
+        INNER JOIN persona p ON a.idUsuario = p.idPersona
         where t.fechaCreacion BETWEEN '$fechaInicio' AND '$fechaFin'
         ;";
         $datos = mysqli_query($con, $cadena);
@@ -172,7 +176,28 @@ public function dashboardagente($fechaInicio, $fechaFin)
     }
 
 
-
+    public function dashboardEncuestaAgente($fechaInicio, $fechaFin)
+    {
+        $con = new ClaseConectar();
+        $con = $con->ProcedimientoParaConectar();
+    
+        $cadena = "SELECT 
+            a.idAgente,
+            CONCAT(p.nombres, ' ', p.apellidos) AS agente,
+            COUNT(e.idEncuesta) AS totalEncuestas,
+            AVG(e.puntuacion) AS promedioPuntuacion
+        FROM encuesta e
+        INNER JOIN ticket t ON e.idTicket = t.idTicket
+        INNER JOIN agente a ON t.idAgente = a.idAgente
+        INNER JOIN persona p ON a.idUsuario = p.idPersona
+        WHERE t.fechaCreacion BETWEEN '$fechaInicio' AND '$fechaFin'
+        GROUP BY a.idAgente, agente";
+    
+        $datos = mysqli_query($con, $cadena);
+        $con->close();
+        return $datos;
+    }
+    
 
     public function uno($idTicket) // Select * from ticket where id = $idTicket
     {

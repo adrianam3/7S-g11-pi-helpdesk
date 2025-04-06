@@ -285,4 +285,18 @@ switch ($_GET["op"]) {
                     echo json_encode($todos);
                     break;
 
+
+                case 'dashboardEncuestaAgente':
+                    $fechaInicio = $_GET["fechaInicio"];
+                    $fechaFin = $_GET["fechaFin"];
+                    $todos = array();
+                
+                    $datos = $ticket->dashboardEncuestaAgente($fechaInicio, $fechaFin);
+                    while ($row = mysqli_fetch_assoc($datos)) {
+                        $todos[] = $row;
+                    }
+                    echo json_encode($todos);
+                    break;
+                    
+
 }

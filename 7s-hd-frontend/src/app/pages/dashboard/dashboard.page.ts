@@ -35,6 +35,7 @@ export class DashboardPage implements OnInit {
   dashboardDeptoEstado: any[] = [];
   dashboardAgente: any[] = [];
   dashboardSatisfaccion: any[] = [];
+  resumenSatisfaccionAgente: any[] = [];
 
 
   barChartDataAgente: ChartData<'bar'> = { labels: [], datasets: [] };
@@ -97,7 +98,7 @@ export class DashboardPage implements OnInit {
     this.cargarPorDepartamentoEstado();
     this.cargarPorAgente();
     this.cargarSatisfaccionUsuario();
-
+    this.cargarResumenSatisfaccionAgente();
   }
 
   abrirSelector(tipo: 'inicio' | 'fin') {
@@ -185,8 +186,11 @@ export class DashboardPage implements OnInit {
 
     if (this.tabSeleccionada === 'satisfaccion') {
       await this.cargarSatisfaccionUsuario();
-    }
 
+    }
+    if (this.tabSeleccionada === 'satisfaccionTabla') {
+      await this.cargarResumenSatisfaccionAgente();
+    }
 
   }
 
@@ -492,6 +496,89 @@ export class DashboardPage implements OnInit {
     const blob: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
   
     FileSaver.saveAs(blob, `satisfaccion_tickets_${this.fechaInicio}_a_${this.fechaFin}.xlsx`);
+  }
+
+  tablaSatisfaccion: any[] = [];
+  
+  pieChartSatisfaccionPlugins: Plugin[] = [ChartDataLabels];
+
+  pieChartSatisfaccionData: ChartData = {
+    labels: [],
+    datasets: [{
+      data: [],
+      backgroundColor: ['#f39c12', '#e67e22', '#e74c3c', '#8e44ad', '#3498db', '#1abc9c']
+    }]
+  };
+    
+  pieChartSatisfaccionType: ChartType = 'pie';
+  
+  pieChartSatisfaccionOptions: ChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          font: {
+            size: 12
+          },
+          padding: 20
+        }
+      },
+      datalabels: {
+        formatter: (value, ctx) => {
+          const total = (ctx.chart.data.datasets[0].data as number[]).reduce((a, b) => a + b, 0);
+          return `${((value * 100) / total).toFixed(1)}%`;
+        },
+        color: '#fff',
+        font: {
+          size: 10,
+          weight: 'bold'
+        }
+      }
+    }
+  };
+
+  
+  async cargarResumenSatisfaccionAgente() {
+    const endpoint = `controllers/ticket.controller.php?op=dashboardEncuestaAgente&fechaInicio=${this.fechaInicio}&fechaFin=${this.fechaFin}`;
+    try {
+      const data = await (await this.apiService.get(endpoint)).toPromise() as any[];
+  
+      if (!data || data.length === 0) {
+        this.showToast('No hay datos de satisfacción por agente', 'warning');
+        return;
+      }
+  
+      this.tablaSatisfaccion = data;
+  
+      this.pieChartSatisfaccionData = {
+        labels: data.map(d => d.agente),
+        datasets: [{
+          data: data.map(d => parseFloat(d.promedioPuntuacion)),
+          backgroundColor: [
+            '#FF6384', '#36A2EB', '#FFCE56',
+            '#4BC0C0', '#9966FF', '#FF9F40'
+          ]
+        }]
+      };
+    } catch (error) {
+      this.showToast('Error al cargar resumen de satisfacción por agente', 'danger');
+      console.error(error);
+    }
+  }
+  
+
+  exportarGraficoSatisfaccion() {
+    const canvas: HTMLCanvasElement = document.querySelector('canvas')!;
+    if (canvas) {
+      const image = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = image;
+      link.download = 'grafico_satisfaccion_agente.png';
+      link.click();
+    } else {
+      this.showToast('No se encontró el gráfico para exportar', 'warning');
+    }
   }
   
 

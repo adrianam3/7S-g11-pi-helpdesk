@@ -167,52 +167,139 @@
 
     <!-- SATISFACCIÓN -->
     <!-- SATISFACCIÓN -->
-<ion-accordion value="satisfaccion">
+    <ion-accordion value="satisfaccion">
+      <ion-item slot="header" color="light">
+        <ion-label>Satisfacción de Usuario</ion-label>
+      </ion-item>
+      <div class="ion-padding" slot="content">
+        <ng-container *ngIf="dashboardSatisfaccion.length; else sinDatosSatisfaccion">
+          <div class="tabla-wrapper">
+            <table class="tabla-departamento">
+              <thead>
+                <tr>
+                  <th>ID Ticket</th>
+                  <th>Descripción</th>
+                  <th>Fecha Creación</th>
+                  <th>Fecha Cierre</th>
+                  <th>Puntuación</th>
+                  <th>Comentarios</th>
+                  <th>Fecha Envío Encuesta</th>
+                  <th>Agente</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of dashboardSatisfaccion">
+                  <td>{{ item.idTicket }}</td>
+                  <td [title]="item.descripcion">{{ item.descripcion }}</td>
+                  <td>{{ item.fechaCreacion | date: 'shortDate' }}</td>
+                  <td>{{ item.fechaCierre | date: 'shortDate' }}</td>
+                  <td>{{ item.puntuacion }}</td>
+                  <td [title]="item.comentarios">{{ item.comentarios }}</td>
+                  <td>{{ item.fechaEnvioEncuesta | date: 'shortDate' }}</td>
+                  <td [title]="item.agente">{{ item.agente }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <ion-button expand="block" color="success" (click)="exportarTablaSatisfaccionExcel()">
+              <ion-icon name="document-attach-outline" slot="start"></ion-icon>
+              Exportar a Excel
+            </ion-button>
+
+          </div>
+        </ng-container>
+        <ng-template #sinDatosSatisfaccion>
+          <ion-text color="medium">
+            <p class="ion-text-center">No hay datos de satisfacción en este periodo.</p>
+          </ion-text>
+        </ng-template>
+      </div>
+    </ion-accordion>
+
+<!-- SATISFACCIÓN - TABLA POR AGENTE -->
+<ion-accordion value="satisfaccionTabla">
   <ion-item slot="header" color="light">
-    <ion-label>Satisfacción de Usuario</ion-label>
+    <ion-label>Satisfacción - Tabla por Agente</ion-label>
   </ion-item>
   <div class="ion-padding" slot="content">
-    <ng-container *ngIf="dashboardSatisfaccion.length; else sinDatosSatisfaccion">
+    <ng-container *ngIf="tablaSatisfaccion.length; else sinDatosTablaAgente">
       <div class="tabla-wrapper">
         <table class="tabla-departamento">
           <thead>
             <tr>
-              <th>ID Ticket</th>
-              <th>Descripción</th>
-              <th>Fecha Creación</th>
-              <th>Fecha Cierre</th>
-              <th>Puntuación</th>
-              <th>Comentarios</th>
-              <th>Fecha Envío Encuesta</th>
+              <th>Agente</th>
+              <th>Total Encuestas</th>
+              <th>Puntuación Promedio</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let item of dashboardSatisfaccion">
-              <td>{{ item.idTicket }}</td>
-              <td [title]="item.descripcion">{{ item.descripcion }}</td>
-              <td>{{ item.fechaCreacion | date: 'shortDate' }}</td>
-              <td>{{ item.fechaCierre | date: 'shortDate' }}</td>
-              <td>{{ item.puntuacion }}</td>
-              <td [title]="item.comentarios">{{ item.comentarios }}</td>
-              <td>{{ item.fechaEnvioEncuesta | date: 'shortDate' }}</td>
+            <tr *ngFor="let item of tablaSatisfaccion">
+              <td>{{ item.agente }}</td>
+              <td>{{ item.totalEncuestas }}</td>
+              <td>{{ item.promedioPuntuacion | number:'1.1-2' }}</td>
             </tr>
           </tbody>
         </table>
-        <ion-button expand="block" color="success" (click)="exportarTablaSatisfaccionExcel()">
-          <ion-icon name="document-attach-outline" slot="start"></ion-icon>
-          Exportar a Excel
-        </ion-button>
-        
       </div>
     </ng-container>
-    <ng-template #sinDatosSatisfaccion>
-      <ion-text color="medium"><p class="ion-text-center">No hay datos de satisfacción en este periodo.</p></ion-text>
+    <ng-template #sinDatosTablaAgente>
+      <p class="ion-text-center">No hay datos de satisfacción por agente.</p>
     </ng-template>
   </div>
 </ion-accordion>
 
-    
-    
+
+<!-- SATISFACCIÓN - GRÁFICO
+<ion-accordion value="satisfaccionGrafico">
+  <ion-item slot="header" color="light">
+    <ion-label>Satisfacción - Gráfico por Agente</ion-label>
+  </ion-item>
+  <div class="ion-padding" slot="content">
+    <ng-container *ngIf="pieChartSatisfaccionData?.labels?.length">
+      <div class="scroll-chart-container">
+        <canvas
+          baseChart
+          [data]="pieChartSatisfaccionData"
+          [type]="pieChartSatisfaccionType"
+          [options]="pieChartSatisfaccionOptions"
+          [plugins]="pieChartSatisfaccionPlugins">
+        </canvas>
+      </div>
+      <ion-button expand="block" (click)="exportarGraficoSatisfaccion()" color="tertiary">
+        <ion-icon name="download-outline" slot="start"></ion-icon>
+        Exportar Gráfico
+      </ion-button>
+    </ng-container>
+  </div>
+</ion-accordion> -->
+
+<!-- SATISFACCIÓN - GRÁFICO -->
+<ion-accordion value="satisfaccionGrafico">
+  <ion-item slot="header" color="light">
+    <ion-label>Satisfacción por Agente (Gráfico)</ion-label>
+  </ion-item>
+  <div class="ion-padding" slot="content">
+    <ng-container *ngIf="pieChartSatisfaccionData?.labels?.length">
+      <div class="scroll-chart-container">
+        <canvas
+        baseChart
+        [data]="pieChartSatisfaccionData"
+        [type]="pieChartSatisfaccionType"
+        [options]="pieChartSatisfaccionOptions"
+        [plugins]="pieChartSatisfaccionPlugins">
+      </canvas>
+      
+      </div>
+      <ion-button expand="block" (click)="exportarGraficoSatisfaccion()" color="tertiary">
+        <ion-icon name="download-outline" slot="start"></ion-icon>
+        Exportar Gráfico
+      </ion-button>
+    </ng-container>
+    <ng-template #sinDatosSatisfaccion>
+      <p class="ion-text-center">No hay datos para mostrar el gráfico.</p>
+    </ng-template>
+  </div>
+</ion-accordion>
+
   </ion-accordion-group>
 
 
