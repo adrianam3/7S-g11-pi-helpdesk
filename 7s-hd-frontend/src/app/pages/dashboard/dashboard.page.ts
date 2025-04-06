@@ -193,6 +193,15 @@ export class DashboardPage implements OnInit {
       await this.cargarResumenSatisfaccionAgente();
     }
 
+    if (this.tabSeleccionada === 'satisfaccionGrafico') {
+      await this.cargarResumenSatisfaccionAgente();
+    }
+    if (this.tabSeleccionada === 'velocimetro') {
+      await this.cargarResumenSatisfaccionAgente();
+    }
+
+
+
   }
 
   async cargarPorAgente() {
