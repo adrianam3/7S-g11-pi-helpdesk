@@ -10,6 +10,7 @@ import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 import { PopoverController } from '@ionic/angular';
 import { PopoverResumenTicketsComponent } from 'src/app/components/popover-resumen-tickets/popover-resumen-tickets.component';
+import Plotly from 'plotly.js-dist-min';
 
 Chart.register(ChartDataLabels);
 
@@ -565,6 +566,11 @@ export class DashboardPage implements OnInit {
       this.showToast('Error al cargar resumen de satisfacción por agente', 'danger');
       console.error(error);
     }
+    this.renderVelocimetroComparativo();
+
+
+
+  
   }
   
 
@@ -580,6 +586,69 @@ export class DashboardPage implements OnInit {
       this.showToast('No se encontró el gráfico para exportar', 'warning');
     }
   }
+  // velocimetro
+
+
+  renderVelocimetroComparativo() {
+    if (!this.tablaSatisfaccion?.length) {
+      this.showToast('No hay datos para el velocímetro', 'warning');
+      return;
+    }
   
+    const data = this.tablaSatisfaccion.map((item: any, index: number) => {
+      return {
+        type: 'indicator',
+        mode: 'gauge+number',
+        value: parseFloat(item.promedioPuntuacion),
+        title: { text: item.agente, font: { size: 9 } },
+        domain: { row: 0, column: index },
+        gauge: {
+          axis: { range: [0, 10] },
+          bar: { color: '#34495e' }, // Color de la aguja del valor (puedes personalizar uno diferente por agente)
+          steps: [
+            { range: [0, 4], color: '#e74c3c' },   // Rojo
+            { range: [4, 8], color: '#f1c40f' },   // Amarillo
+            { range: [8, 10], color: '#2ecc71' }   // Verde
+          ],
+          threshold: {
+            line: {
+              color: this.getColorForValue(parseFloat(item.promedioPuntuacion)),
+              width: 4
+            },
+            value: parseFloat(item.promedioPuntuacion)
+          }
+        }
+      };
+    });
+  
+    const layout: Partial<any> = {
+      grid: { rows: Math.ceil(data.length / 2), columns: 2, pattern: 'independent' },
+      margin: { t: 30, b: 30, l: 10, r: 10 },
+      paper_bgcolor: '#fff',
+      plot_bgcolor: '#fff',
+    };
+    
+  
+    Plotly.newPlot('graficoVelocimetro', data, layout);
+  }
+  
+    
+  getColorForValue(valor: number): string {
+    if (valor <= 4) return '#e74c3c'; // rojo
+    if (valor <= 8) return '#f1c40f'; // amarillo
+    return '#2ecc71'; // verde
+  }
+  
+
+  exportarGraficoVelocimetro() {
+    Plotly.toImage('graficoVelocimetro', { format: 'png', height: 400, width: 800 }).then((dataUrl: string) => {
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = 'velocimetro_comparativo.png';
+      a.click();
+    });
+  }
+  
+
 
 }
