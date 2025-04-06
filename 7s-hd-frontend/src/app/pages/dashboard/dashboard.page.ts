@@ -588,6 +588,7 @@ export class DashboardPage implements OnInit {
   }
   // velocimetro
 
+  
 
   renderVelocimetroComparativo() {
     if (!this.tablaSatisfaccion?.length) {
@@ -600,7 +601,7 @@ export class DashboardPage implements OnInit {
         type: 'indicator',
         mode: 'gauge+number',
         value: parseFloat(item.promedioPuntuacion),
-        title: { text: item.agente, font: { size: 9 } },
+        title: { text: item.agente, font: { size: 8 } },
         domain: { row: 0, column: index },
         gauge: {
           axis: { range: [0, 10] },
