@@ -239,6 +239,11 @@
                 </tr>
               </tbody>
             </table>
+            <ion-button expand="block" color="success" (click)="exportarTablaSatisfaccionAgenteExcel()">
+              <ion-icon name="document-attach-outline" slot="start"></ion-icon>
+              Exportar a Excel
+            </ion-button>
+            
           </div>
         </ng-container>
         <ng-template #sinDatosTablaAgente>
@@ -301,7 +306,8 @@
         <ion-label>Velocímetro Comparativo de Satisfacción</ion-label>
       </ion-item>
       <div class="ion-padding" slot="content">
-        <div id="graficoVelocimetro" style="height: 200px;"></div>
+        <!-- <div id="graficoVelocimetro" style="height: 200px;"></div> -->
+        <div id="graficoVelocimetro" [style.height]="graficoVelocimetroAltura"></div>
 
         <ion-button expand="block" (click)="exportarGraficoVelocimetro()" color="tertiary">
           <ion-icon name="download-outline" slot="start"></ion-icon>

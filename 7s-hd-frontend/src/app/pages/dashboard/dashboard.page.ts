@@ -11,7 +11,7 @@ import * as FileSaver from 'file-saver';
 import { PopoverController } from '@ionic/angular';
 import { PopoverResumenTicketsComponent } from 'src/app/components/popover-resumen-tickets/popover-resumen-tickets.component';
 import Plotly from 'plotly.js-dist-min';
-import Plotly from 'plotly.js-dist-min';
+// import Plotly from 'plotly.js-dist-min';
 
 Chart.register(ChartDataLabels);
 
@@ -509,6 +509,24 @@ export class DashboardPage implements OnInit {
     FileSaver.saveAs(blob, `satisfaccion_tickets_${this.fechaInicio}_a_${this.fechaFin}.xlsx`);
   }
 
+  exportarTablaSatisfaccionAgenteExcel(): void {
+    if (!this.tablaSatisfaccion || !this.tablaSatisfaccion.length) {
+      this.showToast('No hay datos para exportar', 'warning');
+      return;
+    }
+  
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.tablaSatisfaccion);
+    const workbook: XLSX.WorkBook = {
+      Sheets: { 'Satisfacción por Agente': worksheet },
+      SheetNames: ['Satisfacción por Agente']
+    };
+    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+  
+    FileSaver.saveAs(blob, `satisfaccion_agente_${this.fechaInicio}_a_${this.fechaFin}.xlsx`);
+  }
+  
+
   tablaSatisfaccion: any[] = [];
   
   pieChartSatisfaccionPlugins: Plugin[] = [ChartDataLabels];
@@ -605,46 +623,105 @@ export class DashboardPage implements OnInit {
 
   
 
+  // renderVelocimetroComparativo() {
+  //   if (!this.tablaSatisfaccion?.length) {
+  //     this.showToast('No hay datos para el velocímetro', 'warning');
+  //     return;
+  //   }
+  
+  //   const data = this.tablaSatisfaccion.map((item: any, index: number) => {
+  //     return {
+  //       type: 'indicator',
+  //       mode: 'gauge+number',
+  //       value: parseFloat(item.promedioPuntuacion),
+  //       title: { text: item.agente, font: { size: 8 } },
+  //       domain: { row: 0, column: index },
+  //       gauge: {
+  //         axis: { range: [0, 10] },
+  //         bar: { color: '#34495e' }, // Color de la aguja del valor (puedes personalizar uno diferente por agente)
+  //         steps: [
+  //           { range: [0, 4], color: '#e74c3c' },   // Rojo
+  //           { range: [4, 8], color: '#f1c40f' },   // Amarillo
+  //           { range: [8, 10], color: '#2ecc71' }   // Verde
+  //         ],
+  //         threshold: {
+  //           line: {
+  //             color: this.getColorForValue(parseFloat(item.promedioPuntuacion)),
+  //             width: 4
+  //           },
+  //           value: parseFloat(item.promedioPuntuacion)
+  //         }
+  //       }
+  //     };
+  //   });
+  
+  //   const layout: Partial<any> = {
+  //     grid: { rows: Math.ceil(data.length / 2), columns: 2, pattern: 'independent' },
+  //     margin: { t: 30, b: 30, l: 10, r: 10 },
+  //     paper_bgcolor: '#fff',
+  //     plot_bgcolor: '#fff',
+  //   };
+    
+  
+  //   Plotly.newPlot('graficoVelocimetro', data, layout);
+  // }
+ 
+  graficoVelocimetroAltura = '400px'; // valor por defecto
+
   renderVelocimetroComparativo() {
     if (!this.tablaSatisfaccion?.length) {
       this.showToast('No hay datos para el velocímetro', 'warning');
       return;
     }
   
-    const data = this.tablaSatisfaccion.map((item: any, index: number) => {
-      return {
-        type: 'indicator',
-        mode: 'gauge+number',
-        value: parseFloat(item.promedioPuntuacion),
-        title: { text: item.agente, font: { size: 8 } },
-        domain: { row: 0, column: index },
-        gauge: {
-          axis: { range: [0, 10] },
-          bar: { color: '#34495e' }, // Color de la aguja del valor (puedes personalizar uno diferente por agente)
-          steps: [
-            { range: [0, 4], color: '#e74c3c' },   // Rojo
-            { range: [4, 8], color: '#f1c40f' },   // Amarillo
-            { range: [8, 10], color: '#2ecc71' }   // Verde
-          ],
-          threshold: {
-            line: {
-              color: this.getColorForValue(parseFloat(item.promedioPuntuacion)),
-              width: 4
-            },
-            value: parseFloat(item.promedioPuntuacion)
-          }
-        }
-      };
-    });
+    const columns = 2; // ✅ Puedes cambiar a 3 si deseas 3 gráficos por fila
+    const rows = Math.ceil(this.tablaSatisfaccion.length / columns);
   
+    const data = this.tablaSatisfaccion.map((item: any, index: number) => ({
+      type: 'indicator',
+      mode: 'gauge+number',
+      value: parseFloat(item.promedioPuntuacion),
+      title: { text: item.agente, font: { size: 10 } },
+      domain: {
+        row: Math.floor(index / columns),
+        column: index % columns
+      },
+      gauge: {
+        axis: { range: [0, 10] },
+        bar: { color: '#34495e' },
+        steps: [
+          { range: [0, 4], color: '#e74c3c' },
+          { range: [4, 8], color: '#f1c40f' },
+          { range: [8, 10], color: '#2ecc71' }
+        ],
+        threshold: {
+          line: {
+            color: this.getColorForValue(parseFloat(item.promedioPuntuacion)),
+            width: 4
+          },
+          value: parseFloat(item.promedioPuntuacion)
+        }
+      }
+    }));
+  
+    // const layout: Partial<any> = {
+    //   grid: { rows, columns, pattern: 'independent' },
+    //   margin: { t: 30, b: 30, l: 10, r: 10 },
+    //   height: rows * 220, // 🔸 Aumenta la altura por fila si es necesario
+    //   paper_bgcolor: '#fff',
+    //   plot_bgcolor: '#fff',
+    // };
+    const altura = rows * 220;
+    this.graficoVelocimetroAltura = `${altura}px`;
+    
     const layout: Partial<any> = {
-      grid: { rows: Math.ceil(data.length / 2), columns: 2, pattern: 'independent' },
+      grid: { rows, columns, pattern: 'independent' },
       margin: { t: 30, b: 30, l: 10, r: 10 },
+      height: altura,
       paper_bgcolor: '#fff',
       plot_bgcolor: '#fff',
     };
     
-  
     Plotly.newPlot('graficoVelocimetro', data, layout);
   }
   
