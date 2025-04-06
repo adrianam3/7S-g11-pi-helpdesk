@@ -11,6 +11,7 @@ import * as FileSaver from 'file-saver';
 import { PopoverController } from '@ionic/angular';
 import { PopoverResumenTicketsComponent } from 'src/app/components/popover-resumen-tickets/popover-resumen-tickets.component';
 import Plotly from 'plotly.js-dist-min';
+import Plotly from 'plotly.js-dist-min';
 
 Chart.register(ChartDataLabels);
 
@@ -575,6 +576,11 @@ export class DashboardPage implements OnInit {
       this.showToast('Error al cargar resumen de satisfacción por agente', 'danger');
       console.error(error);
     }
+    this.renderVelocimetroComparativo();
+
+
+
+  
     this.renderVelocimetroComparativo();
 
 
