@@ -1,0 +1,86 @@
+<ion-header>
+  <!-- <ion-toolbar color="primary"> -->
+  <ion-toolbar class="encuesta-toolbar">
+
+    <ion-title>Encuesta</ion-title>
+    <ion-buttons slot="end">
+      <!-- <ion-button (click)="dismiss()"> -->
+      <ion-button (click)="dismiss()" class="close-btn">
+        <ion-icon name="close-outline"></ion-icon>
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding custom-modal-content">
+
+  <ion-card *ngIf="ticket">
+    <ion-card-header>
+      <ion-card-title>Ticket #{{ ticket.idTicket }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+
+      <!-- Info del ticket -->
+      <p><strong>Asunto:</strong> {{ ticket.titulo }}</p>
+      <p><strong>Detalle:</strong> {{ ticket.descripcion }}</p>
+      <p><strong>Usuario:</strong> {{ ticket.nombreUsuario }}</p>
+      <p><strong>Email Agente:</strong> {{ ticket.emailAgente }}</p>
+      <p><strong>Nombre Agente:</strong> {{ ticket.nombreAgente }}</p>
+      <p><strong>Departamento:</strong> {{ ticket.departamentoAgente }}</p>
+      <p><strong>Estado del Ticket:</strong> {{ ticket.estadoticket }}</p>
+      <p><strong>Email Agente:</strong> {{ ticket.emailAgente }}</p>
+      <p><strong>Fecha creación:</strong> {{ ticket.fechaCreacion }}</p>
+      <p><strong>Fecha cierre:</strong> {{ ticket.fechaCierre }}</p>
+
+      <!-- Calificación -->
+      <ion-item lines="none">
+        <ion-label position="stacked">Selecciona una calificación</ion-label>
+        <!-- <div class="calificacion-container"> -->
+        <div class="calificacion-horizontal">
+          <!-- <div
+          *ngFor="let num of numeros"
+          (click)="seleccionar(num)"
+          [class.seleccionado]="valorSeleccionado >= num"
+          [class.seleccionado-rojo]="valorSeleccionado >= num && num <= 4"
+          [class.seleccionado-amarillo]="valorSeleccionado >= num && num > 4 && num <= 7"
+          [class.seleccionado-verde]="valorSeleccionado >= num && num > 7"
+          class="calificacion-item"
+          > -->
+
+          <div *ngFor="let num of numeros" class="emoji-num-container" [ngClass]="getBackgroundColor(num)"
+            (click)="seleccionar(num)">
+            <!-- <ion-icon
+              [name]="getEmojiIcon(num)"
+              [color]="getEmojiColor(num)">
+            </ion-icon>
+            <span>{{ num }}</span> -->
+            <ion-icon [name]="getEmojiIcon(num)" [color]="getEmojiColor(num)" class="emoji-icon"></ion-icon>
+            <span class="numero">{{ num }}</span>
+          </div>
+        </div>
+      </ion-item>
+
+      <!-- Comentario -->
+      <ion-item lines="full">
+        <ion-label position="stacked">Comentario</ion-label>
+        <ion-textarea [(ngModel)]="comentario" placeholder="Escribe un comentario..." required></ion-textarea>
+      </ion-item>
+
+      <!-- Botones -->
+      <div class="botones-acciones">
+        <ion-button color="medium" (click)="confirmarCancelar()">
+          <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+          Cancelar
+        </ion-button>
+
+        <ion-button color="success" [disabled]="!valorSeleccionado || !comentario.trim()" (click)="enviarEncuesta()">
+          <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+          Enviar Encuesta
+        </ion-button>
+      </div>
+
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>

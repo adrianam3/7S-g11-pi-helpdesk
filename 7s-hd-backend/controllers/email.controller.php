@@ -296,3 +296,77 @@ function enviarEmailTReaperturadoAgente($idTicket, $emailRecibe, $nombreRecibe, 
         http_response_code(500);
     }
 }
+
+// -- am enviar mail
+
+// function enviarEmailEncuestaRespondida($idTicket, $emailRecibe, $nombreRecibe, $asuntoTicket, $puntuacion, $comentarios)
+// {
+//     $mail = new PHPMailer(true);
+//     try {
+//         configurarMail($mail, $emailRecibe, $nombreRecibe);
+
+//         // Mensaje y asunto
+//         $mail->Subject = 'Encuesta respondida - HELPDESK IMBAUTO';
+
+//         $mensaje = <<<EOT
+//             Hola $nombreRecibe,<br/>
+//             El ticket <strong>#$idTicket</strong> titulado "<strong>$asuntoTicket</strong>" ha sido evaluado.<br/><br/>
+//             <strong>Puntuación:</strong> $puntuacion / 10<br/>
+//             <strong>Comentarios:</strong> $comentarios<br/><br/>
+//             Gracias por ayudarnos a mejorar nuestro servicio.
+//         EOT;
+
+//         $mail->Body = $mensaje;
+
+//         // Cuerpo alternativo para clientes que no soportan HTML
+//         $altBody = <<<EOT
+// Hola $nombreRecibe,
+// El ticket #$idTicket titulado "$asuntoTicket" ha sido evaluado.
+
+// Puntuación: $puntuacion / 10
+// Comentarios: $comentarios
+
+// Gracias por ayudarnos a mejorar nuestro servicio.
+// EOT;
+
+//         $mail->AltBody = $altBody;
+
+//         $mail->send();
+//     } catch (Exception $e) {
+//         http_response_code(500);
+//     }
+// }
+
+function enviarEmailEncuestaRespondida($idTicket, $destinatarios, $asuntoTicket, $puntuacion, $comentarios)
+{
+    $mail = new PHPMailer(true);
+    try {
+        $principal = array_shift($destinatarios);
+        configurarMail($mail, $principal[0], $principal[1]);
+
+        foreach ($destinatarios as [$email, $nombre]) {
+            if (!empty($email)) {
+                $mail->addCC($email, $nombre);
+            }
+        }
+
+        $mail->Subject = 'Encuesta respondida - HELPDESK IMBAUTO';
+
+        $mensaje = <<<EOT
+            Hola {$principal[1]},<br/>
+            El ticket <strong>#$idTicket</strong> titulado "<strong>$asuntoTicket</strong>" ha sido evaluado.<br/><br/>
+            <strong>Puntuación:</strong> $puntuacion / 10<br/>
+            <strong>Comentarios:</strong> $comentarios<br/><br/>
+            Gracias por ayudarnos a mejorar nuestro servicio.
+        EOT;
+
+        $mail->Body = $mensaje;
+        $mail->AltBody = strip_tags($mensaje);
+
+        $mail->send();
+        return "ok"; // para confirmar desde el controlador
+    } catch (Exception $e) {
+        return "Error al enviar correo: " . $mail->ErrorInfo;
+    }
+}
+

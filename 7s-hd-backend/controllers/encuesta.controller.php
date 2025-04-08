@@ -8,6 +8,7 @@ if($method == "OPTIONS") {
     die();
 }
 //TODO: Controlador de encuesta
+require_once('email.controller.php');
 require_once('revisarsesion.controller.php');
 require_once('../models/encuesta.model.php');
 error_reporting(0); //DESHABILITAR ERROR, DEJAR COMENTADO si se desea que se muestre el error
@@ -34,16 +35,382 @@ switch ($_GET["op"]) {
         echo json_encode($res);
         break;
 
-    case 'insertar': //TODO: Procedimiento para insertar un registro en la base de datos
-        $idTicket = $_POST["idTicket"];
-        $idUsuario = $_POST["idUsuario"];
-        $puntuacion = $_POST["puntuacion"];
-        $comentarios = $_POST["comentarios"];
+    //  //v1
+    // case 'insertar':
+    //     // Validar si los campos requeridos están presentes
+    //     if (
+    //         isset($_POST["idTicket"], $_POST["idUsuario"], $_POST["puntuacion"], $_POST["comentarios"])
+    //     ) {
+    //         // Sanitizar y validar entradas
+    //         $idTicket = filter_var($_POST["idTicket"], FILTER_VALIDATE_INT);
+    //         $idUsuario = filter_var($_POST["idUsuario"], FILTER_VALIDATE_INT);
+    //         $puntuacion = filter_var($_POST["puntuacion"], FILTER_VALIDATE_INT);
+    //         $comentarios = trim(strip_tags($_POST["comentarios"])); // elimina etiquetas HTML
+    
+    //         // Validar que los enteros son válidos
+    //         if ($idTicket !== false && $idUsuario !== false && $puntuacion !== false) {
+    //             $datos = $encuesta->insertar($idTicket, $idUsuario, $puntuacion, $comentarios);
+    //             echo json_encode([
+    //                 "success" => true,
+    //                 "message" => "Encuesta registrada correctamente.",
+    //                 "data" => $datos
+    //             ]);
+    //         } else {
+    //             http_response_code(400);
+    //             echo json_encode([
+    //                 "success" => false,
+    //                 "message" => "Parámetros inválidos."
+    //             ]);
+    //         }
+    //     } else {
+    //         http_response_code(400);
+    //         echo json_encode([
+    //             "success" => false,
+    //             "message" => "Faltan parámetros requeridos."
+    //         ]);
+    //     }
+    //     break;
+    
+    // case 'insertar':
+    //     if (
+    //         isset($_POST["idTicket"], $_POST["idUsuario"], $_POST["puntuacion"], $_POST["comentarios"])
+    //     ) {
+    //         $idTicket = filter_var($_POST["idTicket"], FILTER_VALIDATE_INT);
+    //         $idUsuario = filter_var($_POST["idUsuario"], FILTER_VALIDATE_INT);
+    //         $puntuacion = filter_var($_POST["puntuacion"], FILTER_VALIDATE_INT);
+    //         $comentarios = trim(strip_tags($_POST["comentarios"]));
+    
+    //         if ($idTicket !== false && $idUsuario !== false && $puntuacion !== false) {
+    //             $datos = $encuesta->insertar($idTicket, $idUsuario, $puntuacion, $comentarios);
+    
+    //             // === Enviar correo ===
+    //             require_once '../config/conexion.php';
+    //             require_once '../controllers/email.controller.php'; // función enviarEmailEncuestaRespondida
+    
+    //             $con = new ClaseConectar();
+    //             $con = $con->ProcedimientoParaConectar();
+    
+    //             $query = $con->prepare("
+    //                 SELECT 
+    //                     t.titulo,
+    //                     CONCAT(p.nombres, ' ', p.apellidos) AS nombreCompletoUsuario,
+    //                     u.email AS emailUsuario,
+    //                     (
+    //                         SELECT MAX(email) FROM v_agentes va1 
+    //                         WHERE va1.idAgente = (
+    //                             SELECT MAX(v1.idAgente) 
+    //                             FROM v_agente_ticketdetalle v1 
+    //                             WHERE v1.idTicket = t.idTicket
+    //                         )
+    //                     ) AS emailAgente,
+    //                     (
+    //                         SELECT MAX(nombreAgente) 
+    //                         FROM v_agente_ticketdetalle v1 
+    //                         WHERE v1.idTicket = t.idTicket
+    //                     ) AS nombreAgente
+    //                 FROM ticket t
+    //                 JOIN usuario u ON t.idUsuario = u.idUsuario
+    //                 JOIN persona p ON u.idPersona = p.idPersona
+    //                 WHERE t.idTicket = ?
+    //                 LIMIT 1
+    //             ");
+    
+    //             if ($query) {
+    //                 $query->bind_param("i", $idTicket);
+    //                 $query->execute();
+    //                 $result = $query->get_result();
+    
+    //                 if ($row = $result->fetch_assoc()) {
+    //                     $asuntoTicket = $row['titulo'] ?? "Ticket $idTicket";
+    //                     $nombreUsuario = $row['nombreCompletoUsuario'] ?? 'Usuario';
+    //                     $emailUsuario = $row['emailUsuario'] ?? '';
+    //                     $emailAgente = $row['emailAgente'] ?? '';
+    //                     $nombreAgente = $row['nombreAgente'] ?? 'Agente';
+    
+    //                     // Armar lista de destinatarios (primer elemento es el TO)
+    //                     $destinatarios = [];
+    
+    //                     if (!empty($emailUsuario)) {
+    //                         $destinatarios[] = [$emailUsuario, $nombreUsuario]; // Principal
+    //                     }
+    
+    //                     if (!empty($emailAgente)) {
+    //                         $destinatarios[] = [$emailAgente, $nombreAgente]; // CC
+    //                     }
+    
+    //                     // Copias fijas
+    //                     $destinatarios[] = ['adrian.merlo.am3+1@gmail.com', 'Copia 1'];
+    //                     $destinatarios[] = ['adrian.merlo.am3+20@gmail.com', 'Copia 2'];
+    
+    //                     // Enviar correo si hay al menos un destinatario principal
+    //                     if (!empty($destinatarios)) {
+    //                         enviarEmailEncuestaRespondida($idTicket, $destinatarios, $asuntoTicket, $puntuacion, $comentarios);
+    //                     }
+    //                 }
+    
+    //                 $query->close();
+    //             }
+    
+    //             $con->close();
+    
+    //             echo json_encode([
+    //                 "success" => true,
+    //                 "message" => "Encuesta registrada correctamente y correo enviado.",
+    //                 "data" => $datos
+    //             ]);
+    //         } else {
+    //             http_response_code(400);
+    //             echo json_encode([
+    //                 "success" => false,
+    //                 "message" => "Parámetros inválidos."
+    //             ]);
+    //         }
+    //     } else {
+    //         http_response_code(400);
+    //         echo json_encode([
+    //             "success" => false,
+    //             "message" => "Faltan parámetros requeridos."
+    //         ]);
+    //     }
+    //     break;
+    
 
-        $datos = array();
-        $datos = $encuesta->insertar($idTicket, $idUsuario, $puntuacion, $comentarios);
-        echo json_encode($datos);
+    // case 'insertar':
+    //     if (
+    //         isset($_POST["idTicket"], $_POST["idUsuario"], $_POST["puntuacion"], $_POST["comentarios"])
+    //     ) {
+    //         $idTicket = filter_var($_POST["idTicket"], FILTER_VALIDATE_INT);
+    //         $idUsuario = filter_var($_POST["idUsuario"], FILTER_VALIDATE_INT);
+    //         $puntuacion = filter_var($_POST["puntuacion"], FILTER_VALIDATE_INT);
+    //         $comentarios = trim(strip_tags($_POST["comentarios"]));
+    
+    //         if ($idTicket !== false && $idUsuario !== false && $puntuacion !== false) {
+    //             $datos = $encuesta->insertar($idTicket, $idUsuario, $puntuacion, $comentarios);
+    
+    //             // Iniciamos variable para resultado del correo
+    //             $resCorreo = '';
+    
+    //             // === Enviar correo desde el controlador ===
+    //             // require_once '../config/conexion.php';
+    //             // require_once '../controllers/email.controller.php';
+    
+    //             $con = new ClaseConectar();
+    //             $con = $con->ProcedimientoParaConectar();
+    
+    //             $query = $con->prepare("
+    //                 SELECT 
+    //                     t.titulo,
+    //                     CONCAT(p.nombres, ' ', p.apellidos) AS nombreCompletoUsuario,
+    //                     u.email AS emailUsuario,
+    //                     (
+    //                         SELECT MAX(email) FROM v_agentes va1 
+    //                         WHERE va1.idAgente = (
+    //                             SELECT MAX(v1.idAgente) FROM v_agente_ticketdetalle v1 WHERE v1.idTicket = t.idTicket
+    //                         )
+    //                     ) AS emailAgente,
+    //                     (
+    //                         SELECT MAX(nombreAgente) FROM v_agente_ticketdetalle v1 WHERE v1.idTicket = t.idTicket
+    //                     ) AS nombreAgente
+    //                 FROM ticket t
+    //                 JOIN usuario u ON t.idUsuario = u.idUsuario
+    //                 JOIN persona p ON u.idPersona = p.idPersona
+    //                 WHERE t.idTicket = ?
+    //                 LIMIT 1
+    //             ");
+    
+    //             if ($query) {
+    //                 $query->bind_param("i", $idTicket);
+    //                 $query->execute();
+    //                 $result = $query->get_result();
+    
+    //                 if ($row = $result->fetch_assoc()) {
+    //                     $asuntoTicket = $row['titulo'] ?? "Ticket $idTicket";
+    //                     $nombreUsuario = $row['nombreCompletoUsuario'] ?? 'Usuario';
+    //                     $emailUsuario = $row['emailUsuario'] ?? '';
+    //                     $emailAgente = $row['emailAgente'] ?? '';
+    //                     $nombreAgente = $row['nombreAgente'] ?? 'Agente';
+    
+    //                     $destinatarios = [];
+    
+    //                     if (!empty($emailUsuario)) {
+    //                         $destinatarios[] = [$emailUsuario, $nombreUsuario]; // principal
+    //                     }
+    //                     if (!empty($emailAgente)) {
+    //                         $destinatarios[] = [$emailAgente, $nombreAgente]; // cc
+    //                     }
+    
+    //                     // Copias fijas
+    //                     $destinatarios[] = ['adrian.merlo.am3+1@gmail.com', 'Copia 1'];
+    //                     $destinatarios[] = ['adrian.merlo.am3+20@gmail.com', 'Copia 2'];
+    
+    //                     if (!empty($destinatarios)) {
+    //                         // 🔥 Aquí va la llamada al envío de correo
+    //                         $resCorreo = enviarEmailEncuestaRespondida(
+    //                             $idTicket,
+    //                             $destinatarios,
+    //                             $asuntoTicket,
+    //                             $puntuacion,
+    //                             $comentarios
+    //                         );
+    //                     }
+    //                 }
+    
+    //                 $query->close();
+    //             }
+    
+    //             $con->close();
+    
+    //             // ✅ Aquí va el echo final con el resultado del correo
+    //             echo json_encode([
+    //                 "success" => true,
+    //                 "message" => "Encuesta registrada correctamente.",
+    //                 "correo" => $resCorreo,
+    //                 "data" => $datos
+    //             ]);
+    
+    //         } else {
+    //             http_response_code(400);
+    //             echo json_encode([
+    //                 "success" => false,
+    //                 "message" => "Parámetros inválidos."
+    //             ]);
+    //         }
+    //     } else {
+    //         http_response_code(400);
+    //         echo json_encode([
+    //             "success" => false,
+    //             "message" => "Faltan parámetros requeridos."
+    //         ]);
+    //     }
+    //     break;
+
+    case 'insertar':
+        // Encabezado para indicar que se devuelve JSON
+        header('Content-Type: application/json; charset=utf-8');
+    
+        try {
+            // 1. Validar si los campos requeridos están presentes
+            if (!isset($_POST["idTicket"], $_POST["idUsuario"], $_POST["puntuacion"], $_POST["comentarios"])) {
+                http_response_code(400);
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Faltan parámetros requeridos."
+                ]);
+                exit;
+            }
+    
+            // 2. Sanitizar y validar entradas
+            $idTicket = filter_var($_POST["idTicket"], FILTER_VALIDATE_INT);
+            $idUsuario = filter_var($_POST["idUsuario"], FILTER_VALIDATE_INT);
+            $puntuacion = filter_var($_POST["puntuacion"], FILTER_VALIDATE_INT);
+            $comentarios = trim(strip_tags($_POST["comentarios"]));
+    
+            if ($idTicket === false || $idUsuario === false || $puntuacion === false) {
+                http_response_code(400);
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Parámetros inválidos."
+                ]);
+                exit;
+            }
+    
+            // 3. Insertar encuesta
+            $datos = $encuesta->insertar($idTicket, $idUsuario, $puntuacion, $comentarios);
+            if (!$datos || $datos === null) {
+                http_response_code(500);
+                echo json_encode([
+                    "success" => false,
+                    "message" => "No se pudo insertar la encuesta."
+                ]);
+                exit;
+            }
+    
+            // 4. Preparar y enviar correo
+            // require_once '../config/conexion.php';
+            // require_once '../controllers/email.controller.php';
+    
+            $con = new ClaseConectar();
+            $con = $con->ProcedimientoParaConectar();
+            $resCorreo = 'no enviado';
+    
+            $query = $con->prepare("
+                SELECT 
+                    t.titulo,
+                    CONCAT(p.nombres, ' ', p.apellidos) AS nombreCompletoUsuario,
+                    p.email AS emailUsuario,
+                    (
+                        SELECT MAX(email) FROM v_agentes va1 
+                        WHERE va1.idAgente = (
+                            SELECT MAX(v1.idAgente) FROM v_agente_ticketdetalle v1 WHERE v1.idTicket = t.idTicket
+                        )
+                    ) AS emailAgente,
+                    (
+                        SELECT MAX(nombreAgente) FROM v_agente_ticketdetalle v1 WHERE v1.idTicket = t.idTicket
+                    ) AS nombreAgente
+                FROM ticket t
+                JOIN usuario u ON t.idUsuario = u.idUsuario
+                JOIN persona p ON u.idPersona = p.idPersona
+                WHERE t.idTicket = ?
+                LIMIT 1
+            ");
+    
+            if ($query) {
+                $query->bind_param("i", $idTicket);
+                $query->execute();
+                $result = $query->get_result();
+    
+                if ($row = $result->fetch_assoc()) {
+                    $asuntoTicket = $row['titulo'] ?? "Ticket $idTicket";
+                    $nombreUsuario = $row['nombreCompletoUsuario'] ?? 'Usuario';
+                    $emailUsuario = $row['emailUsuario'] ?? '';
+                    $emailAgente = $row['emailAgente'] ?? '';
+                    $nombreAgente = $row['nombreAgente'] ?? 'Agente';
+    
+                    $destinatarios = [];
+    
+                    if (!empty($emailUsuario)) {
+                        $destinatarios[] = [$emailUsuario, $nombreUsuario];
+                    }
+                    if (!empty($emailAgente)) {
+                        $destinatarios[] = [$emailAgente, $nombreAgente];
+                    }
+                    $destinatarios[] = ['adrian.merlo.am3+1@gmail.com', 'Copia 1'];
+                    $destinatarios[] = ['adrian.merlo.am3+20@gmail.com', 'Copia 2'];
+    
+                    if (!empty($destinatarios)) {
+                        $resCorreo = enviarEmailEncuestaRespondida(
+                            $idTicket,
+                            $destinatarios,
+                            $asuntoTicket,
+                            $puntuacion,
+                            $comentarios
+                        );
+                    }
+                }
+    
+                $query->close();
+            }
+    
+            $con->close();
+    
+            // 5. Respuesta final asegurada
+            echo json_encode([
+                "success" => true,
+                "message" => "Encuesta registrada correctamente.",
+                "correo" => $resCorreo,
+                "data" => $datos
+            ]);
+        } catch (Throwable $e) {
+            // 6. Captura cualquier excepción
+            http_response_code(500);
+            echo json_encode([
+                "success" => false,
+                "message" => "Ocurrió un error inesperado.",
+                "error" => $e->getMessage()
+            ]);
+        }
         break;
+    
 
     case 'actualizar': //TODO: Procedimiento para actualizar un registro en la base de datos
         $idEncuesta = $_POST["idEncuesta"];

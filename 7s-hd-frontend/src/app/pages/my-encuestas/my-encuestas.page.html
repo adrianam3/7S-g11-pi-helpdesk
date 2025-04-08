@@ -29,8 +29,10 @@
 
   <!-- Lista de encuestas -->
   <ion-list *ngIf="encuestasFiltradas.length > 0">
-    <ion-item-sliding *ngFor="let encuesta of encuestasFiltradas">
-      <ion-item>
+    <ion-item-sliding *ngFor="let encuesta of encuestasFiltradas; let i = index">
+      <ion-card [ngClass]="i % 2 === 0 ? 'card-blanco' : 'card-gris'">
+      <ion-item >
+
         <ion-label>
           <h2>Ticket #{{ encuesta.idTicket }}</h2>
           <p><strong>Título:</strong> {{ encuesta.titulo }}</p>
@@ -39,16 +41,28 @@
           <p><strong>Puntuación:</strong> {{ encuesta.puntuacion || 'Sin calificar' }}</p>
           <p><strong>Comentarios:</strong> {{ encuesta.comentarios || 'N/A' }}</p>
           <p><strong>Fecha Encuesta:</strong> {{ encuesta.fechaEncuesta || 'Pendiente' }}</p>
-        </ion-label>
-      </ion-item>
+          
+          <!-- <ion-button color="success" expand="block" (click)="abrirEncuestaModal(encuesta)">
+            <ion-icon name="create-outline" slot="start"></ion-icon>
+            RESPONDER
+          </ion-button> -->
 
+        </ion-label>
+     
+      </ion-item>
+    </ion-card>
       <!-- Botón visible solo para encuestas no completadas -->
       <ion-item-options side="end" *ngIf="encuesta.completada === 0 && filtroSeleccionado === 'pe'">
         <!-- <ion-item-options side="end"> -->
-        <ion-item-option color="success" (click)="irAResponder(encuesta)">
-          <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+        <ion-item-option color="success" class="custom-responder" (click)="abrirEncuestaModal(encuesta)">
+          <ion-icon slot="start" name="create-outline"></ion-icon>
           Responder
         </ion-item-option>
+        <!-- <ion-button color="success" expand="block" (click)="abrirEncuestaModal(item)">
+          <ion-icon name="create-outline" slot="start"></ion-icon>
+          RESPONDER
+        </ion-button> -->
+        
       </ion-item-options>
     </ion-item-sliding>
   </ion-list>

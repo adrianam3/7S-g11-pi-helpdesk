@@ -1,0 +1,100 @@
+.card-blanco {
+    background-color: #ffffff !important;
+    border: 1px solid hsl(226, 65%, 47%) !important;
+    border-radius: 10px;
+    margin: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+  
+  .card-gris {
+    background-color: #686060 !important;
+    border: 1px solid hsl(226, 65%, 47%) !important;
+    border-radius: 10px;
+    margin: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+  
+//   ion-item-option.custom-responder {
+//     --min-width: 50px; /* ajusta según el tamaño deseado */
+//     --padding-start: 8px;
+//     --padding-end: 8px;
+//     text-align: center;
+//   }
+  
+
+// ion-item-option.custom-responder {
+//     --min-width: 120px;
+//     --padding-start: 8px;
+//     --padding-end: 8px;
+//     --border-radius: 12px;
+  
+//     display: flex;
+//     align-items: center;
+//     justify-content: center;
+  
+//     border: 1px solid hsl(226, 65%, 47%);
+//     border-radius: 12px;
+//     margin: 6px 4px;
+//     height: auto;
+  
+//     background-color: #28c76f;
+//     color: white;
+//     font-size: 14px;
+//     white-space: normal;
+//     text-align: center;
+//     line-height: 1.2;
+//     border-radius: 10px;
+//   }
+  
+//   ion-item-option.custom-responder::part(native) {
+//     height: 100%;
+//     border-radius: 12px;
+//   }
+
+// ion-item-option.custom-responder {
+//   --min-width: 80px;          // 🔹 reduce el ancho mínimo
+//   --padding-start: 4px;       // 🔹 menos padding lateral
+//   --padding-end: 4px;
+//   --border-radius: 10px;
+
+//   display: flex;
+//   flex-direction: column;     // 🔹 ícono arriba, texto abajo (opcional)
+//   align-items: center;
+//   justify-content: center;
+
+//   border: 1px solid hsl(226, 65%, 47%);
+//   border-radius: 10px;
+//   margin: 6px 4px;
+//   height: 70px;               // 🔹 reduce altura total
+//   font-size: 12px;            // 🔹 fuente más pequeña
+//   line-height: 1.1;
+//   background-color: #28c76f;
+//   color: white;
+//   white-space: normal;
+//   text-align: center;
+// }
+
+// ion-item-option.custom-responder::part(native) {
+//   height: 100%;
+//   border-radius: 10px;
+// }
+
+ion-item-option.custom-responder {
+  --min-width: 80px;
+  --padding-start: 10px;
+  --padding-end: 10px;
+
+  display: flex;
+  align-items: center;    // ✅ CENTRA verticalmente
+  justify-content: center;
+  height:100%;           // ✅ Toma toda la altura del card
+  font-size: 13px;
+  text-align: center;
+  white-space: normal;
+
+  background-color: #28c76f;
+  color: white;
+  border-radius: 10px;
+  border: 1px solid hsl(226, 65%, 47%);
+  margin: 0 4px;
+}

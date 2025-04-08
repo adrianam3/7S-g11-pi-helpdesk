@@ -12,32 +12,93 @@ class Encuesta
         $con = $con->ProcedimientoParaConectar();
     
         $cadena = "
-            SELECT encuesta.*, 
-                persona.idPersona,
-                persona.nombres,
-                persona.apellidos,
-                CONCAT(persona.nombres, ' ', persona.apellidos) AS nombreCompletoUsuario,
-                ticket.titulo, 
-                ticket.descripcion, 
-                ticket.fechaCreacion, 
-                ticket.fechaCierre,
-                (
+            SELECT
+            t.idTicket,
+            t.titulo,
+            t.descripcion,
+            t.fechaCreacion,
+            t.fechaCierre,
+            NULL AS idEncuesta,
+            NULL AS puntuacion,
+            NULL AS comentarios,
+            NULL AS fechaRespuestaEncuesta,
+            p.idPersona,
+            p.nombres,
+            p.apellidos,
+            CONCAT(p.nombres, ' ', p.apellidos) AS nombreCompletoUsuario,
+                        -- NULL AS nombreAgente,
+            /*
+            (
                     SELECT CONCAT(p1.nombres, ' ', p1.apellidos)
                     FROM ticketdetalle td1
                     JOIN agente a1 ON a1.idAgente = td1.idAgente
                     JOIN usuario u1 ON a1.idUsuario = u1.idUsuario
                     JOIN persona p1 ON p1.idPersona = u1.idPersona
-                    WHERE td1.idTicket = ticket.idTicket 
-                      AND td1.idTicketDetalle = (
-                          SELECT MAX(td2.idTicketDetalle)
-                          FROM ticketdetalle td2 
-                          WHERE td2.idTicket = td1.idTicket
-                      )
-                ) AS nombreAgente
-            FROM encuesta
-            JOIN ticket ON encuesta.idTicket = ticket.idTicket
-            JOIN usuario ON encuesta.idUsuario = usuario.idUsuario
-            JOIN persona ON persona.idPersona = usuario.idPersona
+                    WHERE td1.idTicket = t.idTicket
+                    AND td1.idTicketDetalle = (
+                        SELECT MAX(idTicketDetalle)
+                        FROM ticketdetalle td2
+                        WHERE td2.idTicket = td1.idTicket
+                    )
+                ) AS nombreAgente,
+                */
+                (select max(nombreAgente) from v_agente_ticketdetalle v1 where v1.idTicket=t.idTicket) as nombreAgente,
+            'pendiente' AS estadoEncuesta,
+            0 AS completada
+            , (select max(nombreDepartamento) from v_agentes va1 WHERE va1.idAgente=(select max(v1.idAgente) from v_agente_ticketdetalle v1 where v1.idTicket=t.idTicket) ) as  departamentoAgente
+             , (select max(email) from v_agentes va1 WHERE va1.idAgente=(select max(v1.idAgente) from v_agente_ticketdetalle v1 where v1.idTicket=t.idTicket) ) as  emailAgente
+             , (select nombre from estadoticket e1 where e1.idEstadoTicket=t.idEstadoTicket) as estadoticket
+             , u.idUsuario, u.usuario
+            FROM ticket t
+            JOIN usuario u ON t.idUsuario = u.idUsuario
+            JOIN persona p ON u.idPersona = p.idPersona
+            AND t.idTicket NOT IN (SELECT idTicket FROM encuesta)
+            AND t.idEstadoTicket = 4
+
+            UNION ALL
+
+            SELECT
+                t.idTicket,
+                t.titulo,
+                t.descripcion,
+                t.fechaCreacion,
+                t.fechaCierre,
+                e.idEncuesta,
+                e.puntuacion,
+                e.comentarios,
+                e.fechaRespuestaEncuesta,
+                p.idPersona,
+                p.nombres,
+                p.apellidos,
+                CONCAT(p.nombres, ' ', p.apellidos) AS nombreCompletoUsuario,
+                            -- NULL AS nombreAgente,
+            /*
+            (
+                    SELECT CONCAT(p1.nombres, ' ', p1.apellidos)
+                    FROM ticketdetalle td1
+                    JOIN agente a1 ON a1.idAgente = td1.idAgente
+                    JOIN usuario u1 ON a1.idUsuario = u1.idUsuario
+                    JOIN persona p1 ON p1.idPersona = u1.idPersona
+                    WHERE td1.idTicket = t.idTicket
+                    AND td1.idTicketDetalle = (
+                        SELECT MAX(idTicketDetalle)
+                        FROM ticketdetalle td2
+                        WHERE td2.idTicket = td1.idTicket
+                    )
+                ) AS nombreAgente,
+                */
+             (select max(nombreAgente) from v_agente_ticketdetalle v1 where v1.idTicket=t.idTicket) as nombreAgente,
+                'respondida' AS estadoEncuesta,
+                1 AS completada
+            , (select max(nombreDepartamento) from v_agentes va1 WHERE va1.idAgente=(select max(v1.idAgente) from v_agente_ticketdetalle v1 where v1.idTicket=t.idTicket) ) as  departamentoAgente
+             , (select max(email) from v_agentes va1 WHERE va1.idAgente=(select max(v1.idAgente) from v_agente_ticketdetalle v1 where v1.idTicket=t.idTicket) ) as  emailAgente
+             , (select nombre from estadoticket e1 where e1.idEstadoTicket=t.idEstadoTicket) as estadoticket    
+             , u.idUsuario, u.usuario
+            FROM encuesta e
+            JOIN ticket t ON e.idTicket = t.idTicket
+            JOIN usuario u ON e.idUsuario = u.idUsuario
+            JOIN persona p ON u.idPersona = p.idPersona
+            ORDER BY fechaCreacion DESC;
         ";
     
         $stmt = $con->prepare($cadena);
@@ -78,25 +139,64 @@ class Encuesta
         return $datos;
     }
 
-    public function insertar($idTicket, $idUsuario, $puntuacion, $comentarios) // Insert into encuesta (...)
+    // public function insertar($idTicket, $idUsuario, $puntuacion, $comentarios) // Insert into encuesta (...)
+    // {
+    //     try {
+    //         $con = new ClaseConectar();
+    //         $con = $con->ProcedimientoParaConectar();
+    //         $cadena = "INSERT INTO `encuesta` (`idTicket`, `idUsuario`, `puntuacion`, `comentarios`) 
+    //                    VALUES ('$idTicket', '$idUsuario', '$puntuacion', '$comentarios')";
+    //         if (mysqli_query($con, $cadena)) {
+    //             return $con->insert_id;
+    //         } else {
+    //             return $con->error;
+    //         }
+    //     } catch (Exception $th) {
+    //         http_response_code(500);
+    //         return $th->getMessage();
+    //     } finally {
+    //         $con->close();
+    //     }
+    // }
+
+    public function insertar($idTicket, $idUsuario, $puntuacion, $comentarios)
     {
         try {
             $con = new ClaseConectar();
             $con = $con->ProcedimientoParaConectar();
-            $cadena = "INSERT INTO `encuesta` (`idTicket`, `idUsuario`, `puntuacion`, `comentarios`) 
-                       VALUES ('$idTicket', '$idUsuario', '$puntuacion', '$comentarios')";
-            if (mysqli_query($con, $cadena)) {
-                return $con->insert_id;
-            } else {
-                return $con->error;
+    
+            // Preparar la sentencia con placeholders
+            $stmt = $con->prepare("INSERT INTO `encuesta` (`idTicket`, `idUsuario`, `puntuacion`, `comentarios`) VALUES (?, ?, ?, ?)");
+    
+            if (!$stmt) {
+                http_response_code(500);
+                return "Error al preparar la consulta: " . $con->error;
             }
+    
+            // Enlazar los parámetros a la sentencia
+            $stmt->bind_param("iiis", $idTicket, $idUsuario, $puntuacion, $comentarios);
+            // i = integer, s = string (según el tipo de cada campo)
+    
+            if ($stmt->execute()) {
+                $insertId = $stmt->insert_id;
+                $stmt->close();
+                return $insertId;
+            } else {
+                $error = $stmt->error;
+                $stmt->close();
+                return $error;
+            }
+    
         } catch (Exception $th) {
             http_response_code(500);
             return $th->getMessage();
         } finally {
-            $con->close();
+            if (isset($con) && $con) {
+                $con->close();
+            }
         }
     }
+    
 
     public function actualizar($idEncuesta, $idTicket, $idUsuario, $puntuacion, $comentarios, $fechaRespuestaEncuesta) // Update encuesta set ... where id = $idEncuesta
     {
@@ -297,18 +397,37 @@ class Encuesta
             p.nombres,
             p.apellidos,
             CONCAT(p.nombres, ' ', p.apellidos) AS nombreCompletoUsuario,
-            NULL AS nombreAgente,
+                        -- NULL AS nombreAgente,
+            /*
+            (
+                    SELECT CONCAT(p1.nombres, ' ', p1.apellidos)
+                    FROM ticketdetalle td1
+                    JOIN agente a1 ON a1.idAgente = td1.idAgente
+                    JOIN usuario u1 ON a1.idUsuario = u1.idUsuario
+                    JOIN persona p1 ON p1.idPersona = u1.idPersona
+                    WHERE td1.idTicket = t.idTicket
+                    AND td1.idTicketDetalle = (
+                        SELECT MAX(idTicketDetalle)
+                        FROM ticketdetalle td2
+                        WHERE td2.idTicket = td1.idTicket
+                    )
+                ) AS nombreAgente,
+                */
+                (select max(nombreAgente) from v_agente_ticketdetalle v1 where v1.idTicket=t.idTicket) as nombreAgente,
             'pendiente' AS estadoEncuesta,
             0 AS completada
+            , (select max(nombreDepartamento) from v_agentes va1 WHERE va1.idAgente=(select max(v1.idAgente) from v_agente_ticketdetalle v1 where v1.idTicket=t.idTicket) ) as  departamentoAgente
+             , (select max(email) from v_agentes va1 WHERE va1.idAgente=(select max(v1.idAgente) from v_agente_ticketdetalle v1 where v1.idTicket=t.idTicket) ) as  emailAgente
+             , (select nombre from estadoticket e1 where e1.idEstadoTicket=t.idEstadoTicket) as estadoticket
+             , u.idUsuario, u.usuario
             FROM ticket t
             JOIN usuario u ON t.idUsuario = u.idUsuario
             JOIN persona p ON u.idPersona = p.idPersona
             WHERE t.idUsuario = ?
             AND t.idTicket NOT IN (SELECT idTicket FROM encuesta)
-            -- AND t.idEstadoTicket = 4
+            AND t.idEstadoTicket = 4
 
             UNION ALL
-
 
             SELECT
                 t.idTicket,
@@ -324,7 +443,9 @@ class Encuesta
                 p.nombres,
                 p.apellidos,
                 CONCAT(p.nombres, ' ', p.apellidos) AS nombreCompletoUsuario,
-                (
+                            -- NULL AS nombreAgente,
+            /*
+            (
                     SELECT CONCAT(p1.nombres, ' ', p1.apellidos)
                     FROM ticketdetalle td1
                     JOIN agente a1 ON a1.idAgente = td1.idAgente
@@ -337,8 +458,14 @@ class Encuesta
                         WHERE td2.idTicket = td1.idTicket
                     )
                 ) AS nombreAgente,
+                */
+             (select max(nombreAgente) from v_agente_ticketdetalle v1 where v1.idTicket=t.idTicket) as nombreAgente,
                 'respondida' AS estadoEncuesta,
                 1 AS completada
+            , (select max(nombreDepartamento) from v_agentes va1 WHERE va1.idAgente=(select max(v1.idAgente) from v_agente_ticketdetalle v1 where v1.idTicket=t.idTicket) ) as  departamentoAgente
+             , (select max(email) from v_agentes va1 WHERE va1.idAgente=(select max(v1.idAgente) from v_agente_ticketdetalle v1 where v1.idTicket=t.idTicket) ) as  emailAgente
+             , (select nombre from estadoticket e1 where e1.idEstadoTicket=t.idEstadoTicket) as estadoticket    
+             , u.idUsuario, u.usuario
             FROM encuesta e
             JOIN ticket t ON e.idTicket = t.idTicket
             JOIN usuario u ON e.idUsuario = u.idUsuario

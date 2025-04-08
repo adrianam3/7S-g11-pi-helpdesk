@@ -16,7 +16,8 @@ export class EncuestasPage implements OnInit {
   public encuestasFiltradas: any[] = [];
   public buscarTexto: string = '';
   public loading = false;
-  public filtroSeleccionado: string = 'all';
+  public filtroSeleccionado: string = 'pe'; // Valor por defecto: Pendientes
+
 
   constructor(
     private apiService: ApiService,
@@ -28,6 +29,7 @@ export class EncuestasPage implements OnInit {
 
   async ngOnInit() {
     await this.loadEncuestas();
+    this.filtrarEncuestasParam(this.filtroSeleccionado); // 👈 recarga correcto al iniciar
   }
 
   /** Cargar la lista de encuestas desde la API */
@@ -39,7 +41,8 @@ export class EncuestasPage implements OnInit {
     try {
       const encuestasObs = await this.apiService.get('controllers/encuesta.controller.php?op=todos');
       const response: any = await lastValueFrom(encuestasObs);
-      this.encuestasAll = response.map((e: { idTicket: any; idEncuesta: any; titulo: any; nombreAgente: any; fechaRespuestaEncuesta: any; nombreCompletoUsuario: any; puntuacion: any; comentarios: any; fechaCreacion: any; fechaCierre: any; }) => ({
+      console.log(response);
+      this.encuestasAll = response.map((e: { idTicket: any; idEncuesta: any; titulo: any; nombreAgente: any; fechaRespuestaEncuesta: any; nombreCompletoUsuario: any; puntuacion: any; comentarios: any; fechaCreacion: any; fechaCierre: any; estado: any; }) => ({
         idTicket: e.idTicket,
         idEncuesta: e.idEncuesta,
         titulo: e.titulo,
@@ -49,7 +52,9 @@ export class EncuestasPage implements OnInit {
         puntuacion: e.puntuacion,
         comentarios: e.comentarios,
         fechaCreacion: e.fechaCreacion,
-        fechaCierre: e.fechaCierre
+        fechaCierre: e.fechaCierre,
+        // estado: e.estado
+        estado: e.fechaRespuestaEncuesta ? 'respondida' : 'pendiente' // 👈 importante
       }));
 
       this.filtrarEncuestas();
@@ -67,52 +72,74 @@ export class EncuestasPage implements OnInit {
     const texto = this.buscarTexto.toLowerCase();
     this.encuestasFiltradas = this.encuestasAll.filter(encuesta =>
       encuesta.titulo.toLowerCase().includes(texto) ||
-      encuesta.nombreAgente.toLowerCase().includes(texto) ||
+      encuesta.nombreAgente?.toLowerCase().includes(texto) ||
       encuesta.nombreUsuario.toLowerCase().includes(texto) ||
-      encuesta.comentarios.toLowerCase().includes(texto) ||
-      String(encuesta.puntuacion).includes(texto)
+      encuesta.comentarios?.toLowerCase().includes(texto) ||
+      String(encuesta.puntuacion).includes(texto) ||
+      String(encuesta.idTicket).includes(texto)
     );
   }
 
-  async filtrarEncuestasParam(valor: any) {
-    this.filtroSeleccionado = valor;
+  // async filtrarEncuestasParam(valor: any) {
+  //   this.filtroSeleccionado = valor;
 
-    if (valor === 're') {
-      this.filtrarEncuestas(); // Aplica el filtro por texto
-    } else if (valor === 'respondidas') {
-      this.encuestasFiltradas = this.encuestasAll.filter(e => !!e.fechaEncuesta); // FechaEncuesta definida
-    } else if (valor === 'pendientes') {
-      await this.cargarTicketsPendientes(); // Consulta desde la API
-    }
+  //   if (valor === 're') {
+  //     this.filtrarEncuestas(); // Aplica el filtro por texto
+  //   } else if (valor === 'respondidas') {
+  //     this.encuestasFiltradas = this.encuestasAll.filter(e => !!e.fechaEncuesta); // FechaEncuesta definida
+  //   } else if (valor === 'pendientes') {
+  //     await this.cargarTicketsPendientes(); // Consulta desde la API
+  //   }
+  // }
+
+  // async cargarTicketsPendientes() {
+  //   const loading = await this.loadingController.create({ message: 'Cargando tickets pendientes...' });
+  //   await loading.present();
+
+  //   try {
+  //     const responseObs: any = await this.apiService.get('controllers/encuesta.controller.php?op=ticketsSinEncuesta');
+  //     const data: any[] = await lastValueFrom(responseObs);
+
+  //     this.encuestasFiltradas = data.map(ticket => ({
+  //       idTicket: ticket.idTicket,
+  //       titulo: ticket.titulo,
+  //       nombreAgente: ticket.nombreAgente,
+  //       nombreUsuario: ticket.nombreCompletoUsuario,
+  //       fechaEncuesta: null,
+  //       puntuacion: null,
+  //       comentarios: '',
+  //       fechaCreacion: ticket.fechaCreacion,
+  //       fechaCierre: ticket.fechaCierre,
+  //     }));
+
+  //   } catch (error) {
+  //     console.error('Error cargando tickets pendientes', error);
+  //     this.showToast('Error al cargar tickets pendientes.', 'danger');
+  //   } finally {
+  //     await loading.dismiss();
+  //   }
+  // }
+
+
+  filtrarEncuestasParam(valor: any) {
+    this.filtroSeleccionado = String(valor || 'pe');
+
+    const estadoFiltro = this.filtroSeleccionado === 're' ? 'respondida' : 'pendiente';
+    const texto = this.buscarTexto.toLowerCase();
+
+    this.encuestasFiltradas = this.encuestasAll
+      .filter(encuesta => encuesta.estado === estadoFiltro)
+      .filter(encuesta =>
+        encuesta.titulo.toLowerCase().includes(texto) ||
+        (encuesta.nombreAgente || '').toLowerCase().includes(texto) ||
+        (encuesta.nombreUsuario || '').toLowerCase().includes(texto) ||
+        (encuesta.comentarios || '').toLowerCase().includes(texto) ||
+        String(encuesta.puntuacion || '').includes(texto) ||
+        String(encuesta.idTicket).includes(texto)
+      );
   }
 
-  async cargarTicketsPendientes() {
-    const loading = await this.loadingController.create({ message: 'Cargando tickets pendientes...' });
-    await loading.present();
 
-    try {
-      const responseObs: any = await this.apiService.get('controllers/encuesta.controller.php?op=ticketsSinEncuesta');
-      const data: any[] = await lastValueFrom(responseObs);
-
-      this.encuestasFiltradas = data.map(ticket => ({
-        idTicket: ticket.idTicket,
-        titulo: ticket.titulo,
-        nombreAgente: ticket.nombreAgente,
-        nombreUsuario: ticket.nombreCompletoUsuario,
-        fechaEncuesta: null,
-        puntuacion: null,
-        comentarios: '',
-        fechaCreacion: ticket.fechaCreacion,
-        fechaCierre: ticket.fechaCierre,
-      }));
-
-    } catch (error) {
-      console.error('Error cargando tickets pendientes', error);
-      this.showToast('Error al cargar tickets pendientes.', 'danger');
-    } finally {
-      await loading.dismiss();
-    }
-  }
 
   /** Confirmar eliminación de una encuesta */
   async confirmEliminar(idEncuesta: string, titulo: string) {
