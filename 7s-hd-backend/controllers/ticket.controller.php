@@ -96,7 +96,7 @@ switch ($_GET["op"]) {
         $nombreUsuario = $_POST["nombreUsuario"];
 
         // 👉 Validación del tamaño del contenido HTML am
-        if (strlen($descripcion) > 32000) {
+        if (strlen($descripcion) > 512000) {
             http_response_code(413); // Payload Too Large
             echo json_encode(['error' => 'El contenido del detalle excede el tamaño permitido.']);
             exit;
