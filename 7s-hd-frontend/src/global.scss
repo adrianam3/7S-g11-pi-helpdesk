@@ -52,3 +52,13 @@ ion-header {
 //   max-width: 600px !important;
 //   border-radius: 12px;
 // }
+
+.toast-error-grande {
+  --width: 90%;
+  --max-width: 400px;
+  font-size: 1.1rem;
+  //font-weight: bold;
+  text-align: center;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}

@@ -1,21 +1,22 @@
 Array
 (
-    [cookie] => PHPSESSID=408vdcjb07u76kv07n6omja880
-    [accept-language] => es,es-ES;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6,es-MX;q=0.5
+    [cookie] => PHPSESSID=fpv0vmaup081n432mpv2544t2v
+    [accept-language] => es-ES,es;q=0.9
     [accept-encoding] => gzip, deflate, br, zstd
-    [referer] => http://localhost:4200/dashboard
+    [referer] => http://localhost:4200/n-ticket
     [sec-fetch-dest] => empty
     [sec-fetch-mode] => cors
     [sec-fetch-site] => same-origin
-    [content-type] => application/json
+    [origin] => http://localhost:4200
+    [content-type] => multipart/form-data; boundary=----WebKitFormBoundaryMBUuIBlQurhd1LP5
     [accept] => application/json, text/plain, */*
-    [idrol] => 1
-    [user-agent] => Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Mobile Safari/537.36 Edg/135.0.0.0
-    [idusuario] => 1
+    [idrol] => 2
+    [user-agent] => Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Mobile Safari/537.36
+    [idusuario] => 19
     [sec-ch-ua-mobile] => ?1
-    [sec-ch-ua] => "Microsoft Edge";v="135", "Not-A.Brand";v="8", "Chromium";v="135"
-    [authorization] => Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdCIsImlhdCI6MTc0NDEyODA3OCwiZXhwIjoxNzQ0MTI4Njc4LCJzdWIiOjEsInJvbCI6MX0.RqGPC_a2SAGq2a5cq709fOy5LFuuQJ9xG1eV9q-U6mU
+    [sec-ch-ua] => "Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"
     [sec-ch-ua-platform] => "Android"
+    [content-length] => 236756
     [connection] => close
     [host] => localhost
 )

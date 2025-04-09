@@ -1,4 +1,3 @@
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -9,10 +8,6 @@ import { Ticket } from 'src/app/models/ticket.model';
 import { ApiService } from 'src/app/services/api.service';
 import { SecureStorageService } from 'src/app/services/secure-storage.service';
 import { ValidarRolesService } from 'src/app/services/validar-roles.service';
-
-
-
-
 
 @Component({
   selector: 'app-n-ticket',
@@ -36,11 +31,6 @@ export class NTicketPage {
   public operation = 'op=insertar';
   public isEdicion = false;
   public loading = true;
-  // public detalleSeguro: SafeHtml;
-  // public detalleSeguro: any;
-  public detalleSeguro: SafeHtml = this.sanitizer.bypassSecurityTrustHtml('');
-
-
 
   constructor(
     private fb: FormBuilder,
@@ -52,14 +42,7 @@ export class NTicketPage {
     private activatedRoute: ActivatedRoute,
     public validarRol: ValidarRolesService,
     private navCtrl: NavController,
-    private sanitizer: DomSanitizer,
   ) { }
-
-  ngOnInit() {
-    if (this.isEdicion && this.ticket?.descripcion) {
-      this.detalleSeguro = this.sanitizer.bypassSecurityTrustHtml(this.ticket.descripcion);
-    }
-  }
 
   public async ionViewWillEnter() {
     await this.validarRol.cargarDatos();
@@ -69,12 +52,12 @@ export class NTicketPage {
           console.log('ROL DETECTADO:', idRol);
           // Aquí puedes hacer lógica específica según el rol
         });
-        this.idUsuario = await this.storage.get('idUsuario');
-        const nombres = await this.storage.get('nombres');
-        const apellidos = await this.storage.get('apellidos');
-        this.nombreCompletoUsuario = `${nombres} ${apellidos}`;
-        this.emailUsuario = await this.storage.get('email');
-        await this.cargaInicial();
+          this.idUsuario = await this.storage.get('idUsuario');
+          const nombres = await this.storage.get('nombres');
+          const apellidos = await this.storage.get('apellidos');
+          this.nombreCompletoUsuario = `${nombres} ${apellidos}`;
+          this.emailUsuario = await this.storage.get('email');
+          await this.cargaInicial();
       }
     });
   }
@@ -124,8 +107,7 @@ export class NTicketPage {
       idTicket: [null],
       titulo: ['', Validators.required],
       descripcion: ['', Validators.required],
-
-      departamentoAgente: [null, this.validarRol.esAdministrador() || this.validarRol.esCoordinador() ? Validators.required : null],
+      departamentoAgente: [null, this.validarRol.esAdministrador() || this.validarRol.esCoordinador() ? Validators.required: null],
       agente: [null, this.validarRol.esAdministrador() || this.validarRol.esCoordinador() ? Validators.required : null],
       prioridad: [null, this.validarRol.esAdministrador() || this.validarRol.esAgente() ? Validators.required : null],
       sla: [null, this.validarRol.esAdministrador() || this.validarRol.esAgente() ? Validators.required : null],
@@ -171,8 +153,6 @@ export class NTicketPage {
     try {
       const formData = new FormData();
       formData.append('idTicket', idTicket);
-      formData.append('titulo', this.ticketForm.value.titulo);
-      formData.append('descripcion', this.ticketForm.value.descripcion); // ya es HTML generado por ngx-quill
       const data = await (await this.apiService.postData(formData, 'op=uno')).toPromise();
 
       const sla = this.slas.find(s => s.idSla == data.idSla);
@@ -180,11 +160,6 @@ export class NTicketPage {
       const depto = this.departamentoAgentes.find(d => d.idDepartamentoA == data.idDepartamentoA) || null;
       const tema = this.temasAyuda.find(t => t.idTemaAyuda == data.idTemaAyuda);
       const estado = this.estadoTickets.find(e => e.idEstadoTicket == data.idEstadoTicket);
-
-      this.ticket = data; // am
-      // sanitizar el HTML enriquecido del campo descripcion
-      this.detalleSeguro = this.sanitizer.bypassSecurityTrustHtml(data.descripcion); //am
-      console.log(this.ticket.descripcion)
 
       let agentes: any = [];
       if (depto) {
@@ -247,23 +222,6 @@ export class NTicketPage {
       return;
     }
 
-    // 👉 Validar tamaño del contenido del campo descripcion
-    const html = this.ticketForm.value.descripcion;
-    const sizeInKB = new Blob([html]).size / 1024;
-    const imgCount = (html.match(/<img[^>]*>/g) || []).length;
-
-    if (sizeInKB > 60000) {
-      let msg = 'El contenido del detalle es demasiado grande. ';
-      if (imgCount > 0) {
-        msg += 'Posiblemente debido a imágenes muy pesadas. Por favor, reduzca su tamaño o cantidad.';
-      } else {
-        msg += 'Por favor, reduzca el texto o divida el contenido en varios tickets.';
-      }
-
-      this.showToast(msg, 'warning');
-      return;
-    }
-
     const loading = await this.loadingController.create({ message: 'Guardando...' });
     await loading.present();
 
@@ -296,63 +254,16 @@ export class NTicketPage {
 
       const formData = this.apiService.createFormData(payload);
       console.log('formData:', formData);
-     
       const response = await (await this.apiService.postData(formData, this.operation)).toPromise();
 
       this.showToast('Ticket guardado correctamente.', 'success');
       this.ticketForm.reset();
       this.navCtrl.navigateBack('/ticket');
-    }
-    // catch (error) {
-    // this.showToast('Error al guardar ticket', 'danger');
-
-    //  catch (error: any) {
-    //   console.error('Error al guardar ticket', error);
-
-    //   // 🔍 Intentar obtener el mensaje del backend si viene en JSON
-    //   let mensajeError = 'Error al guardar ticket.';
-    //   if (error?.status === 413) {
-    //     mensajeError = 'El contenido es demasiado grande. Reduce el tamaño o la cantidad de imágenes.';
-    //   } else if (error?.error?.error) {
-    //     mensajeError = error.error.error;
-    //   } else if (error?.error?.message) {
-    //     mensajeError = error.error.message;
-    //   }
-
-    //   this.showToast(mensajeError, 'danger');
-
-    // catch (error: any) {
-    //   console.error('Error al guardar ticket', error);
-
-    //   let mensajeError = 'Error al guardar ticket.';
-    //   if (error?.status === 413) {
-    //     mensajeError = 'El contenido es demasiado grande. Reduce imágenes o texto.';
-    //   } else if (typeof error?.error === 'string') {
-    //     try {
-    //       const parsed = JSON.parse(error.error);
-    //       if (parsed?.error) mensajeError = parsed.error;
-    //     } catch (e) {
-    //       mensajeError = error.error;
-    //     }
-    //   } else if (error?.error?.error) {
-    //     mensajeError = error.error.error;
-    //   }
-
-    //   this.showToast(mensajeError, 'danger');
-
-
-
-    // } finally {
-    //   await loading.dismiss();
-    // }
-
-    catch (error) {
-      // El error ya fue manejado con Toast en ApiService
-      console.error('Error al guardar el ticket:', error);
+    } catch (error) {
+      this.showToast('Error al guardar ticket', 'danger');
     } finally {
       await loading.dismiss();
     }
-  
   }
 
   async confirmCancelar() {

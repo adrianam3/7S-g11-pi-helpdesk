@@ -1,0 +1,114 @@
+// .quill-wrapper {
+//     position: relative;
+//     width: 100%;
+//     border: 1px solid #ccc;
+//     border-radius: 8px;
+//     overflow: hidden;
+//   }
+  
+//   /* Mantener fija la toolbar */
+//   ::ng-deep .ql-toolbar {
+//     position: sticky;
+//     top: 0;
+//     background-color: #fff;
+//     z-index: 10;
+//     border-bottom: 1px solid #ccc;
+//   }
+  
+//   /* Dar altura fija al contenido editable y activar scroll solo ahí */
+//   ::ng-deep .ql-container {
+//     height: 250px !important;
+//     overflow-y: auto !important;
+//   }
+  
+//   /* Opcional: limitar ancho máximo en pantallas grandes */
+//   ::ng-deep .ql-editor {
+//     max-width: 100%;
+//     padding: 12px;
+//     box-sizing: border-box;
+//   }
+
+// .quill-wrapper {
+//     width: 700px;
+//     max-width: 200%;
+//     margin: 0 auto;
+//     padding: 0;
+//     border: 1px solid #ccc;
+//     border-radius: 8px;
+//     overflow: hidden;
+//     box-sizing: border-box;
+//     background-color: #fff;
+//   }
+  
+//   .quill-wrapper ::ng-deep .ql-container {
+//     height: 180px !important;
+//     overflow-y: auto !important;
+//     overflow-x: hidden !important;
+//     padding: 10px;
+//     box-sizing: border-box;
+//     width: 100% !important;
+//   }
+  
+//   .quill-wrapper ::ng-deep .ql-editor {
+//     word-wrap: break-word;
+//     white-space: pre-wrap;
+//     width: 100% !important;
+//     max-width: 100% !important;
+//     box-sizing: border-box;
+//     font-size: 15px;
+//   }
+  
+//   .quill-wrapper ::ng-deep .ql-toolbar {
+//     position: sticky;
+//     top: 0;
+//     z-index: 10;
+//     background: #fff;
+//     border-bottom: 1px solid #ccc;
+//   }
+  
+
+.quill-wrapper {
+    width: 100%;
+    max-width: 700px; /* Ancho fijo máximo */
+    margin: 0 auto;
+    padding: 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #fff;
+    box-sizing: border-box;
+  }
+  
+  /* Contenedor del editor */
+  .quill-wrapper ::ng-deep .ql-container {
+    height: 200px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+  
+  /* Contenido editable */
+  .quill-wrapper ::ng-deep .ql-editor {
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+  
+  /* Toolbar fijo */
+  .quill-wrapper ::ng-deep .ql-toolbar {
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+    z-index: 10;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  @media screen and (max-width: 768px) {
+    .quill-wrapper {
+      max-width: 100% !important;
+    }
+  }
+  

@@ -7,6 +7,9 @@ import { IonicModule } from '@ionic/angular';
 import { NTicketPageRoutingModule } from './n-ticket-routing.module';
 
 import { NTicketPage } from './n-ticket.page';
+import { QuillModule } from 'ngx-quill';
+//import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+
 
 @NgModule({
   imports: [
@@ -14,7 +17,8 @@ import { NTicketPage } from './n-ticket.page';
     FormsModule,
     IonicModule,
     ReactiveFormsModule,
-    NTicketPageRoutingModule
+    NTicketPageRoutingModule,
+    QuillModule.forRoot()
   ],
   declarations: [NTicketPage]
 })

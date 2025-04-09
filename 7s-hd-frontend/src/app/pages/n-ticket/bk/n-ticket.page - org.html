@@ -30,17 +30,8 @@
       <ion-item><ion-label><b>Email:</b></ion-label><ion-text>{{ ticket.emailUsuario }}</ion-text></ion-item>
       <ion-item><ion-label><b>Estado:</b></ion-label><ion-text>{{ ticket.estadoTicketNombre }}</ion-text></ion-item>
       <ion-item><ion-label><b>Asunto:</b></ion-label><ion-text>{{ ticket.titulo }}</ion-text></ion-item>
-      <!-- <ion-item><ion-label><b>Detalle:</b></ion-label><ion-text>{{ ticket.descripcion }}</ion-text></ion-item> -->
-       <!-- <ion-item><ion-label><b>Detalle:</b></ion-label><div [innerHTML]="ticket.descripcion"></div>
-       </ion-item> -->
-
-       <ion-item lines="none">
-        <ion-label position="stacked"><b>Detalle:</b></ion-label>
-        <div [innerHTML]="detalleSeguro"></div>
-        <!-- <div [innerHTML]="ticket.descripcion"></div> -->
-      </ion-item>
-      
-      </ng-container>
+      <ion-item><ion-label><b>Detalle:</b></ion-label><ion-text>{{ ticket.descripcion }}</ion-text></ion-item>
+    </ng-container>
 
     <hr />
 
@@ -57,38 +48,14 @@
           El asunto es requerido
         </ion-note>
 
-        <!-- <ion-item>
+        <ion-item>
           <ion-label position="floating">Detalle</ion-label>
           <ion-textarea formControlName="descripcion"></ion-textarea>
         </ion-item>
         <ion-note color="danger"
           *ngIf="ticketForm.get('descripcion')?.invalid && ticketForm.get('descripcion')?.touched">
           El detalle es requerido
-        </ion-note> -->
-
-        <ion-item lines="none">
-          <ion-label position="stacked">Detalle del Ticket</ion-label>
-        </ion-item>
-        
-        <!-- <div class="quill-wrapper"> -->
-          <quill-editor class="quill-wrapper"
-            formControlName="descripcion"
-            [modules]="{
-              toolbar: [
-                ['bold', 'italic', 'underline'],
-                [{ list: 'ordered' }, { list: 'bullet' }],
-                ['link', 'image']
-              ]
-            }"
-            placeholder="Escribe los detalles del ticket aquí...">
-          </quill-editor>
-        <!-- </div> -->
-        
-        
-        <ion-note color="danger" *ngIf="ticketForm.get('descripcion')?.invalid && ticketForm.get('descripcion')?.touched">
-          El detalle es requerido
         </ion-note>
-        
       </ng-container>
 
       <!-- Común -->

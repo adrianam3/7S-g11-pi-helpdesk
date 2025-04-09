@@ -95,6 +95,14 @@ switch ($_GET["op"]) {
         $emailUsuario = $_POST["emailUsuario"];
         $nombreUsuario = $_POST["nombreUsuario"];
 
+        // 👉 Validación del tamaño del contenido HTML am
+        if (strlen($descripcion) > 32000) {
+            http_response_code(413); // Payload Too Large
+            echo json_encode(['error' => 'El contenido del detalle excede el tamaño permitido.']);
+            exit;
+        }
+
+
         $datos = array();
         $datos = $ticket->insertar(
             $titulo,
