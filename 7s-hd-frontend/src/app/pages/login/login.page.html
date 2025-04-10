@@ -30,10 +30,20 @@
       Iniciar Sesión
     </ion-button>
 
-    <!-- Texto para recuperación de contraseña -->
+    <!-- Texto para recuperación de contraseña
     <ion-text color="primary" class="forgot-password" (click)="displayRecovery = true">
       ¿Olvidó su contraseña?
+    </ion-text> -->
+    <ion-text color="primary" class="forgot-password" (click)="sendRecoveryEmail()">
+      ¿Olvidó su contraseña?
     </ion-text>
+    
+
+     <!-- <ion-text color="primary" class="forgot-password" (click)="router.navigate(['/recuperar-contrasena'])">
+      ¿Olvidó su contraseña?
+    </ion-text>
+     -->
+
   </div>
 
   <!-- Spinner de carga -->

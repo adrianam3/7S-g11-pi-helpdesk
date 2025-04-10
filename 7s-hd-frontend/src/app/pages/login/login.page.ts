@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { LoadingController, ToastController } from '@ionic/angular';
+import { LoadingController, ToastController, AlertController  } from '@ionic/angular';
 import { AuthService } from 'src/app/auth/auth.service';
 import { ApiService } from 'src/app/services/api.service';
 import { SecureStorageService } from 'src/app/services/secure-storage.service';
+import { FormBuilder, Validators } from '@angular/forms';
+
 
 @Component({
   selector: 'app-login',
@@ -19,14 +21,17 @@ export class LoginPage implements OnInit {
   displayRecovery: boolean = false;
   showPassword: boolean = false;
   loading: boolean = false;
+  //alertController: any;
 
   constructor(
-    private router: Router,
+    public router: Router,
     private authService: AuthService,
     private secureStorage: SecureStorageService,
     private toastController: ToastController,
     private loadingController: LoadingController,
-    private apiService: ApiService
+    private alertController: AlertController,
+    private apiService: ApiService,
+    private fb: FormBuilder // ✅ nuevo
   ) { }
 
   async ngOnInit() {
@@ -85,25 +90,181 @@ export class LoginPage implements OnInit {
     await toast.present();
   }
 
-  /**  Recuperación de contraseña usando ApiService */
+  // /**  Recuperación de contraseña usando ApiService */
+  // async sendRecoveryEmail() {
+  //   this.loading = true;
+
+  //   const formData = {
+  //     email: this.recoveryEmail
+  //   };
+
+  //   this.apiService.post2('controllers/recuperarcontrasena.controller.php?op=recuperar', formData)
+  //     .subscribe({
+  //       next: async () => {
+  //         this.showToast('Revisa tu bandeja de entrada', 'success');
+  //         this.displayRecovery = false;
+  //         this.loading = false;
+  //       },
+  //       error: () => {
+  //         this.loading = false;
+  //         this.showToast('No se pudo enviar el correo', 'danger');
+  //       }
+  //     });
+  // }
+//funcional no envia vien el url
+  // async sendRecoveryEmail() {
+  //   const alert = await this.alertController.create({
+  //     header: 'Recuperar contraseña',
+  //     inputs: [
+  //       {
+  //         name: 'recoveryEmail',
+  //         type: 'email',
+  //         placeholder: 'Correo electrónico'
+  //       }
+  //     ],
+  //     buttons: [
+  //       {
+  //         text: 'Cancelar',
+  //         role: 'cancel'
+  //       },
+  //       {
+  //         text: 'Enviar',
+  //         handler: (data: { recoveryEmail: string; }) => {
+  //           this.recoveryEmail = data.recoveryEmail;
+  //           this._sendRecovery();
+  //         }
+  //       }
+  //     ]
+  //   });
+  //   await alert.present();
+  // }
+
+
+  // /** Envía el formulario como FormData al backend */
+  // private _sendRecovery() {
+  //   this.loading = true;
+
+  //   const formData = new FormData();
+  //   formData.append('email', this.recoveryEmail);
+
+  //   this.apiService.post2('controllers/recuperarcontrasena.controller.php?op=recuperar', formData)
+  //     .subscribe({
+  //       next: () => {
+  //         this.showToast('Revisa tu bandeja de entrada', 'success');
+  //         this.displayRecovery = false;
+  //         this.loading = false;
+  //       },
+  //       error: () => {
+  //         this.loading = false;
+  //         this.showToast('No se pudo enviar el correo', 'danger');
+  //       }
+  //     });
+  // }
+
+  // async sendRecoveryEmail() {
+  //   const alert = await this.alertController.create({
+  //     header: 'Recuperar contraseña',
+  //     inputs: [
+  //       {
+  //         name: 'recoveryEmail',
+  //         type: 'email',
+  //         placeholder: 'Correo electrónico'
+  //       }
+  //     ],
+  //     buttons: [
+  //       {
+  //         text: 'Cancelar',
+  //         role: 'cancel'
+  //       },
+  //       {
+  //         text: 'Enviar',
+  //         handler: async (data: { recoveryEmail: string }) => {
+  //           const email = data.recoveryEmail;
+  
+  //           if (!email || !email.includes('@')) {
+  //             this.showToast('Correo no válido', 'danger');
+  //             return;
+  //           }
+  
+  //           const loading = await this.loadingController.create({ message: 'Enviando correo...' });
+  //           await loading.present();
+  
+  //           const formData = new FormData();
+  //           formData.append('email', email);
+  
+  //           this.apiService.post2('controllers/recuperarcontrasena.controller.php?op=recuperar', formData)
+  //             .subscribe({
+  //               next: async () => {
+  //                 await loading.dismiss();
+  //                 this.showToast('Correo enviado. Revisa tu bandeja de entrada.', 'success');
+  //               },
+  //               error: async () => {
+  //                 await loading.dismiss();
+  //                 this.showToast('No se pudo enviar el correo', 'danger');
+  //               }
+  //             });
+  //         }
+  //       }
+  //     ]
+  //   });
+  
+  //   await alert.present();
+  // }
+  
   async sendRecoveryEmail() {
-    this.loading = true;
-
-    const formData = {
-      email: this.recoveryEmail
-    };
-
-    this.apiService.post2('controllers/recuperarcontrasena.controller.php?op=recuperar', formData)
-      .subscribe({
-        next: async () => {
-          this.showToast('Revisa tu bandeja de entrada', 'success');
-          this.displayRecovery = false;
-          this.loading = false;
-        },
-        error: () => {
-          this.loading = false;
-          this.showToast('No se pudo enviar el correo', 'danger');
+    const alert = await this.alertController.create({
+      header: 'Recuperar contraseña',
+      inputs: [
+        {
+          name: 'recoveryEmail',
+          type: 'email',
+          placeholder: 'Correo electrónico'
         }
-      });
+      ],
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel'
+        },
+        {
+          text: 'Enviar',
+          handler: async (data: { recoveryEmail: string }) => {
+            const email = data.recoveryEmail;
+  
+            // Usamos FormBuilder para validarlo como si fuera un formulario
+            const tempForm = this.fb.group({
+              email: [email, [Validators.required, Validators.email]]
+            });
+  
+            if (tempForm.invalid) {
+              this.showToast('Correo no válido', 'danger');
+              return false;
+            }
+  
+            const loading = await this.loadingController.create({ message: 'Enviando correo...' });
+            await loading.present();
+  
+            const formData = new FormData();
+            formData.append('email', email);
+  
+            this.apiService.post2('controllers/recuperarcontrasena.controller.php?op=recuperar', formData)
+              .subscribe({
+                next: async () => {
+                  await loading.dismiss();
+                  this.showToast('Correo enviado. Revisa tu bandeja de entrada.', 'success');
+                },
+                error: async () => {
+                  await loading.dismiss();
+                  this.showToast('No se pudo enviar el correo', 'danger');
+                }
+              });
+            return true;
+          }
+        }
+      ]
+    });
+  
+    await alert.present();
   }
+  
 }

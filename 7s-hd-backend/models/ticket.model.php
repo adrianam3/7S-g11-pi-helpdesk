@@ -213,7 +213,10 @@ public function dashboardagente($fechaInicio, $fechaFin)
        departamentoAgente.nombre AS departamentoANombre,
        agentePersona.nombres AS agenteNombres,
        agentePersona.apellidos AS agenteApellidos,
-       agentePersona.email AS agenteEmail
+       agentePersona.email AS agenteEmail,
+       ta.nombre AS temaayuda,
+       CONCAT(persona.nombres, ' ', persona.apellidos) AS usuarioNombreCompleto,
+       CONCAT(agentePersona.nombres, ' ', agentePersona.apellidos) AS agenteNombreCompleto
         FROM `ticket`
         LEFT JOIN `sla` ON ticket.idSla = sla.idSla
         LEFT JOIN `prioridad` ON ticket.idPrioridad = prioridad.idPrioridad
@@ -225,6 +228,7 @@ public function dashboardagente($fechaInicio, $fechaFin)
         LEFT JOIN `agente` ON agente.idAgente = AgenteDepartamento.idAgente
         left JOIN usuario as usp on usp.idUsuario=agente.idUsuario
         left JOIN persona AS agentePersona ON agentePersona.idPersona = usp.idPersona
+        LEFT JOIN temaayuda AS ta ON ta.idTemaAyuda = ticket.idTemaAyuda 
         WHERE `idTicket`=$idTicket
         ";
         $datos = mysqli_query($con, $cadena);
@@ -370,11 +374,16 @@ public function dashboardagente($fechaInicio, $fechaFin)
     
             $stmt->execute();
     
-            if ($stmt->affected_rows >= 0) {
-                return ['success' => true, 'message' => 'Ticket actualizado correctamente'];
-            } else {
-                return ['error' => 'No se actualizó ningún registro'];
+            if ($stmt->errno) {
+                return ['error' => $stmt->error];
             }
+
+            return [
+                'success' => true,
+                'message' => $stmt->affected_rows === 0
+                    ? 'No se modificó ningún campo porque los valores son iguales.'
+                    : 'Ticket actualizado correctamente'
+                ];
         } catch (Exception $ex) {
             return ['error' => $ex->getMessage()];
         } finally {
@@ -392,31 +401,129 @@ public function dashboardagente($fechaInicio, $fechaFin)
         $idTicket,
         $idDepartamentoA,
         $idAgente,
-    ) // Update ticket set ... where id = $idTicket
+        $idEstadoTicket
+    )
     {
         try {
             $estadoTicket = new EstadoTicket;
-            $idEstadoTicket = $estadoTicket->idByEstado('Asignado');
-            $con = new ClaseConectar();
-            $con = $con->ProcedimientoParaConectar();
+            // $idEstadoTicket = $estadoTicket->idByEstado('Asignado');
+            $db = new ClaseConectar();
+            $conn = $db->ProcedimientoParaConectar();
             date_default_timezone_set('America/Guayaquil');
             $fechaAtualizacion = date('Y-m-d H:i:s');
-            $cadena = "UPDATE `ticket` SET 
-                        `idDepartamentoA`='$idDepartamentoA',
-                        `idAgente`='$idAgente',
-                        `idEstadoTicket`='$idEstadoTicket', 
-                        `fechaAtualizacion`=" . ($fechaAtualizacion && $fechaAtualizacion != 'null' ? "'$fechaAtualizacion'" : "NULL") . "
-                        WHERE `idTicket`=$idTicket";
-            if (mysqli_query($con, $cadena)) {
-                return $idTicket;
-            } else {
-                return $con->error;
+
+            $cadena = "UPDATE ticket SET 
+                            idDepartamentoA = ?, 
+                            idAgente = ?, 
+                            idEstadoTicket = ?, 
+                            fechaAtualizacion = ?
+                        WHERE idTicket = ?";
+            $stmt = $conn->prepare($cadena);
+            if (!$stmt) {
+                return ['error' => 'Error al preparar la consulta: ' . $conn->error];
             }
-        } catch (Exception $th) {
+
+                // Vinculación segura de parámetros
+            $stmt->bind_param(
+                'iiisi', // tipos: i=int, s=string
+                $idDepartamentoA,
+                $idAgente,
+                $idEstadoTicket,
+                $fechaAtualizacion,
+                $idTicket
+            );
+
+             // Ejecutar
+            $stmt->execute();
+
+             // Verificar resultado
+            if ($stmt->affected_rows >= 0) {
+                return ['success' => true, 'idTicket' => $idTicket];
+            } else {
+                return ['error' => 'No se actualizó ningún registro'];
+            }
+        } catch (Exception $e) {
             http_response_code(500);
-            return $th->getMessage();
+            return ['error' => 'Excepción: ' . $e->getMessage()];
         } finally {
-            $con->close();
+            if (isset($stmt)) $stmt->close();
+            if (isset($conn)) $conn->close();
+        }
+    }
+
+    public function cerrarReaperturarTicket($idTicket, $idEstadoTicket, $accion) {
+        try {
+            $db = new ClaseConectar();
+            $conn = $db->ProcedimientoParaConectar();
+            date_default_timezone_set('America/Guayaquil');
+            $fechaActual = date('Y-m-d H:i:s');
+            $sql = "";
+    
+            // Validar acción permitida
+            if (!in_array($accion, ['1', '2'])) {
+                return ['error' => 'Acción inválida.'];
+            }
+    
+            // Obtener datos del ticket actual
+            $ticketActual = (new Ticket)->uno($idTicket)->fetch_assoc();
+            if (!$ticketActual) {
+                return ['error' => 'El ticket no existe.'];
+            }
+    
+            // Preparar acción
+            if ($accion === '1') { // Cerrar ticket
+                enviarEmailTicketCerrado(
+                    $idTicket,
+                    $ticketActual['email'],
+                    $ticketActual['personaNombres'] . ' ' . $ticketActual['personaApellidos']
+                );
+                enviarEmailTicketCerrado(
+                    $idTicket,
+                    $ticketActual['agenteEmail'],
+                    $ticketActual['agenteNombres'] . ' ' . $ticketActual['agenteApellidos']
+                );
+    
+                $sql = "UPDATE ticket SET idEstadoTicket = ?, fechaCierre = ? WHERE idTicket = ?";
+            } else if ($accion === '2') { // Reapertura
+                enviarEmailTReaperturaUsuario(
+                    idTicket: $idTicket,
+                    emailRecibe: $ticketActual['email'],
+                    nombreRecibe: $ticketActual['personaNombres'] . ' ' . $ticketActual['personaApellidos'],
+                );
+    
+                $sql = "UPDATE ticket SET idEstadoTicket = ?, fechaReapertura = ? WHERE idTicket = ?";
+            }
+    
+            $stmt = $conn->prepare($sql);
+            if (!$stmt) {
+                return ['error' => 'Error al preparar la consulta: ' . $conn->error];
+            }
+    
+            $fechaActual = $this->formatFecha($fechaActual);
+            $stmt->bind_param('ssi', $idEstadoTicket, $fechaActual, $idTicket);
+            $stmt->execute();
+    
+            if ($stmt->errno) {
+                return ['error' => 'Error al ejecutar: ' . $stmt->error];
+            }
+    
+            // Mensaje dinámico según acción
+            $mensaje = $accion === '1'
+                ? 'Ticket cerrado correctamente.'
+                : 'Ticket reabierto correctamente.';
+    
+            return [
+                'success' => true,
+                'message' => $stmt->affected_rows === 0
+                    ? 'No se modificó ningún registro.'
+                    : $mensaje
+            ];
+    
+        } catch (Exception $ex) {
+            return ['error' => 'Excepción: ' . $ex->getMessage()];
+        } finally {
+            if (isset($stmt)) $stmt->close();
+            if (isset($conn)) $conn->close();
         }
     }
 
@@ -509,4 +616,38 @@ public function dashboardagente($fechaInicio, $fechaFin)
         }
     }
     
+    public function iniciarAtencion($idTicket, $idEstadoTicket) 
+    {
+        try {
+            $con = new ClaseConectar();
+            $conn = $con->ProcedimientoParaConectar(); // ← Debe retornar un mysqli
+    
+            $sql = "UPDATE ticket 
+                    SET idEstadoTicket = ?, 
+                        fechaInicioAtencion = NOW() 
+                    WHERE idTicket = ?";
+    
+            $stmt = $conn->prepare($sql);
+            if (!$stmt) {
+                return ['success' => false, 'message' => 'Error al preparar la consulta: ' . $conn->error];
+            }
+    
+            $stmt->bind_param('ss', $idEstadoTicket, $idTicket); // tipos: i=int, s=string
+            $stmt->execute();
+    
+            if ($stmt->affected_rows >= 1) {
+                return ['success' => true, 'message' => 'Inicio de atención correctos'];
+            } else {
+                return ['success' => false, 'message' => 'No se actualizó ningún registro'];
+            }
+    
+        } catch (Exception $e) {
+            http_response_code(500);
+            return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
+        } finally {
+            if ($conn) {
+                $conn->close();
+            }
+        }
+    }    
 }

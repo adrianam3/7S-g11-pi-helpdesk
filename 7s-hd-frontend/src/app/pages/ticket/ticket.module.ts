@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { TicketPageRoutingModule } from './ticket-routing.module';
 
 import { TicketPage } from './ticket.page';
+import { AsignarAgenteComponent } from 'src/app/modals/asignar-agente/asignar-agente.component';
 
 @NgModule({
   imports: [
@@ -17,6 +18,6 @@ import { TicketPage } from './ticket.page';
     TicketPageRoutingModule,
 
   ],
-  declarations: [TicketPage]
+  declarations: [TicketPage, AsignarAgenteComponent]
 })
 export class TicketPageModule {}

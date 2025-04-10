@@ -16,15 +16,26 @@ $ticketDetalle = new TicketDetalle;
 switch ($_GET["op"]) {
     //TODO: Operaciones de ticketDetalle
 
-    case 'todos': //TODO: Procedimiento para cargar todos los datos de ticketDetalle
-        $idTicket = $_GET["idTicket"];
-        $datos = array();
-        $datos = $ticketDetalle->todos($idTicket);
-        while ($row = mysqli_fetch_assoc($datos)) {
-            $todos[] = $row;
+    case 'todos':
+        // Verificar que se haya enviado el parámetro y que sea un número válido
+        if (isset($_GET["idTicket"]) && is_numeric($_GET["idTicket"])) {
+            $idTicket = intval($_GET["idTicket"]);
+            $datos = $ticketDetalle->todos($idTicket);
+    
+            $todos = array();
+            foreach ($datos as $row) {
+                $todos[] = $row;
+            }
+    
+            echo json_encode($todos);
+        } else {
+            // Retornar error si no se envió correctamente el parámetro
+            http_response_code(400); // Bad Request
+            echo json_encode([
+                "error" => "Parámetro 'idTicket' inválido o no enviado."
+            ]);
         }
-        echo json_encode($todos);
-        break;
+    break;    
 
     case 'uno': //TODO: Procedimiento para obtener un registro de la base de datos
         $idTicketDetalle = $_POST["idTicketDetalle"];

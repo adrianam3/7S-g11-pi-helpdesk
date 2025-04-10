@@ -9,7 +9,7 @@ $usuario = new Usuario;
 
 function generateToken($email) {
     $secretKey = base64_decode($email);
-    $expirationTime = time() + 60;  // Tiempo actual + 1 minuto (60 segundos)
+    $expirationTime = time() + 600;  // Tiempo actual + 1 minuto (60 segundos)
     $payload = [
         'exp' => $expirationTime,
         'data' => 'some_data'

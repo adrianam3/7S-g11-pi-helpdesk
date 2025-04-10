@@ -14,132 +14,249 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding" >
+<ion-content class="ion-padding">
   <ng-container *ngIf="ticketForm">
 
-    <!-- Botón Iniciar Atención -->
-    <!-- <ion-button *ngIf="ticket && validarRol.esAgente() && !ticketForm.get('fechaInicioAtencion')?.value"
-      expand="full" color="primary" fill="outline" (click)="fechaInicioAtencion(ticket)">
-      <ion-icon slot="start" name="checkmark-circle-outline"></ion-icon>
-      Iniciar Atención
-    </ion-button> -->
+    <ion-accordion-group expand="first">
+      <!-- ===== Sección 1: Información general ===== -->
+      <ion-accordion value="info">
+        <ion-item slot="header" color="light">
+          <ion-label>Información del Ticket</ion-label>
+        </ion-item>
+        <div class="ion-padding" slot="content" *ngIf="ticket">
+          <!-- Botón Iniciar Atención -->
+          <!-- <ion-button *ngIf="ticket && validarRol.esAgente() && !ticketForm.get('fechaInicioAtencion')?.value" -->
+          <ion-button *ngIf="ticket && (validarRol.esAgente() && estadoTicket === '2')" expand="full" color="primary"
+            fill="outline" shape="round" (click)="fechaInicioAtencion(ticket)">
+            <ion-icon slot="start" name="checkmark-circle-outline"></ion-icon>
+            Iniciar Atención
+          </ion-button>
 
-    <!-- Datos informativos (solo para Agente, Admin o Coord) -->
-    <ng-container *ngIf="!validarRol.esUsuario() && ticket">
-      <ion-item><ion-label><b>Usuario:</b></ion-label><ion-text>{{ nombreCompletoUsuario }}</ion-text></ion-item>
-      <ion-item><ion-label><b>Email:</b></ion-label><ion-text>{{ ticket.emailUsuario }}</ion-text></ion-item>
-      <ion-item><ion-label><b>Estado:</b></ion-label><ion-text>{{ ticket.estadoTicketNombre }}</ion-text></ion-item>
-      <ion-item><ion-label><b>Asunto:</b></ion-label><ion-text>{{ ticket.titulo }}</ion-text></ion-item>
-      <!-- <ion-item><ion-label><b>Detalle:</b></ion-label><ion-text>{{ ticket.descripcion }}</ion-text></ion-item> -->
-       <!-- <ion-item><ion-label><b>Detalle:</b></ion-label><div [innerHTML]="ticket.descripcion"></div>
-       </ion-item> -->
+          <!-- === Bloque informativo === -->
+          <!-- <ion-card *ngIf="!validarRol.esUsuario() && ticket"> -->
+          <!-- <ion-card *ngIf="ticket">
+            <ion-card-content> -->
+          <ion-item *ngIf="!validarRol.esUsuario()" lines="none">
+            <ion-label><b>Usuario:</b></ion-label>
+            <ion-text>{{ ticket.usuarioNombreCompleto }}</ion-text>
+          </ion-item>
+          <ion-item *ngIf="!validarRol.esUsuario()" lines="none">
+            <ion-label><b>Email:</b></ion-label>
+          </ion-item>
+          <ion-item *ngIf="!validarRol.esUsuario()" lines="none">
+            <ion-text style="white-space: normal; word-break: break-all;">
+              {{ ticket.email }}
+            </ion-text>
+          </ion-item>
+          <ion-item lines="none">
+            <ion-label><b>Estado:</b></ion-label>
+            <ion-badge slot="end" [color]="getColorPorEstado(ticket.estadoTicketNombre)">
+              {{ ticket.estadoTicketNombre }}
+            </ion-badge>
+          </ion-item>
+          <ion-item lines="none">
+            <ion-label><b>Asunto:</b></ion-label>
+            <ion-text>{{ ticket.titulo }}</ion-text>
+          </ion-item>
+          <ion-item lines="none">
+            <ion-label><b>Detalle:</b></ion-label>
+          </ion-item>
+          <ion-item>
+            <div class="contenido-detalle" [innerHTML]="html"></div>
+          </ion-item>
 
-       <ion-item lines="none">
-        <ion-label position="stacked"><b>Detalle:</b></ion-label>
-        <div [innerHTML]="detalleSeguro"></div>
-        <!-- <div [innerHTML]="ticket.descripcion"></div> -->
-      </ion-item>
-      
-      </ng-container>
+          <hr />
+
+          <ion-row *ngIf="!validarRol.esUsuario()">
+            <ion-col *ngIf="estadoTicket === '3' || estadoTicket === '9'">
+              <ion-button size="small" color="success" (click)="confirmCerrarTicket()">
+                <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
+                Cerrar Ticket
+              </ion-button>
+            </ion-col>
+
+            <ion-col *ngIf="estadoTicket === '3' || estadoTicket === '9'">
+              <ion-button size="small" color="tertiary" (click)="escalarTicket()">
+                <ion-icon slot="start" name="person-circle-outline"></ion-icon>
+                Escalar Ticket
+              </ion-button>
+            </ion-col>
+
+            <ion-col *ngIf="estadoTicket === '4'" size="auto">
+              <ion-button size="small" color="warning" class="ion-margin-top" (click)="confirmReaperturaTicket()">
+                <ion-icon name="refresh-outline"></ion-icon>
+                Reaperturar Ticket
+              </ion-button>
+            </ion-col>
+          </ion-row>
+          <!-- </ion-card-content>
+          </ion-card> -->
+        </div>
+      </ion-accordion>
+
+      <ion-accordion value="detalle">
+        <ion-item slot="header" color="light">
+          <ion-label> Opciones del Ticket</ion-label>
+        </ion-item>
+        <div class="ion-padding" slot="content">
+          <div *ngIf="ticket && !editable">
+            <!-- <ion-card *ngIf="ticket && !editable">
+            <ion-card-content> -->
+            <ion-item lines="none">
+              <ion-label><b>Tema de Ayuda:</b></ion-label>
+              <ion-text>{{ ticket.temaayuda }}</ion-text>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-label><b>Departamento:</b></ion-label>
+              <ion-text>{{ ticket.departamentoANombre }}</ion-text>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-label><b>Agente:</b></ion-label>
+              <ion-text>{{ ticket.agenteNombreCompleto }}</ion-text>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-label><b>Prioridad:</b></ion-label>
+              <ion-text>{{ ticket.prioridadNombre }}</ion-text>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-label><b>SLA:</b></ion-label>
+              <ion-text>{{ ticket.slaNombre }}</ion-text>
+            </ion-item>
+
+            <ion-button disabled="true" expand="block" color="success" shape="round" class="ion-margin-top"
+              (click)="confirmGuardar()">
+              {{ operation === 'op=actualizar' ? 'Actualizar Ticket' : 'Crear Ticket' }}
+            </ion-button>
+          </div>
+          <!-- </ion-card-content>
+          </ion-card> -->
+
+          <!-- <ion-card *ngIf="editable">
+            <ion-card-content> -->
+          <div *ngIf="ticket && editable">
+            <form [formGroup]="ticketForm">
+
+              <!-- Usuario -->
+              <!-- <ng-container *ngIf="validarRol.esUsuario()">
+                  <ion-item>
+                    <ion-label position="stacked">Asunto</ion-label>
+                    <ion-input formControlName="titulo"></ion-input>
+                  </ion-item>
+                  <ion-note color="danger"
+                    *ngIf="ticketForm.get('titulo')?.invalid && ticketForm.get('titulo')?.touched">
+                    El asunto es requerido
+                  </ion-note>
+
+                  <ion-item>
+                    <ion-label position="stacked">Detalle</ion-label>
+                    <ion-textarea formControlName="descripcion"></ion-textarea>
+                  </ion-item>
+                  <ion-note color="danger"
+                    *ngIf="ticketForm.get('descripcion')?.invalid && ticketForm.get('descripcion')?.touched">
+                    El detalle es requerido
+                  </ion-note>
+                </ng-container> -->
+
+              <ion-item>
+                <ion-label position="stacked">Tema de Ayuda</ion-label>
+                <ion-select formControlName="temaAyuda">
+                  <ion-select-option *ngFor="let tema of temasAyuda" [value]="tema">
+                    {{ tema.nombre }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+
+              <ion-item *ngIf="validarRol.esAdministrador() || validarRol.esCoordinador()">
+                <ion-label position="stacked">Departamento</ion-label>
+                <ion-select formControlName="departamentoAgente" (ionChange)="onDepartamentoChange($event)">
+                  <ion-select-option *ngFor="let depto of departamentoAgentes" [value]="depto">
+                    {{ depto.nombre }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+
+              <ion-item *ngIf="validarRol.esAdministrador() || validarRol.esCoordinador()">
+                <ion-label position="stacked">Agente</ion-label>
+                <ion-select formControlName="idAgente" (ionChange)="onAgenteChange($event)">
+                  <ion-select-option *ngFor="let agente of agentes" [value]="agente.idAgente">
+                    {{ agente.agenteNombreCompleto }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+
+              <ion-item *ngIf="validarRol.esAdministrador() || validarRol.esAgente() || validarRol.esCoordinador()">
+                <ion-label position="stacked">Prioridad</ion-label>
+                <ion-select formControlName="prioridad">
+                  <ion-select-option *ngFor="let p of prioridades" [value]="p">
+                    {{ p.nombre }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+
+              <ion-item *ngIf="validarRol.esAdministrador() || validarRol.esAgente() || validarRol.esCoordinador()">
+                <ion-label position="stacked">SLA</ion-label>
+                <ion-select formControlName="sla">
+                  <ion-select-option *ngFor="let s of slas" [value]="s">
+                    {{ s.nombre }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+
+              <ion-button expand="block" color="success" shape="round" class="ion-margin-top"
+                (click)="confirmGuardar()">
+                {{ operation === 'op=actualizar' ? 'Actualizar Ticket' : 'Crear Ticket' }}
+              </ion-button>
+            </form>
+          </div>
+          <!-- </ion-card-content>
+          </ion-card> -->
+        </div>
+      </ion-accordion>
+
+    </ion-accordion-group>
 
     <hr />
+    
+    <ion-fab slot="fixed" vertical="top" horizontal="end" [edge]="true">
+      <ion-fab-button (click)="abrirChat()">
+        <ion-icon name="add"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
 
-    <form [formGroup]="ticketForm">
+    <!-- Visualización de los mensajes -->
+    <!-- <ion-list>
+  <ion-item *ngFor="let mensaje of mensajes" [class.left]="!mensaje?.idAgente" [class.right]="mensaje?.idAgente" lines="none">
+    <ion-label class="ion-text-wrap">
+      <h5>
+        {{ mensaje?.idAgente ? mensaje?.agenteNombreCompleto : mensaje?.clienteNombreCompleto }}
+        <small>publicado {{ mensaje?.fechaDetalle }}</small>
+      </h5> -->
+    <!-- Contenido enriquecido con HTML, imágenes, estilos -->
+    <!-- <div class="formatted-content" [innerHTML]="mensaje?.detalle"></div>
+    </ion-label>
+  </ion-item>
+</ion-list> -->
 
-      <!-- Usuario -->
-      <ng-container *ngIf="validarRol.esUsuario()">
-        <ion-item>
-          <ion-label position="floating">Asunto</ion-label>
-          <ion-input formControlName="titulo"></ion-input>
-        </ion-item>
-        <ion-note color="danger"
-          *ngIf="ticketForm.get('titulo')?.invalid && ticketForm.get('titulo')?.touched">
-          El asunto es requerido
-        </ion-note>
-
-        <!-- <ion-item>
-          <ion-label position="floating">Detalle</ion-label>
-          <ion-textarea formControlName="descripcion"></ion-textarea>
-        </ion-item>
-        <ion-note color="danger"
-          *ngIf="ticketForm.get('descripcion')?.invalid && ticketForm.get('descripcion')?.touched">
-          El detalle es requerido
-        </ion-note> -->
-
-        <ion-item lines="none">
-          <ion-label position="stacked">Detalle del Ticket</ion-label>
-        </ion-item>
-        
-        <!-- <div class="quill-wrapper"> -->
-          <quill-editor class="quill-wrapper"
-            formControlName="descripcion"
-            [modules]="{
-              toolbar: [
-                ['bold', 'italic', 'underline'],
-                [{ list: 'ordered' }, { list: 'bullet' }],
-                ['link', 'image']
-              ]
-            }"
-            placeholder="Escribe los detalles del ticket aquí...">
-          </quill-editor>
-        <!-- </div> -->
-        
-        
-        <ion-note color="danger" *ngIf="ticketForm.get('descripcion')?.invalid && ticketForm.get('descripcion')?.touched">
-          El detalle es requerido
-        </ion-note>
-        
-      </ng-container>
-
-      <!-- Común -->
-      <ion-item>
-        <ion-label position="floating">Tema de Ayuda</ion-label>
-        <ion-select formControlName="temaAyuda">
-          <ion-select-option *ngFor="let tema of temasAyuda" [value]="tema">{{ tema.nombre }}</ion-select-option>
-        </ion-select>
+    <ion-list>
+      <ion-item *ngFor="let mensaje of mensajes" lines="none" class="mensaje-item" [ngClass]="{
+    'align-right': mensaje?.tipoDetalle == 1,
+    'align-left': mensaje?.tipoDetalle == 0
+  }">
+        <ion-label class="ion-text-wrap">
+          <div class="mensaje-box" [ngClass]="{
+          'tipo-celeste': mensaje?.tipoDetalle == 1,
+          'tipo-verde': mensaje?.tipoDetalle == 0
+        }">
+            <h5 class="mensaje-header">
+              {{ mensaje?.idAgente ? mensaje?.agenteNombreCompleto : mensaje?.clienteNombreCompleto }}
+              <small class="mensaje-fecha">publicado {{ mensaje?.fechaDetalle }}</small>
+            </h5>
+            <div class="formatted-content" [innerHTML]="mensaje?.detalle"></div>
+          </div>
+        </ion-label>
       </ion-item>
-
-      <!-- Admin o Coordinador -->
-      <ion-item *ngIf="validarRol.esAdministrador() || validarRol.esCoordinador()">
-        <ion-label position="floating">Departamento</ion-label>
-        <ion-select formControlName="departamentoAgente" (ionChange)="onDepartamentoChange($event)">
-          <ion-select-option *ngFor="let depto of departamentoAgentes" [value]="depto">{{ depto.nombre }}</ion-select-option>
-        </ion-select>
-      </ion-item>
-
-      <ion-item *ngIf="validarRol.esAdministrador() || validarRol.esCoordinador()">
-        <ion-label position="floating">Agente</ion-label>
-        <ion-select formControlName="agente">
-          <ion-select-option *ngFor="let agente of agentes" [value]="agente">{{ agente.agenteNombreCompleto }}</ion-select-option>
-        </ion-select>
-      </ion-item>
-
-      <!-- Admin o Agente -->
-      <ion-item *ngIf="validarRol.esAdministrador() || validarRol.esAgente()">
-        <ion-label position="floating">Prioridad</ion-label>
-        <ion-select formControlName="prioridad">
-          <ion-select-option *ngFor="let p of prioridades" [value]="p">{{ p.nombre }}</ion-select-option>
-        </ion-select>
-      </ion-item>
-
-      <ion-item *ngIf="validarRol.esAdministrador() || validarRol.esAgente()">
-        <ion-label position="floating">SLA</ion-label>
-        <ion-select formControlName="sla">
-          <ion-select-option *ngFor="let s of slas" [value]="s">{{ s.nombreCompleto }}</ion-select-option>
-        </ion-select>
-      </ion-item>
-
-      <!-- Estado del ticket solo en edición -->
-      <ion-item *ngIf="isEdicion">
-        <ion-label>Estado del Ticket:</ion-label>
-        <ion-text>{{ ticketForm.get('estadoTicketNombre')?.value }}</ion-text>
-      </ion-item>
-
-      <!-- Botón Guardar -->
-      <ion-button expand="full" color="success" (click)="confirmGuardar()">
-        {{ operation === 'op=actualizar' ? 'Actualizar Ticket' : 'Crear Ticket' }}
-      </ion-button>
-    </form>
+    </ion-list>
 
   </ng-container>
+
 </ion-content>

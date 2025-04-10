@@ -7,31 +7,49 @@ class TicketDetalle
 {
     //TODO: Implementar los métodos de la clase
 
-    public function todos($idTicket) // Select * from ticketDetalle
-    {
-        $con = new ClaseConectar();
-        $con = $con->ProcedimientoParaConectar();
-        // $cadena = "SELECT * FROM `ticketDetalle` ORDER BY `fechaDetalle` ASC";
-        $cadena = "SELECT 
-      ticketDetalle.*, 
-      estadoTicket.nombre AS estadoTicketNombre,
-      CONCAT(persona.nombres, ' ', persona.apellidos) AS clienteNombreCompleto,
-      CONCAT(agentePersona.nombres, ' ', agentePersona.apellidos) AS agenteNombreCompleto
-        FROM ticketDetalle
-        LEFT JOIN ticket ON ticketDetalle.idTicket = ticket.idTicket
-        LEFT JOIN usuario ON ticket.idUsuario = usuario.idUsuario
-        LEFT JOIN persona ON usuario.idPersona = persona.idPersona
-        LEFT JOIN estadoTicket ON ticket.idEstadoTicket = estadoTicket.idEstadoTicket
-        LEFT JOIN AgenteDepartamento ON AgenteDepartamento.idAgente = ticket.idAgente AND AgenteDepartamento.idDepartamentoA = ticket.idDepartamentoA
-        LEFT JOIN agente ON agente.idAgente = AgenteDepartamento.idAgente
-        LEFT JOIN persona AS agentePersona ON agente.idUsuario = agentePersona.idPersona 
-        WHERE ticketDetalle.idTicket=$idTicket
-        ORDER BY ticketDetalle.fechaDetalle ASC;
-        ";
-        $datos = mysqli_query($con, $cadena);
-        $con->close();
-        return $datos;
+    public function todos($idTicket)
+{
+    $con = new ClaseConectar();
+    $conn = $con->ProcedimientoParaConectar();
+
+    $cadena = "SELECT 
+        ticketDetalle.*, 
+        estadoTicket.nombre AS estadoTicketNombre,
+        CONCAT(persona.nombres, ' ', persona.apellidos) AS clienteNombreCompleto,
+        CONCAT(agentePersona.nombres, ' ', agentePersona.apellidos) AS agenteNombreCompleto
+      FROM ticketDetalle
+      LEFT JOIN ticket ON ticketDetalle.idTicket = ticket.idTicket
+      LEFT JOIN usuario ON ticket.idUsuario = usuario.idUsuario
+      LEFT JOIN persona ON usuario.idPersona = persona.idPersona
+      LEFT JOIN estadoTicket ON ticket.idEstadoTicket = estadoTicket.idEstadoTicket
+      LEFT JOIN AgenteDepartamento ON AgenteDepartamento.idAgente = ticket.idAgente AND AgenteDepartamento.idDepartamentoA = ticket.idDepartamentoA
+      LEFT JOIN agente ON agente.idAgente = AgenteDepartamento.idAgente
+      LEFT JOIN persona AS agentePersona ON agente.idUsuario = agentePersona.idPersona 
+      WHERE ticketDetalle.idTicket = ?
+      ORDER BY ticketDetalle.fechaDetalle ASC";
+
+    $stmt = $conn->prepare($cadena);
+
+    if (!$stmt) {
+        die("Error al preparar la consulta: " . $conn->error);
     }
+
+    $stmt->bind_param("i", $idTicket); 
+
+    $stmt->execute();
+    $resultado = $stmt->get_result();
+
+    $datos = [];
+    while ($fila = $resultado->fetch_assoc()) {
+        $datos[] = $fila;
+    }
+
+    $stmt->close();
+    $conn->close();
+
+    return $datos;
+}
+
 
     public function uno($idTicketDetalle) // Select * from ticketDetalle where id = $idTicketDetalle
     {

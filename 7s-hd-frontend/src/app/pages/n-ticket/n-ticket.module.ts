@@ -8,6 +8,7 @@ import { NTicketPageRoutingModule } from './n-ticket-routing.module';
 
 import { NTicketPage } from './n-ticket.page';
 import { QuillModule } from 'ngx-quill';
+import { ChatComponent } from 'src/app/modals/chat/chat.component';
 //import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 
@@ -20,6 +21,6 @@ import { QuillModule } from 'ngx-quill';
     NTicketPageRoutingModule,
     QuillModule.forRoot()
   ],
-  declarations: [NTicketPage]
+  declarations: [NTicketPage, ChatComponent]
 })
 export class NTicketPageModule {}

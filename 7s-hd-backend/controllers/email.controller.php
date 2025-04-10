@@ -239,7 +239,7 @@ function enviarEmailTReaperturaUsuario($idTicket, $emailRecibe, $nombreRecibe)
         $mail->AltBody = $altBody;
 
         $mail->send();
-        return $email;
+        return $emailRecibe;
     } catch (Exception $e) {
         http_response_code(500);
     }

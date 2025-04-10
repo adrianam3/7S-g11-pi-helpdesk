@@ -13,36 +13,49 @@
   </ion-refresher>
 
   <!-- Campo de búsqueda -->
-  <ion-searchbar [(ngModel)]="searchTerm" (ionInput)="filtrarTicketsParam()"
-    placeholder="Buscar tickets..." debounce="500"></ion-searchbar>
+  <ion-searchbar [(ngModel)]="searchTerm" (ionInput)="filtrarTicketsParam()" placeholder="Buscar tickets..."
+    debounce="500"></ion-searchbar>
 
-  <!-- Botones de filtro -->
-  <ion-segment (ionChange)="filtrarTicketsParam($event.detail.value ?? 'all')">
-    <ion-segment-button value="all" checked>Todos</ion-segment-button>
-    <ion-segment-button value="open">Pendientes</ion-segment-button>
-    <ion-segment-button value="closed">Cerrados</ion-segment-button>
-  </ion-segment>
+  <ion-item>
+    <ion-icon name="funnel" slot="start"></ion-icon>
+    <ion-label>Filtrar por Estado</ion-label>
+    <ion-select [(ngModel)]="estadoSeleccionado" (ionChange)="filtrarTicketsParam()">
+      <ion-select-option value="all">Todos</ion-select-option>
+      <ion-select-option *ngFor="let estado of estadosTickets" [value]="estado.idEstadoTicket">
+        {{ estado.nombre }}
+      </ion-select-option>
+    </ion-select>
+  </ion-item>
 
   <!-- Lista de tickets -->
   <ion-list>
     <ion-item-sliding *ngFor="let ticket of filteredTickets">
       <ion-item>
         <ion-label>
-          <h2>{{ ticket.titulo }}</h2>
+          <h2> # {{ticket.idTicket}} - {{ ticket.titulo }}</h2>
           <p>Estado: {{ ticket.descEstadoTicket }}</p>
+          <p>
+            Estado:
+            <ion-badge [color]="getColorPorEstado(ticket.descEstadoTicket)">
+              {{ ticket.descEstadoTicket }}
+            </ion-badge>
+          </p>
           <p>Asignado a: {{ ticket.descAgente || 'No asignado' }}</p>
           <p>Fecha de creación: {{ ticket.fechaCreacion }}</p>
         </ion-label>
       </ion-item>
 
       <ion-item-options side="end">
-        <ion-item-option color="success" (click)="editarTicket(ticket)">
-          <ion-icon name="pencil"></ion-icon> Editar
+        <ion-item-option  color="success" (click)="editarTicket(ticket)">
+          <ion-icon name="construct-outline"></ion-icon> Gestionar
         </ion-item-option>
-        <ion-item-option color="warning" (click)="asignarAgente(ticket)">
+        <!-- <ion-item-option *ngIf="(validarRol.esAdministrador() || validarRol.esCoordinador())" color="warning" -->
+        <ion-item-option *ngIf="!ticket.descAgente && (validarRol.esAdministrador() || validarRol.esCoordinador())" color="warning"
+          (click)="asignarAgente(ticket)" color="primary">
           <ion-icon name="person-add"></ion-icon> Asignar
         </ion-item-option>
-        <ion-item-option color="danger" (click)="confirmEliminar(ticket.idTicket)">
+        <ion-item-option *ngIf="validarRol.esUsuario() && ticket.idEstadoTicket === '1'" color="danger"
+          (click)="confirmEliminar(ticket)">
           <ion-icon name="trash"></ion-icon> Eliminar
         </ion-item-option>
       </ion-item-options>
@@ -50,42 +63,10 @@
   </ion-list>
 
   <!-- Botón flotante para agregar un nuevo ticket -->
-  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+  <ion-fab *ngIf="validarRol.esUsuario()" slot="fixed" vertical="bottom" horizontal="end">
     <ion-fab-button (click)="crearNuevoTicket()">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
   </ion-fab>
 
-  <!-- Modal para asignar agente -->
-  <ion-modal [isOpen]="displayModal">
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>Asignar Agente</ion-title>
-        <ion-buttons slot="end">
-          <ion-button (click)="displayModal = false">Cerrar</ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-    <ion-content>
-      <form [formGroup]="ticketForm">
-        <ion-item>
-          <ion-label>Departamento</ion-label>
-          <ion-select formControlName="idDepartamentoA">
-            <ion-select-option *ngFor="let d of departamentoAgentes" [value]="d.idDepartamentoA">
-              {{ d.nombre }}
-            </ion-select-option>
-          </ion-select>
-        </ion-item>
-        <ion-item>
-          <ion-label>Agente</ion-label>
-          <ion-select formControlName="idAgente">
-            <ion-select-option *ngFor="let a of agentes" [value]="a.idAgente">
-              {{ a.agenteNombreCompleto }}
-            </ion-select-option>
-          </ion-select>
-        </ion-item>
-        <ion-button expand="full" (click)="confirmarAsignarAgente()">Guardar</ion-button>
-      </form>
-    </ion-content>
-  </ion-modal>
 </ion-content>

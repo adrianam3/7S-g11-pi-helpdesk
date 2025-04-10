@@ -1,0 +1,36 @@
+
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Restablecer Contraseña!</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="container">
+    <img src="assets/icon/logo.png" class="logo" />
+
+    <form [formGroup]="resetPasswordForm" (ngSubmit)="resetPassword()">
+      <ion-item>
+        <ion-label position="floating">Nueva Contraseña</ion-label>
+        <ion-input type="password" formControlName="password"></ion-input>
+      </ion-item>
+      <ion-text color="danger" *ngIf="resetPasswordForm.get('password')?.invalid && resetPasswordForm.get('password')?.touched">
+        <p>La contraseña debe tener al menos 8 caracteres.</p>
+        <p>Debe contener una mayúscula, una minúscula, un número y un carácter especial.</p>
+      </ion-text>
+
+      <ion-item>
+        <ion-label position="floating">Confirmar Contraseña</ion-label>
+        <ion-input type="password" formControlName="confirmPassword"></ion-input>
+      </ion-item>
+      <ion-text color="danger" *ngIf="resetPasswordForm.hasError('notMatching') && resetPasswordForm.get('confirmPassword')?.touched">
+        <p>Las contraseñas deben coincidir.</p>
+      </ion-text>
+
+      <ion-button expand="block" type="submit" [disabled]="resetPasswordForm.invalid">
+        <ion-icon slot="start" name="log-in-outline"></ion-icon>
+        Restablecer Contraseña
+      </ion-button>
+    </form>
+  </div>
+</ion-content>
