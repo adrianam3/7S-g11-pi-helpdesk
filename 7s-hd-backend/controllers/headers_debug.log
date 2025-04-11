@@ -1,21 +1,18 @@
 Array
 (
-    [cookie] => PHPSESSID=fpv0vmaup081n432mpv2544t2v
-    [accept-language] => es-ES,es;q=0.9
-    [accept-encoding] => gzip, deflate, br, zstd
-    [referer] => http://localhost:4200/home
-    [sec-fetch-dest] => empty
-    [sec-fetch-mode] => cors
     [sec-fetch-site] => same-origin
-    [content-type] => application/json
-    [accept] => application/json, text/plain, */*
-    [idrol] => 2
-    [user-agent] => Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Mobile Safari/537.36
-    [idusuario] => 9
-    [sec-ch-ua-mobile] => ?1
-    [sec-ch-ua] => "Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"
-    [authorization] => Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdCIsImlhdCI6MTc0NDM1ODU5NSwiZXhwIjoxNzQ0MzU5MTk1LCJzdWIiOjksInJvbCI6Mn0.N7I7v7bFvsFpoBNzFq0c9EA-XVUVNXrNuwvrAHvV8z4
-    [sec-ch-ua-platform] => "Android"
+    [sec-fetch-mode] => cors
+    [sec-fetch-dest] => empty
+    [cookie] => PHPSESSID=c50dor5pekugbe5k4arp31u63j
+    [referer] => http://localhost:4200/ticket
     [connection] => close
+    [idusuario] => 19
+    [idrol] => 2
+    [authorization] => Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdCIsImlhdCI6MTc0NDM5Mjk4NiwiZXhwIjoxNzQ0MzkzNTg2LCJzdWIiOjE5LCJyb2wiOjJ9.AX_Fjed6tkJ0kMeF7a2KIb6PwMs8fqS1qI3Qr6IrJuI
+    [content-type] => application/json
+    [accept-encoding] => gzip, deflate, br, zstd
+    [accept-language] => es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3
+    [accept] => application/json, text/plain, */*
+    [user-agent] => Mozilla/5.0 (Linux; Android 11; SAMSUNG SM-G973U) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/14.2 Chrome/87.0.4280.141 Mobile Safari/537.36
     [host] => localhost
 )

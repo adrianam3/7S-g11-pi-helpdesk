@@ -9,7 +9,7 @@
 .user-avatar {
   font-size: 48px;
   // color: #007bff;
-  color: #e53935;
+  color: #b71c1c;
   
   margin-right: 10px;
 }
@@ -29,4 +29,12 @@
   font-size: 14px;
   color: gray;
   margin: 0;
+}
+.logout-button {
+  --background: #b71c1c;
+  color: white;
+  font-weight: bold;
+  ion-icon {
+    margin-right: 8px;
+  }
 }

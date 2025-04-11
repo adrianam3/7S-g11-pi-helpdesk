@@ -23,9 +23,14 @@
         </ion-item>
       </ion-list>
 
-      <ion-button expand="full" class="logout-button" (click)="logout()">
+      <!-- <ion-button expand="full" class="logout-button" (click)="logout()">
         <ion-icon name="log-out"></ion-icon> CERRAR SESIÓN
+      </ion-button> -->
+      <ion-button expand="full" class="logout-button" (click)="logout()">
+        <ion-icon name="log-out" slot="start"></ion-icon>
+        CERRAR SESIÓN
       </ion-button>
+      
     </ion-content>
   </ion-menu>
 

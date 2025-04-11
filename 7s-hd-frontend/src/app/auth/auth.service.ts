@@ -2,8 +2,10 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { SecureStorageService } from '../services/secure-storage.service';
-import { Router } from '@angular/router';
+// import { Router } from '@angular/router';
+import { CanActivate, Router } from '@angular/router';
 import { ApiService } from '../services/api.service';
+
 
 @Injectable({
   providedIn: 'root'
@@ -76,5 +78,19 @@ export class AuthService {
   triggerUserUpdate() {
     this.userUpdated.next(true); // Notificar que el usuario ha cambiado
   }
+
+//am
+async canActivate(): Promise<boolean> {
+  const token = await this.secureStorage.get('token');
+  const isLoggedIn = token && token !== '';
+
+  if (isLoggedIn) {
+    return true;
+  } else {
+    this.router.navigate(['/login']);
+    return false;
+  }
+}
+
 
 }
