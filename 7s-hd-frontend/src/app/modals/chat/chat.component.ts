@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AlertController, ModalController } from '@ionic/angular';
 
 @Component({
   selector: 'app-chat',
@@ -8,41 +8,78 @@ import { ModalController } from '@ionic/angular';
   styleUrls: ['./chat.component.scss'],
   standalone: false
 })
-export class ChatComponent  implements OnInit {
-  @Input() mensajes: any = [];
+export class ChatComponent implements OnInit {
   @Input() ticketForm!: FormGroup;
   @Input() validarRol: any;
+  @Input() ticket: any;
+  @Input() tipoDetalle: any;
 
   ticketDetalleForm: FormGroup;
 
-  constructor(private modalCtrl: ModalController, private fb: FormBuilder) {
-    this.ticketDetalleForm = this.fb.group({
-      detalle: ['']
-    });
+  constructor(private modalCtrl: ModalController,
+    private fb: FormBuilder,
+    private alertCtrl: AlertController,
+  ) {
+    if (this.ticket) {
+      this.ticketDetalleForm = this.fb.group({
+        detalle: ['', Validators.required],
+        idTicket: [this.ticketForm.get('idTicket')?.value],
+        idAgente: [this.ticketForm.get('idAgente')?.value],
+        idDepartamentoA: this.ticket.idAgente,
+        tipoDetalle: this.tipoDetalle,
+      });
+    } else {
+      this.ticketDetalleForm = this.fb.group({ detalle: ['', Validators.required] });
+    }
   }
   public async ionViewWillEnter() {
-    // await this.validarRol.cargarDatos();
-    // this.validarRol.datosCargados$.subscribe(async (cargado: any) => {
-    //   if (cargado) {
-    //     this.validarRol.rol$.subscribe((idRol: any) => {
-    //       console.log('ROL DETECTADO:', idRol);
-    //       // Aquí puedes hacer lógica específica según el rol
-    //     });
-      // }
-    // });
   }
+
   ngOnInit(): void {
-    console.log('Mensajes:', this.mensajes);
   }
 
-  cerrarModal() {
-    this.modalCtrl.dismiss();
+  async cerrarModal() {
+    const alert = await this.alertCtrl.create({
+      header: 'Cancelar',
+      message: '¿Está seguro de cancelar?',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Confirmar',
+          handler: () => {
+            this.modalCtrl.dismiss({
+              confirmado: false
+            });
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
-  enviarMensaje() {
-    const detalle = this.ticketDetalleForm.value.detalle;
-    // Emitir evento o enviar al backend
-    console.log('Enviar:', detalle);
-    this.modalCtrl.dismiss({ detalle });
+  async confirmarEnvio() {
+    if (this.ticketDetalleForm.invalid) {
+      this.ticketDetalleForm.markAllAsTouched(); // Muestra los mensajes de error
+      return;
+    }
+    const alert = await this.alertCtrl.create({
+      header: 'Confirmar Mensaje',
+      message: '¿Está seguro de guardar el detalle?',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Confirmar',
+          handler: () => {
+            this.modalCtrl.dismiss({
+              idAgente: this.ticketDetalleForm.value.idAgente,
+              idDepartamentoA: this.ticketDetalleForm.value.departamentoAgente,
+              detalle: this.ticketDetalleForm.value.detalle,
+              confirmado: true
+            });
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 }

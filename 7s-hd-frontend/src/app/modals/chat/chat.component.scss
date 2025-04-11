@@ -1,41 +1,19 @@
-// .chat-scroll-container {
-//     max-height: 60vh;
-//     overflow-y: auto;
-//     padding: 10px;
-//   }
-  
-//   .chat-bubble {
-//     max-width: 80%;
-//     padding: 10px;
-//     border-radius: 12px;
-//     margin-bottom: 10px;
-//     position: relative;
-//     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-//   }
-  
-//   .left {
-//     background-color: #e8f5e9;
-//     color: #333;
-//     align-self: flex-start;
-//   }
-  
-//   .right {
-//     background-color: #e0f7fa;
-//     color: #333;
-//     align-self: flex-end;
-//   }
-  
-//   .formatted-content {
-//     font-size: 14px;
-//     margin-top: 5px;
-//   }
-  
-//   .chat-input-container {
-//     margin-top: 20px;
-//   }
- 
-  
-  
+// Color de header
+.toolbar-dark {
+  --background: #000;
+  --color: #fff;
+}
+
+.toolbar-dark ion-title {
+  color: #fff;
+}
+
+.toolbar-dark ion-icon {
+  color: #fff;
+}
+
+// Fin color de header
+
 .quill-wrapper {
     width: 100%;
     max-width: 700px;
@@ -48,7 +26,7 @@
     background-color: #fff;
     box-sizing: border-box;
   }
-  
+
   /* Contenedor del editor */
   .quill-wrapper ::ng-deep .ql-container {
     height: 200px !important;
@@ -57,7 +35,7 @@
     padding: 10px;
     box-sizing: border-box;
   }
-  
+
   /* Contenido editable */
   .quill-wrapper ::ng-deep .ql-editor {
     white-space: pre-wrap !important;
@@ -66,7 +44,7 @@
     width: 100% !important;
     box-sizing: border-box;
   }
-  
+
   /* Toolbar fijo */
   .quill-wrapper ::ng-deep .ql-toolbar {
     position: sticky;
@@ -75,13 +53,13 @@
     z-index: 10;
     border-bottom: 1px solid #ccc;
   }
-  
+
   @media screen and (max-width: 768px) {
     .quill-wrapper {
       max-width: 100% !important;
     }
   }
-  
+
   .contenido-detalle {
     max-height: 300px; // ajusta según necesidad
     overflow-y: auto;
@@ -89,4 +67,3 @@
     padding: 0.5rem;
     font-size: 14px;
   }
-  

@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar class="toolbar-dark">
     <ion-title>Chat</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="cerrarModal()">
@@ -11,50 +11,29 @@
 
 <ion-content class="ion-padding">
   <div class="chat-scroll-container">
-    <div *ngFor="let mensaje of mensajes" [ngClass]="{ 'left': !mensaje?.idAgente, 'right': mensaje?.idAgente }"
-      class="chat-bubble">
-      <h5>
-        {{ mensaje?.idAgente ? mensaje?.agenteNombreCompleto : mensaje?.clienteNombreCompleto }}
-        publicado {{ mensaje?.fechaDetalle }}
-      </h5>
-      <div class="formatted-content" [innerHTML]="mensaje?.detalle"></div>
-    </div>
+    <h2 style="text-align: center;">Por favor ingrese el detalle del Ticket # {{ticket.idTicket}}</h2>
   </div>
 
-  <div>
-    <!-- <div *ngIf="validarRol?.esAgente() || validarRol?.esUsuario()"> -->
-    <!-- <div
-      *ngIf="ticketForm &&
-        (ticketForm.get('idEstadoTicket')?.value === '3' ||
-         ticketForm.get('idEstadoTicket')?.value === '6' ||
-         ticketForm.get('idEstadoTicket')?.value === '9')"> -->
-    <div>
-
-      <form [formGroup]="ticketDetalleForm" class="chat-input-container">
-        <quill-editor formControlName="detalle" [styles]="{ height: '150px', backgroundColor: 'white' }" [modules]="{
-            toolbar: [
-              ['bold', 'italic', 'underline'],
-              [{ list: 'ordered' }, { list: 'bullet' }],
-              ['link', 'image']
-            ]
-          }" placeholder="Escribe una respuesta...">
-        </quill-editor>
-
-        <ion-button expand="block" class="ion-margin-top" (click)="enviarMensaje()">Enviar mensaje</ion-button>
-      </form>
-
-    </div>
-  </div>
   <div>
     <form [formGroup]="ticketDetalleForm" class="chat-input-container">
-      <quill-editor class="quill-wrapper" formControlName="descripcion" [modules]="{
+      <quill-editor class="quill-wrapper" formControlName="detalle" [modules]="{
       toolbar: [
         ['bold', 'italic', 'underline'],
         [{ list: 'ordered' }, { list: 'bullet' }],
         ['link', 'image']
       ]
-    }" placeholder="Escribe los detalles del ticket aquí...">
+    }" placeholder="Escriba los detalles del ticket aquí...">
       </quill-editor>
+
+      <ion-note color="danger"
+        *ngIf="ticketDetalleForm.get('detalle')?.invalid && ticketDetalleForm.get('detalle')?.touched">
+        El detalle es requerido
+      </ion-note>
+
+      <ion-button expand="block" color="success" (click)="confirmarEnvio()">
+        <ion-icon name="checkmark-done-circle-outline"></ion-icon>
+        Enviar mensaje
+      </ion-button>
     </form>
   </div>
 </ion-content>

@@ -1,27 +1,37 @@
-#container {
+.bienvenida {
   text-align: center;
+  margin-top: 20px;
 
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  h2 {
+    font-weight: bold;
+    font-size: 24px;
+  }
+
+  .rol {
+    font-size: 14px;
+    color: gray;
+  }
 }
 
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
+.logo-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+  padding-bottom: 30px;
+
+  img {
+    width: 100%;        // Ocupa todo el ancho disponible
+    max-width: 300px;   // Limita tamaño máximo
+    height: auto;       // Mantiene proporción
+    object-fit: contain;
+    opacity: 0.95;
+  }
+}
+.rol-badge {
+  margin-top: 6px;
+  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  text-transform: capitalize;
 }
 
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-
-  color: #8c8c8c;
-
-  margin: 0;
-}
-
-#container a {
-  text-decoration: none;
-}
