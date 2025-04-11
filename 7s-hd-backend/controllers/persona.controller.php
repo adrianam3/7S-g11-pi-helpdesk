@@ -145,4 +145,21 @@ switch ($_GET["op"]) {
         $datos = $persona->eliminar($idPersona);
         echo json_encode($datos);
         break;
+
+        case 'actualizar_perfil':
+            if (!isset($_POST["idPersona"], $_POST["nombres"], $_POST["apellidos"], $_POST["telefono"])) {
+                http_response_code(400);
+                echo json_encode(["error" => "Faltan campos requeridos."]);
+                break;
+            }
+        
+            $idPersona = intval($_POST["idPersona"]);
+            $nombres = trim($_POST["nombres"]);
+            $apellidos = trim($_POST["apellidos"]);
+            $telefono = trim($_POST["telefono"]);
+        
+            $resultado = $persona->actualizarPerfil($idPersona, $nombres, $apellidos, $telefono);
+            echo json_encode($resultado);
+            break;
+                
 }

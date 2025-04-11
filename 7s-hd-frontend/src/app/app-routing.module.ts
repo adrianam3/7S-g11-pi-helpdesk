@@ -88,6 +88,11 @@ const routes: Routes = [
     path: 'recuperar-contrasena',
     loadChildren: () => import('./pages/recuperar-contrasena/recuperar-contrasena.module').then( m => m.RecuperarContrasenaPageModule)
   },
+ 
+  {
+    path: 'perfil',
+    loadChildren: () => import('./pages/perfil/perfil.module').then( m => m.PerfilPageModule)
+  },
   { path: '**', redirectTo: 'home', pathMatch: 'full' },
 ];
 

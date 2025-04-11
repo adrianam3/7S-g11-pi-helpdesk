@@ -235,6 +235,7 @@ class Persona
             $con->close();
         }
     }
+    
 
     public function eliminar($idPersona) // Delete from persona where id = $idPersona
     {
@@ -274,4 +275,46 @@ class Persona
             $con->close();
         }
     }
+
+    public function actualizarPerfil($idPersona, $nombres, $apellidos, $telefono)
+{
+    try {
+        $con = new ClaseConectar();
+        $con = $con->ProcedimientoParaConectar();
+
+        // Encriptar solo el campo sensible
+        $telefono_enc = $this->encrypt($telefono);
+
+        $stmt = $con->prepare("UPDATE persona 
+            SET nombres = ?, 
+                apellidos = ?, 
+                telefono = ?, 
+                fechaModificacion = CURRENT_TIMESTAMP 
+            WHERE idPersona = ?");
+
+        if (!$stmt) {
+            throw new Exception("Error preparando la consulta: " . $con->error);
+        }
+
+        $stmt->bind_param("sssi", $nombres, $apellidos, $telefono_enc, $idPersona);
+
+        if ($stmt->execute()) {
+            $stmt->close();
+            $con->close();
+            return [
+                "status" => "success",
+                "message" => "Perfil actualizado correctamente"
+            ];
+        } else {
+            throw new Exception("Error al ejecutar el update: " . $stmt->error);
+        }
+    } catch (Exception $e) {
+        http_response_code(500);
+        return [
+            "status" => "error",
+            "message" => $e->getMessage()
+        ];
+    }
+}
+
 }

@@ -65,7 +65,7 @@ export class LoginPage implements OnInit {
         await this.secureStorage.set('email', response.user.email);
         await this.secureStorage.set('nombres', response.user.nombres);
         await this.secureStorage.set('apellidos', response.user.apellidos);
-
+        await this.secureStorage.set('idPersona', response.user.idPersona);
         // Emitir un evento para actualizar el menú con el nuevo usuario
         this.authService.triggerUserUpdate();
 

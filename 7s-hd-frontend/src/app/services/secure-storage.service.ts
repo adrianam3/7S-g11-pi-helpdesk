@@ -68,4 +68,12 @@ export class SecureStorageService {
   getRoleObservable() {
     return this.roleSubject.asObservable();
   }
+//am
+  async clear(): Promise<void> {
+    const keys = ['token', 'idUsuario', 'idRol', 'email', 'nombres', 'apellidos', 'idPersona'];
+    for (const key of keys) {
+      await this.remove(key);
+    }
+  }
+  
 }

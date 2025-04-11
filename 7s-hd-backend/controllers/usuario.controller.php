@@ -74,4 +74,65 @@ switch ($_GET["op"]) {
         $datos = $usuario->eliminar($idUsuario);
         echo json_encode($datos);
         break;
+
+    case 'cambiar_password':
+    if (!isset($_POST["email"]) || !isset($_POST["actual"]) || !isset($_POST["nueva"])) {
+        http_response_code(400);
+        echo json_encode(["error" => "Faltan datos obligatorios"]);
+        break;
+    }
+
+    $email = $_POST["email"];
+    $actual = $_POST["actual"];
+    $nueva = $_POST["nueva"];
+
+    // Buscar usuario por email
+    $usuarioData = $usuario->login($email, $actual);
+
+    if (!$usuarioData) {
+        http_response_code(401);
+        echo json_encode(["error" => "La contraseña actual es incorrecta"]);
+        break;
+    }
+
+    $resultado = $usuario->actualizarcontrasena($nueva, $email);
+    
+    if ($resultado) {
+        echo json_encode(["message" => "Contraseña actualizada correctamente"]);
+    } else {
+        http_response_code(500);
+        echo json_encode(["error" => "Error al actualizar la contraseña"]);
+    }
+    break;
+
+    case 'cambiar_password':
+        if (!isset($_POST["email"]) || !isset($_POST["actual"]) || !isset($_POST["nueva"])) {
+            http_response_code(400);
+            echo json_encode(["error" => "Faltan datos obligatorios"]);
+            break;
+        }
+    
+        $email = $_POST["email"];
+        $actual = $_POST["actual"];
+        $nueva = $_POST["nueva"];
+    
+        // Buscar usuario por email
+        $usuarioData = $usuario->login($email, $actual);
+    
+        if (!$usuarioData) {
+            http_response_code(401);
+            echo json_encode(["error" => "La contraseña actual es incorrecta"]);
+            break;
+        }
+    
+        $resultado = $usuario->actualizarcontrasena($nueva, $email);
+        
+        if ($resultado) {
+            echo json_encode(["message" => "Contraseña actualizada correctamente"]);
+        } else {
+            http_response_code(500);
+            echo json_encode(["error" => "Error al actualizar la contraseña"]);
+        }
+        break;
+    
 }

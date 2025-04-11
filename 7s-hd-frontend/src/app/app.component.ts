@@ -87,7 +87,7 @@ export class AppComponent {
       { title: 'Base de Conocimiento', url: '/base-conocimiento', icon: 'book', roles: [1, 2, 3, 4] },
       { title: 'Usuarios', url: '/usuarios', icon: 'people', roles: [1] },
       { title: 'Personas', url: '/personas', icon: 'people', roles: [1, 3, 4] },
-      { title: 'Perfil', url: '/profile', icon: 'person', roles: [1, 2, 3, 4] },
+      { title: 'Perfil', url: '/perfil', icon: 'person', roles: [1, 2, 3, 4] },
       { title: 'Agentes', url: '/agentes', icon: 'people-circle-outline', roles: [1, 4] },
       { title: 'Encuestas', url: '/encuestas', icon: 'star-outline', roles: [1, 4] },
       { title: 'Mis Encuestas', url: '/my-encuestas', icon: 'star-outline', roles: [1, 2] },
