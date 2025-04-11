@@ -125,6 +125,23 @@ export class TicketPage implements OnInit {
     }
   }
 
+  getColorPorPrioridad(descPrioridad: string): string {
+    // console.log('akiii'+ descPrioridad)
+    switch (descPrioridad) {
+      case 'Normal':
+        return 'success';
+      case 'Media':
+        return 'primary';
+      case 'Alta':
+        return 'warning';
+      case 'Crítica':
+        return 'danger';
+      
+      default:
+        return 'medium'; // color neutro
+    }
+  }
+
   async loadTickets() {
     this.loading = true;
     const idRol = await this.storage.get('idRol');
@@ -157,6 +174,8 @@ export class TicketPage implements OnInit {
         idEncuesta: u.idEncuesta,
         descripcion: u.descripcion
       }));
+//am
+      this.ticketsAll.sort((a, b) => new Date(b.fechaCreacion).getTime() - new Date(a.fechaCreacion).getTime());
 
       this.filteredTickets = this.ticketsAll.filter(ticket => ticket.descEstadoTicket !== 'Cerrado');
     } catch (error) {

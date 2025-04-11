@@ -1,18 +1,21 @@
 Array
 (
-    [sec-fetch-site] => same-origin
-    [sec-fetch-mode] => cors
-    [sec-fetch-dest] => empty
-    [cookie] => PHPSESSID=c50dor5pekugbe5k4arp31u63j
-    [referer] => http://localhost:4200/ticket
-    [connection] => close
-    [idusuario] => 19
-    [idrol] => 2
-    [authorization] => Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdCIsImlhdCI6MTc0NDM5Mjk4NiwiZXhwIjoxNzQ0MzkzNTg2LCJzdWIiOjE5LCJyb2wiOjJ9.AX_Fjed6tkJ0kMeF7a2KIb6PwMs8fqS1qI3Qr6IrJuI
-    [content-type] => application/json
+    [cookie] => PHPSESSID=mfram8duiv1bt9t7rn8spe45kl
+    [accept-language] => es,es-ES;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6,es-MX;q=0.5
     [accept-encoding] => gzip, deflate, br, zstd
-    [accept-language] => es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3
+    [referer] => http://localhost:4200/dashboard
+    [sec-fetch-dest] => empty
+    [sec-fetch-mode] => cors
+    [sec-fetch-site] => same-origin
+    [content-type] => application/json
     [accept] => application/json, text/plain, */*
-    [user-agent] => Mozilla/5.0 (Linux; Android 11; SAMSUNG SM-G973U) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/14.2 Chrome/87.0.4280.141 Mobile Safari/537.36
+    [idrol] => 1
+    [user-agent] => Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Mobile Safari/537.36 Edg/135.0.0.0
+    [idusuario] => 1
+    [sec-ch-ua-mobile] => ?1
+    [sec-ch-ua] => "Microsoft Edge";v="135", "Not-A.Brand";v="8", "Chromium";v="135"
+    [authorization] => Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdCIsImlhdCI6MTc0NDQwNDMyNiwiZXhwIjoxNzQ0NDA0OTI2LCJzdWIiOjEsInJvbCI6MX0.YOnR7juaYGhxbWvI_Wp1iOFFLzwPDqokUgfQcXD5NHI
+    [sec-ch-ua-platform] => "Android"
+    [connection] => close
     [host] => localhost
 )

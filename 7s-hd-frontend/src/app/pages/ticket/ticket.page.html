@@ -33,14 +33,18 @@
       <ion-item>
         <ion-label>
           <h2> # {{ticket.idTicket}} - {{ ticket.titulo }}</h2>
-          <p>Estado: {{ ticket.descEstadoTicket }}</p>
+          <!-- <p>Estado: {{ ticket.descEstadoTicket }}</p> -->
           <p>
             Estado:
             <ion-badge [color]="getColorPorEstado(ticket.descEstadoTicket)">
               {{ ticket.descEstadoTicket }}
             </ion-badge>
           </p>
-          <p>Asignado a: {{ ticket.descAgente || 'No asignado' }}</p>
+          <p>Prioridad : 
+            <ion-badge [color]="getColorPorPrioridad(ticket.descPrioridad)">
+              {{ ticket.descPrioridad }}
+            </ion-badge>
+            <p>Asignado a: {{ ticket.descAgente || 'No asignado' }}</p>
           <p>Fecha de creación: {{ ticket.fechaCreacion }}</p>
         </ion-label>
       </ion-item>
