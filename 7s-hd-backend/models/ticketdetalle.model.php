@@ -61,67 +61,133 @@ class TicketDetalle
         return $datos;
     }
 
-    public function insertar($idTicket, $idAgente, $idDepartamentoA, $observacion, $detalle, $tipoDetalle) // Insert into ticketDetalle (...)
+    public function insertar($idTicket, $idAgente, $idDepartamentoA, $observacion, $detalle, $tipoDetalle)
     {
         try {
             $ticket = new Ticket;
             $resultado = $ticket->uno($idTicket);
             $ticketActual = $resultado->fetch_assoc();
+    
             enviarEmailMensajeDetalleTicket(
-                idTicket:$idTicket, 
+                idTicket: $idTicket, 
                 emailRecibe: $ticketActual['email'], 
-                nombreRecibe: $ticketActual['personaNombres'].' '.$ticketActual['personaApellidos'],
+                nombreRecibe: $ticketActual['personaNombres'] . ' ' . $ticketActual['personaApellidos'],
                 detalle: $detalle
             );
-
+    
             enviarEmailMensajeDetalleTicket(
-                idTicket:$idTicket, 
+                idTicket: $idTicket, 
                 emailRecibe: $ticketActual['agenteEmail'],
-                nombreRecibe: $ticketActual['agenteNombres'].' '.$ticketActual['agenteApellidos'],
+                nombreRecibe: $ticketActual['agenteNombres'] . ' ' . $ticketActual['agenteApellidos'],
                 detalle: $detalle
             );
-
+    
             $con = new ClaseConectar();
-            $con = $con->ProcedimientoParaConectar();
-            $cadena = "INSERT INTO `ticketDetalle` (`idTicket`, `idAgente`, `idDepartamentoA`, `observacion`, `detalle`, `tipoDetalle`) 
-                       VALUES ('$idTicket', " . ($idAgente && $idAgente != 'null' ? "'$idAgente'" : "NULL") . ", '$idDepartamentoA', '$observacion', '$detalle', '$tipoDetalle')";
-            if (mysqli_query($con, $cadena)) {
-                return $con->insert_id;
-            } else {
-                return $con->error;
+            $conn = $con->ProcedimientoParaConectar();
+    
+            $sql = "INSERT INTO ticketDetalle (
+                        idTicket, idAgente, idDepartamentoA, observacion, detalle, tipoDetalle
+                    ) VALUES (?, ?, ?, ?, ?, ?)";
+    
+            $stmt = $conn->prepare($sql);
+            if (!$stmt) {
+                return ['error' => $conn->error];
             }
-        } catch (Exception $th) {
+    
+            $idAgente = ($idAgente && $idAgente !== 'null') ? intval($idAgente) : null;
+            $idDepartamentoA = intval($idDepartamentoA);
+            $observacion = trim($observacion);
+            $detalle = trim($detalle);
+            $tipoDetalle = trim($tipoDetalle);
+    
+            $stmt->bind_param(
+                'iiisss',
+                $idTicket,
+                $idAgente,
+                $idDepartamentoA,
+                $observacion,
+                $detalle,
+                $tipoDetalle
+            );
+    
+            $stmt->execute();
+    
+            if ($stmt->errno) {
+                return ['error' => $stmt->error];
+            }
+    
+            return ['success' => true, 'insert_id' => $stmt->insert_id];
+    
+        } catch (Exception $e) {
             http_response_code(500);
-            return $th->getMessage();
+            return ['error' => $e->getMessage()];
         } finally {
-            $con->close();
+            if (isset($stmt)) $stmt->close();
+            if (isset($conn)) $conn->close();
         }
     }
-
-    public function actualizar($idTicketDetalle, $idTicket, $idAgente, $idDepartamentoA, $observacion, $detalle, $tipoDetalle) // Update ticketDetalle set ... where id = $idTicketDetalle
-    {
+    
+    public function actualizar(
+        $idTicketDetalle,
+        $idTicket,
+        $idAgente,
+        $idDepartamentoA,
+        $observacion,
+        $detalle,
+        $tipoDetalle
+    ) {
         try {
             $con = new ClaseConectar();
-            $con = $con->ProcedimientoParaConectar();
-            $cadena = "UPDATE `ticketDetalle` SET 
-                        `idTicket`='$idTicket', 
-                        `idAgente`=" . ($idAgente && $idAgente != 'null' ? "'$idAgente'" : "NULL") . ",
-                        `idDepartamentoA`='$idDepartamentoA', 
-                        `observacion`='$observacion', 
-                        `detalle`='$detalle', 
-                        `tipoDetalle`='$tipoDetalle', 
-                        `fechaDetalle`=CURRENT_TIMESTAMP 
-                        WHERE `idTicketDetalle`=$idTicketDetalle";
-            if (mysqli_query($con, $cadena)) {
-                return $idTicketDetalle;
-            } else {
-                return $con->error;
+            $conn = $con->ProcedimientoParaConectar();
+    
+            $sql = "UPDATE ticketDetalle SET
+                        idTicket = ?,
+                        idAgente = ?,
+                        idDepartamentoA = ?,
+                        observacion = ?,
+                        detalle = ?,
+                        tipoDetalle = ?,
+                        fechaDetalle = CURRENT_TIMESTAMP
+                    WHERE idTicketDetalle = ?";
+    
+            $stmt = $conn->prepare($sql);
+            if (!$stmt) {
+                return ['error' => 'Error en la preparación: ' . $conn->error];
             }
-        } catch (Exception $th) {
+    
+            $idTicket = intval($idTicket);
+            $idAgente = ($idAgente && $idAgente !== 'null') ? intval($idAgente) : null;
+            $idDepartamentoA = intval($idDepartamentoA);
+            $observacion = trim($observacion);
+            $detalle = trim($detalle);
+            $tipoDetalle = trim($tipoDetalle);
+            $idTicketDetalle = intval($idTicketDetalle);
+    
+            $stmt->bind_param(
+                'iiisssi',
+                $idTicket,
+                $idAgente,
+                $idDepartamentoA,
+                $observacion,
+                $detalle,
+                $tipoDetalle,
+                $idTicketDetalle
+            );
+    
+            $stmt->execute();
+    
+            if ($stmt->errno) {
+                return ['error' => 'Error al ejecutar: ' . $stmt->error];
+            }
+    
+            return ['success' => true, 'message' => 'Detalle actualizado correctamente', 'id' => $idTicketDetalle];
+    
+        } catch (Exception $e) {
             http_response_code(500);
-            return $th->getMessage();
+            return ['error' => 'Excepción: ' . $e->getMessage()];
         } finally {
-            $con->close();
+            if (isset($stmt)) $stmt->close();
+            if (isset($conn)) $conn->close();
         }
     }
 

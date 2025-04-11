@@ -46,12 +46,15 @@
       </ion-item>
 
       <ion-item-options side="end">
-        <ion-item-option  color="success" (click)="editarTicket(ticket)">
+        <ion-item-option *ngIf="validarRol.esUsuario() && ticket.idEstadoTicket !== '1'" color="success"
+          (click)="editarTicket(ticket)">
           <ion-icon name="construct-outline"></ion-icon> Gestionar
         </ion-item-option>
-        <!-- <ion-item-option *ngIf="(validarRol.esAdministrador() || validarRol.esCoordinador())" color="warning" -->
-        <ion-item-option *ngIf="!ticket.descAgente && (validarRol.esAdministrador() || validarRol.esCoordinador())" color="warning"
-          (click)="asignarAgente(ticket)" color="primary">
+        <ion-item-option *ngIf="!validarRol.esUsuario()" color="success" (click)="editarTicket(ticket)">
+          <ion-icon name="construct-outline"></ion-icon> Gestionar
+        </ion-item-option>
+        <ion-item-option *ngIf="!ticket.descAgente && (validarRol.esAdministrador() || validarRol.esCoordinador())"
+          color="warning" (click)="asignarAgente(ticket)" color="primary">
           <ion-icon name="person-add"></ion-icon> Asignar
         </ion-item-option>
         <ion-item-option *ngIf="validarRol.esUsuario() && ticket.idEstadoTicket === '1'" color="danger"

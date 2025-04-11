@@ -1,11 +1,8 @@
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, LoadingController, ModalController, NavController, ToastController } from '@ionic/angular';
-import { lastValueFrom } from 'rxjs';
-import { Ticket } from 'src/app/models/ticket.model';
 import { ApiService } from 'src/app/services/api.service';
 import { SecureStorageService } from 'src/app/services/secure-storage.service';
 import { ValidarRolesService } from 'src/app/services/validar-roles.service';
@@ -37,13 +34,15 @@ export class NTicketPage {
   public mensaje = 'Ticket guardado correctamente.';
   public editable: boolean = false;
   public estadoTicket: string = '1';
-  html: SafeHtml = '<p>Some HTML</p>';
+  html: SafeHtml = '<p>Ingrese la información</p>';
   // public detalleSeguro: SafeHtml;
   // public detalleSeguro: any;
   public detalleSeguro: SafeHtml = this.sanitizer.bypassSecurityTrustHtml('');
   public mensajes: any = [];
   public ticketDetalleForm!: FormGroup;
   public ticketDetalle: any = null;
+  public tipoDetalle = 0;
+  public accordionActivo = 'info'; // valor por defecto
 
 
   constructor(
@@ -58,6 +57,7 @@ export class NTicketPage {
     private navCtrl: NavController,
     private modalCtrl: ModalController,
     private sanitizer: DomSanitizer,
+    private router: Router,
   ) { }
 
   ngOnInit() {
@@ -72,6 +72,18 @@ export class NTicketPage {
       if (cargado) {
         this.validarRol.rol$.subscribe(idRol => {
           console.log('ROL DETECTADO:', idRol);
+          if (idRol === 2) {
+            this.tipoDetalle = 0;
+
+          } else if (idRol === 3) {
+            this.tipoDetalle = 1;
+          }
+
+          if (this.validarRol.esUsuario()) {
+            this.accordionActivo = 'opciones';
+          } else {
+            this.accordionActivo = 'info';
+          }
           // Aquí puedes hacer lógica específica según el rol
         });
         this.idUsuario = await this.storage.get('idUsuario');
@@ -84,24 +96,81 @@ export class NTicketPage {
     });
   }
 
- public async abrirChat() {
-    console.log(this.ticket)
+  public async abrirChat() {
     const modal = await this.modalCtrl.create({
       component: ChatComponent,
       componentProps: {
         ticket: this.ticket,
         usuario: this.idUsuario,
-        tipoDetalle: 0 // Agente
+        tipoDetalle: this.tipoDetalle // Agente = 0, Usurio = 1
       }
     });
     await modal.present();
     const { data } = await modal.onDidDismiss();
 
     if (data?.confirmado) {
-      console.log(data)
-      
+      this.guardarDetalle(data);
+
     } else {
       this.showToast('Registro del mensaje cancelado.', 'warning');
+    }
+  }
+
+  private async guardarDetalle(data: any) {
+    const loading = await this.loadingController.create({
+      message: 'Guardando detalle...',
+      spinner: 'crescent',
+      backdropDismiss: false
+    });
+    await loading.present();
+
+    try {
+      const fechaActual = new Date()
+        .toLocaleString('sv-SE', { timeZone: 'America/Guayaquil' })
+        .replace('T', ' ');
+
+      const detalle = data.detalle;
+      let idAgente = null;
+      if (this.tipoDetalle !== 0) {
+        idAgente = this.ticket.idAgente;
+      }
+
+      this.ticketDetalleForm.patchValue({
+        idTicket: this.ticket.idTicket,
+        fechaDetalle: fechaActual,
+        detalle: detalle,
+        idAgente: idAgente,
+        idDepartamentoA: this.ticket.idDepartamentoA,
+        tipoDetalle: this.tipoDetalle
+      });
+
+      const value = this.ticketDetalleForm.value;
+      const formData = new FormData();
+      formData.append('idTicket', value.idTicket);
+      formData.append('idDepartamentoA', value.idDepartamentoA);
+      formData.append('idAgente', value.idAgente);
+      formData.append('detalle', value.detalle);
+      formData.append('tipoDetalle', value.tipoDetalle);
+      formData.append('fechaDetalle', value.fechaDetalle);
+
+      const respuesta = await (await this.apiService.postFormData(
+        'controllers/ticketdetalle.controller.php?op=insertar',
+        formData
+      )).toPromise();
+
+      this.showToast('Detalle guardado correctamente.', 'success');
+
+      await loading.dismiss();
+
+      // Recarga la página completa
+      location.reload();
+
+    } catch (error) {
+      console.error('Error al guardar detalle:', error);
+
+      await loading.dismiss();
+
+      this.showToast('Ocurrió un error al guardar el detalle.', 'danger');
     }
   }
 
@@ -204,7 +273,7 @@ export class NTicketPage {
   }
 
   private configurarFormularioNuevo() {
-    this.editable = true;
+    this.editable = false;
     this.ticketForm.patchValue({
       estadoTicket: this.estadoTickets.find(e => e.idEstadoTicket === 1),
       prioridad: this.prioridades.find(p => Number(p.idPrioridad) === 1),
@@ -264,14 +333,12 @@ export class NTicketPage {
         try {
           const idTicket = this.ticket.idTicket;
           const detalles: any = await (await this.apiService.get(`controllers/ticketdetalle.controller.php?op=todos&idTicket=${idTicket}`)).toPromise();
-          console.log(detalles);
           this.ticketDetalle = detalles;
           this.mensajes = this.ticketDetalle.map((mensaje: any) => ({
             ...mensaje,
             detalleSeguro: this.sanitizer.bypassSecurityTrustHtml(mensaje.detalle)
           }));
           this.mensajes.sort((a: any, b: any) => new Date(a.fechaDetalle).getTime() - new Date(b.fechaDetalle).getTime());
-          console.log(this.mensajes)
 
         } catch (err) {
           // this.agentes = [];
@@ -375,13 +442,15 @@ export class NTicketPage {
       };
 
       const formData = this.apiService.createFormData(payload);
-      console.log('formData:', formData);
-
       const response = await (await this.apiService.postData(formData, this.operation)).toPromise();
 
       this.showToast(mensaje, 'success');
-      this.ticketForm.reset();
-      this.navCtrl.navigateBack('/ticket');
+      if (this.validarRol.esUsuario()) {
+        this.ticketForm.reset();
+        this.navCtrl.navigateBack('/ticket');
+      } else {
+        location.reload();
+      }
     }
     catch (error) {
       // El error ya fue manejado con Toast en ApiService
@@ -424,9 +493,6 @@ export class NTicketPage {
       this.confirmarEscalamientoAgente(ticket, data);
     } else {
       this.showToast('Escalamiento cancelado.', 'warning');
-      // this.loadTickets();
-      // this.searchTerm = '';
-      // this.estadoSeleccionado = 'all';
     }
   }
 
@@ -449,9 +515,7 @@ export class NTicketPage {
       const data = await (await this.apiService.postFormData('controllers/ticket.controller.php?op=actualizaragente', formData)).toPromise();
       await loading.dismiss();;
       this.showToast('Ticket Escalado correctamente.', 'success');
-      // this.searchTerm = '';
-      // this.estadoSeleccionado = 'all';
-      // this.loadTickets();
+      this.router.navigate(['/ticket']);
     } catch (error) {
       this.showToast('No se pudo asignar el agente.', 'danger');
     } finally {
@@ -487,6 +551,7 @@ export class NTicketPage {
 
       const data = await (await this.apiService.postFormData('controllers/ticket.controller.php?op=cerrarReaperturarTicket', formData)).toPromise();
       await loading.dismiss();
+      this.router.navigate(['/ticket']);
       this.showToast('Ticket Cerrar correctamente.', 'success');
     } catch (error) {
       this.showToast('No se pudo Cerrar el Ticket.', 'danger');
@@ -523,6 +588,7 @@ export class NTicketPage {
 
       const data = await (await this.apiService.postFormData('controllers/ticket.controller.php?op=cerrarReaperturarTicket', formData)).toPromise();
       await loading.dismiss();
+      location.reload();
       this.showToast('Ticket Reaperturado correctamente.', 'success');
     } catch (error) {
       this.showToast('No se pudo Reaperturar el Ticket.', 'danger');
@@ -549,31 +615,6 @@ export class NTicketPage {
     const fechaActual = new Date()
       .toLocaleString('sv-SE', { timeZone: 'America/Guayaquil' })
       .replace('T', ' ');
-    // this.ticketForm.patchValue({
-    //   fechaInicioAtencion: fechaActual,
-    //   estadoTicket: this.estadoTickets.find(e => e.idEstadoTicket === '3'),
-    //   idEstadoTicket: '3'
-    // });
-
-    // const value = this.ticketForm.value;
-    // const payload = {
-    //   idTicket: value.idTicket || '',
-    //   titulo: value.titulo,
-    //   descripcion: value.descripcion,
-    //   idDepartamentoA: value.idDepartamentoA,
-    //   idAgente: value.idAgente,
-    //   idPrioridad: value.prioridad?.idPrioridad || null,
-    //   idSla: value.sla?.idSla,
-    //   idUsuario: this.idUsuario,
-    //   idfuenteContacto: '1',
-    //   idTemaAyuda: value.temaAyuda?.idTemaAyuda,
-    //   resueltoPrimerContacto: '0',
-    //   idEstadoTicket: value.idEstadoTicket,
-    //   emailUsuario: this.emailUsuario,
-    //   nombreUsuario: this.nombreCompletoUsuario,
-    //   fechaCreacion: value.fechaCreacion,
-    //   fechaInicioAtencion: value.fechaInicioAtencion
-    // };
 
     const formData = new FormData();
     formData.append('idTicket', this.ticketForm.get('idTicket')?.value);
@@ -587,9 +628,21 @@ export class NTicketPage {
   }
 
   async confirmCancelar() {
+
+    let mensaje = '';
+
+    console.log('estadooo     ' + this.estadoTicket)
+    if (this.estadoTicket === '1') {
+      mensaje = '¿Está seguro de cancelar la creación del ticket?';
+    } else
+      if (this.estadoTicket === '2' || this.estadoTicket === '4') {
+        mensaje = '¿Está seguro de regresar al listado?';
+      } else if (this.estadoTicket === '3' || this.estadoTicket === '6' || this.estadoTicket === '9') {
+        mensaje = '¿Está seguro de cancelar la atención del ticket?';
+      }
     const alert = await this.alertController.create({
-      header: 'Cancelar',
-      message: '¿Desea cancelar la creación del ticket?',
+      header: 'Regresar',
+      message: mensaje,
       buttons: [
         {
           text: 'No',

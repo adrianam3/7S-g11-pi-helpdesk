@@ -66,7 +66,6 @@ export class TicketPage implements OnInit {
         const apellidos = await this.storage.get('apellidos');
         this.nombreCompletoUsuario = `${nombres} ${apellidos}`;
         this.emailUsuario = await this.storage.get('email');
-
       }
     });
   }
@@ -81,64 +80,13 @@ export class TicketPage implements OnInit {
     const endpoint = 'controllers/estadoticket.controller.php?op=todos';
     const data = await (await this.apiService.get(endpoint)).toPromise();
     this.estadosTickets = data;
-    console.log(this.estadosTickets)
   }
 
   private async cargarDepartamentos(): Promise<void> {
     const endpoint = 'controllers/departamentoagente.controller.php?op=todos';
     const data = await (await this.apiService.get(endpoint)).toPromise();
     this.departamentoAgentes = data;
-    console.log(this.departamentoAgentes);
   }
-
-  // async loadTickets() {
-  //   this.loading = true;
-  //   try {
-  //     const data = await this.apiService.get<any[]>('controllers/ticket.controller.php?op=todos').toPromise() ?? [];
-  //     this.ticketsAll = data.map((u) => ({
-  //       idTicket: u.idTicket,
-  //       idDepartamentoA: u.idDepartamentoA,
-  //       idAgente: u.idAgente,
-  //       titulo: u.titulo,
-  //       descEstadoTicket: u.estadoTicketNombre || 'No proporcionado',
-  //       fechaCreacion: u.fechaCreacion,
-  //       fechaActualizacion: u.fechaAtualizacion,
-  //       descPersona: `${u.personaNombres} ${u.personaApellidos}`,
-  //       descPrioridad: u.prioridadNombre,
-  //       descDepartamentoA: u.departamentoANombre,
-  //       descAgente: u.agenteNombreCompleto,
-  //       resueltoPrimerContacto: u.resueltoPrimerContacto,
-  //       idEstadoTicket: u.idEstadoTicket,
-  //       idEncuesta: u.idEncuesta,
-  //     }));
-
-  //     this.filteredTickets = this.ticketsAll.filter((ticket) => ticket.descEstadoTicket !== 'Cerrado');
-  //   } catch (error) {
-  //     console.error('Error al cargar tickets', error);
-  //   } finally {
-  //     this.loading = false;
-  //   }
-  // }
-
-  // Método para filtrar tickets según el campo de búsqueda
-  //   filtrarTicketsParam(filterType: any = 'all') {
-  //   this.filteredTickets = this.ticketsAll.filter((ticket) => {
-  //     // Filtrar por búsqueda en cualquier campo del ticket
-  //     const matchesSearch = this.searchTerm
-  //       ? Object.values(ticket).some((value) =>
-  //           String(value).toLowerCase().includes(this.searchTerm.toLowerCase())
-  //         )
-  //       : true;
-
-  //     // Filtrar según el tipo de estado seleccionado
-  //     const matchesFilter =
-  //       filterType === 'all' ||
-  //       (filterType === 'closed' && ticket.descEstadoTicket === 'Cerrado') ||
-  //       (filterType === 'open' && ticket.descEstadoTicket !== 'Cerrado');
-
-  //     return matchesSearch && matchesFilter;
-  //   });
-  // }
 
   filtrarTicketsParam() {
     const termino = this.searchTerm?.toLowerCase() || '';
@@ -183,8 +131,6 @@ export class TicketPage implements OnInit {
     const idUsuario = await this.storage.get('idUsuario');
     const token = await this.storage.get('token');
 
-    console.log(`Valores obtenidos para la API - idRol: ${idRol}, idUsuario: ${idUsuario}, tooken: ${token}`);
-
     if (!idRol || !idUsuario) {
       console.error('No se encontró idRol o idUsuario, deteniendo carga de tickets.');
       this.loading = false;
@@ -193,7 +139,6 @@ export class TicketPage implements OnInit {
     try {
       const ticketsObservable = await this.apiService.getSinT<any[]>('controllers/ticket.controller.php?op=todos');
       const data = await lastValueFrom(ticketsObservable); // Convertir Observable a Promise
-      console.log('Datos de tickets obtenidos:', data);
 
       this.ticketsAll = data.map((u) => ({
         idTicket: u.idTicket,
@@ -288,7 +233,6 @@ export class TicketPage implements OnInit {
   }
 
   async asignarAgente(ticket: any) {
-    console.log(ticket)
     const modal = await this.modalCtrl.create({
       component: AsignarAgenteComponent,
       componentProps: {
@@ -302,7 +246,6 @@ export class TicketPage implements OnInit {
     const { data } = await modal.onDidDismiss();
 
     if (data?.confirmado) {
-      console.log(data)
       this.confirmarAsignarAgente(ticket, data);
     } else {
       this.showToast('Asignación cancelada.', 'warning');

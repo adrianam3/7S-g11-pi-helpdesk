@@ -45,31 +45,74 @@ switch ($_GET["op"]) {
         echo json_encode($res);
         break;
 
-    case 'insertar': //TODO: Procedimiento para insertar un registro en la base de datos
-        $idTicket = $_POST["idTicket"];
-        $idAgente = $_POST["idAgente"] ? $_POST["idAgente"] : NULL;
-        $idDepartamentoA = $_POST["idDepartamentoA"];
-        $observacion = $_POST["observacion"];
-        $detalle = $_POST["detalle"];
-        $tipoDetalle = $_POST["tipoDetalle"];
+    case 'insertar':
+        $idTicket = isset($_POST["idTicket"]) ? intval($_POST["idTicket"]) : null;
+        $idDepartamentoA = isset($_POST["idDepartamentoA"]) ? intval($_POST["idDepartamentoA"]) : null;
+        $observacion = isset($_POST["observacion"]) ? trim($_POST["observacion"]) : null;
+        $detalle = isset($_POST["detalle"]) ? trim($_POST["detalle"]) : null;
+        $tipoDetalle = isset($_POST["tipoDetalle"]) ? trim($_POST["tipoDetalle"]) : null;
+    
+        $idAgente = isset($_POST["idAgente"]) && $_POST["idAgente"] !== 'null' && $_POST["idAgente"] !== '' 
+            ? intval($_POST["idAgente"]) 
+            : null;
+    
+            error_log("recibidos: idt " . print_r($idTicket, true));
+            error_log("recibidos: iddep " . print_r($idDepartamentoA, true));
+            error_log("recibidos: ideta " . print_r($detalle, true));
+            error_log("recibidos: tipd " . print_r($tipoDetalle, true));
 
-        $datos = array();
-        $datos = $ticketDetalle->insertar($idTicket, $idAgente, $idDepartamentoA, $observacion, $detalle, $tipoDetalle);
-        echo json_encode($datos);
-        break;
-
-    case 'actualizar': //TODO: Procedimiento para actualizar un registro en la base de datos
-        $idTicketDetalle = $_POST["idTicketDetalle"];
-        $idTicket = $_POST["idTicket"];
-        $idAgente = $_POST["idAgente"] ? $_POST["idAgente"] : NULL;
-        $idDepartamentoA = $_POST["idDepartamentoA"];
-        $observacion = $_POST["observacion"];
-        $detalle = $_POST["detalle"];
-        $tipoDetalle = $_POST["tipoDetalle"];
-        $datos = array();
-        $datos = $ticketDetalle->actualizar($idTicketDetalle, $idTicket, $idAgente, $idDepartamentoA, $observacion, $detalle, $tipoDetalle);
-        echo json_encode($datos);
-        break;
+        // if (!$idTicket || !$idDepartamentoA || !$detalle || !$tipoDetalle) {
+        //     echo json_encode([
+        //         'success' => false,
+        //         'message' => 'Faltan campos obligatorios para insertar el detalle del ticket.'
+        //     ]);
+        //     break;
+        // }
+    
+        $resultado = $ticketDetalle->insertar(
+            $idTicket,
+            $idAgente,
+            $idDepartamentoA,
+            $observacion,
+            $detalle,
+            $tipoDetalle
+        );
+    
+        echo json_encode($resultado);
+    break;   
+    
+    case 'actualizar':
+        $idTicketDetalle = isset($_POST["idTicketDetalle"]) ? intval($_POST["idTicketDetalle"]) : null;
+        $idTicket = isset($_POST["idTicket"]) ? intval($_POST["idTicket"]) : null;
+        $idDepartamentoA = isset($_POST["idDepartamentoA"]) ? intval($_POST["idDepartamentoA"]) : null;
+        $observacion = isset($_POST["observacion"]) ? trim($_POST["observacion"]) : null;
+        $detalle = isset($_POST["detalle"]) ? trim($_POST["detalle"]) : null;
+        $tipoDetalle = isset($_POST["tipoDetalle"]) ? trim($_POST["tipoDetalle"]) : null;
+    
+        $idAgente = isset($_POST["idAgente"]) && $_POST["idAgente"] !== 'null' && $_POST["idAgente"] !== ''
+            ? intval($_POST["idAgente"])
+            : null;
+    
+        if (!$idTicketDetalle || !$idTicket || !$idDepartamentoA || !$detalle || !$tipoDetalle) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Faltan campos obligatorios para actualizar el detalle del ticket.'
+            ]);
+            break;
+        }
+    
+        $resultado = $ticketDetalle->actualizar(
+            $idTicketDetalle,
+            $idTicket,
+            $idAgente,
+            $idDepartamentoA,
+            $observacion,
+            $detalle,
+            $tipoDetalle
+        );
+    
+        echo json_encode($resultado);
+    break;
 
     case 'eliminar': //TODO: Procedimiento para eliminar un registro en la base de datos
         $idTicketDetalle = $_POST["idTicketDetalle"];

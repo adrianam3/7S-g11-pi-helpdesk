@@ -1,73 +1,4 @@
-// .quill-wrapper {
-//     position: relative;
-//     width: 100%;
-//     border: 1px solid #ccc;
-//     border-radius: 8px;
-//     overflow: hidden;
-//   }
-
-//   /* Mantener fija la toolbar */
-//   ::ng-deep .ql-toolbar {
-//     position: sticky;
-//     top: 0;
-//     background-color: #fff;
-//     z-index: 10;
-//     border-bottom: 1px solid #ccc;
-//   }
-
-//   /* Dar altura fija al contenido editable y activar scroll solo ahí */
-//   ::ng-deep .ql-container {
-//     height: 250px !important;
-//     overflow-y: auto !important;
-//   }
-
-//   /* Opcional: limitar ancho máximo en pantallas grandes */
-//   ::ng-deep .ql-editor {
-//     max-width: 100%;
-//     padding: 12px;
-//     box-sizing: border-box;
-//   }
-
-// .quill-wrapper {
-//     width: 700px;
-//     max-width: 200%;
-//     margin: 0 auto;
-//     padding: 0;
-//     border: 1px solid #ccc;
-//     border-radius: 8px;
-//     overflow: hidden;
-//     box-sizing: border-box;
-//     background-color: #fff;
-//   }
-
-//   .quill-wrapper ::ng-deep .ql-container {
-//     height: 180px !important;
-//     overflow-y: auto !important;
-//     overflow-x: hidden !important;
-//     padding: 10px;
-//     box-sizing: border-box;
-//     width: 100% !important;
-//   }
-
-//   .quill-wrapper ::ng-deep .ql-editor {
-//     word-wrap: break-word;
-//     white-space: pre-wrap;
-//     width: 100% !important;
-//     max-width: 100% !important;
-//     box-sizing: border-box;
-//     font-size: 15px;
-//   }
-
-//   .quill-wrapper ::ng-deep .ql-toolbar {
-//     position: sticky;
-//     top: 0;
-//     z-index: 10;
-//     background: #fff;
-//     border-bottom: 1px solid #ccc;
-//   }
-
-
-.quill-wrapper {
+quill-wrapper {
   width: 100%;
   max-width: 700px;
   /* Ancho fijo máximo */
@@ -121,7 +52,7 @@
   font-size: 14px;
 }
 
-///// 
+/////
 
 .mensaje-item {
   --background: transparent;
@@ -180,4 +111,13 @@
   height: auto;
   margin-top: 8px;
   border-radius: 6px;
+}
+
+.fab-custom {
+  position: fixed;
+  // left: 10px;
+  right: 10px;
+  top: 30%;
+  transform: translateY(-50%);
+  z-index: 9999; // Asegura que esté por encima
 }
